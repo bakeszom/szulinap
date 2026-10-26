@@ -76,11 +76,37 @@
   footer{margin-top:36px;text-align:center;font-family:var(--serif);font-style:italic;font-size:20px;color:var(--muted)}
   #confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
   @media (max-width:420px){.facts{grid-template-columns:1fr}.opt{grid-template-columns:1fr}}
+  @media (min-width:900px){
+    .wrap{max-width:760px;padding-top:80px}
+    .quote p{font-size:44px}
+    .quote cite{font-size:16px}
+    h1{font-size:86px}
+    p.lead{font-size:20px}
+    .eyebrow{font-size:14px}
+    .fact{padding:20px 24px}
+    .fact b{font-size:13px}
+    .fact span{font-size:19px}
+    .fact .sub{font-size:16px}
+    .note,.deadline{font-size:16px}
+    form{padding:34px 32px}
+    h2{font-size:44px}
+    label.l{font-size:16px}
+    .opt label{font-size:17px;min-height:58px}
+    input[type=text],textarea{font-size:17px}
+    .thanks h2{font-size:52px}
+    .thanks p{font-size:18px}
+  }
+  .thanks{margin-bottom:40px;border-color:rgba(232,162,74,.45)}
 </style>
 </head>
 <body>
 <canvas id="confetti"></canvas>
 <main class="wrap">
+  <div class="thanks hidden" id="thanks">
+    <h2 id="tTitle">Köszi!</h2>
+    <p id="tText"></p>
+    <button class="link" id="again">Módosítanám a válaszom</button>
+  </div>
   <figure class="quote">
     <p>Mindabból, amit a bölcsesség az egész élet boldogságához nyújthat, messze a legnagyobb kincs a barátság.</p>
     <cite>— Epikurosz</cite>
@@ -134,11 +160,6 @@
     <div class="err" id="err" role="alert"></div>
   </form>
 
-  <div class="thanks hidden" id="thanks">
-    <h2 id="tTitle">Köszi!</h2>
-    <p id="tText"></p>
-    <button class="link" id="again">Módosítanám a válaszom</button>
-  </div>
 
   <footer>Ádám</footer>
 </main>
@@ -148,7 +169,9 @@
   const $ = id => document.getElementById(id);
 
   // --- élő létszám (aszinkron, nem lassítja az oldalt) ---
+  let knownCount = 0;
   function showCount(n){
+    knownCount = n;
     if (n > 0) { $('counterText').textContent = 'Már ' + n + ' fő jelezte, hogy jön'; $('counter').classList.remove('hidden'); }
   }
   fetch(API_URL + '?action=count').then(r => r.json()).then(d => showCount(d.coming)).catch(() => {});
@@ -162,33 +185,58 @@
     $('comingFields').classList.toggle('hidden', r.value === 'Nem tudok jönni' && r.checked);
   }));
 
-  // --- konfetti ---
+  // --- konfetti: nagy, két hullámban, az egész képernyőn ---
   function confetti(){
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const c = $('confetti'), ctx = c.getContext('2d'), dpr = window.devicePixelRatio || 1;
-    c.width = innerWidth * dpr; c.height = innerHeight * dpr; ctx.scale(dpr, dpr);
-    const colors = ['#e8a24a','#f2c27d','#f3ece4','#d9603b','#8fcf9b','#7fb3ff'];
+    const W = innerWidth, H = innerHeight;
+    c.width = W * dpr; c.height = H * dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+    const colors = ['#e8a24a','#f2c27d','#f3ece4','#d9603b','#8fcf9b','#7fb3ff','#f07aa8'];
+    const scale = Math.min(1.6, Math.max(1, W / 600));
     const parts = [];
-    [[innerWidth*0.2, innerHeight*0.65],[innerWidth*0.8, innerHeight*0.65],[innerWidth*0.5, innerHeight*0.55]].forEach(([x,y]) => {
-      for (let i=0;i<70;i++){
-        const a = -Math.PI/2 + (Math.random()-0.5)*1.6, v = 7 + Math.random()*9;
-        parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,w:6+Math.random()*6,h:8+Math.random()*8,
-          r:Math.random()*6,vr:(Math.random()-0.5)*0.3,c:colors[(Math.random()*colors.length)|0],life:0});
+    const burst = (x, y, n, spread, vmin, vmax) => {
+      for (let i=0;i<n;i++){
+        const a = -Math.PI/2 + (Math.random()-0.5)*spread, v = (vmin + Math.random()*(vmax-vmin)) * scale;
+        parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,w:(9+Math.random()*10)*scale,h:(12+Math.random()*14)*scale,
+          r:Math.random()*6,vr:(Math.random()-0.5)*0.35,wob:Math.random()*6,c:colors[(Math.random()*colors.length)|0],
+          circle:Math.random()<0.25});
       }
-    });
-    const t0 = performance.now();
+    };
+    // 1. hullám: alulról 5 pontból felfelé
+    [0.08,0.3,0.5,0.7,0.92].forEach(fx => burst(W*fx, H+10, 90, 0.9, 14, 26));
+    // 2. hullám: oldalról befelé
+    setTimeout(() => { burst(-10, H*0.6, 90, 1.2, 12, 22); burst(W+10, H*0.6, 90, 1.2, 12, 22);
+      parts.slice(-90).forEach(p => p.vx = -Math.abs(p.vx)); parts.slice(-180,-90).forEach(p => p.vx = Math.abs(p.vx)); }, 350);
+    const t0 = performance.now(), DUR = 5200;
     (function frame(t){
-      ctx.clearRect(0,0,innerWidth,innerHeight);
-      let alive = false;
+      ctx.clearRect(0,0,W,H);
       for (const p of parts){
-        p.vy += 0.25; p.vx *= 0.99; p.vy *= 0.99; p.x += p.vx; p.y += p.vy; p.r += p.vr;
-        if (p.y < innerHeight + 20) alive = true;
+        p.vy += 0.32; p.vx *= 0.985; p.vy *= 0.985; p.wob += 0.1;
+        p.x += p.vx + Math.sin(p.wob)*0.8; p.y += p.vy; p.r += p.vr;
         ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r);
-        ctx.fillStyle = p.c; ctx.globalAlpha = Math.max(0, 1 - (t - t0)/3500);
-        ctx.fillRect(-p.w/2,-p.h/4,p.w,p.h/2); ctx.restore();
+        ctx.fillStyle = p.c; ctx.globalAlpha = Math.max(0, Math.min(1, (DUR - (t - t0)) / 900));
+        if (p.circle) { ctx.beginPath(); ctx.arc(0,0,p.w/2.2,0,Math.PI*2); ctx.fill(); }
+        else ctx.fillRect(-p.w/2,-p.h/4*Math.abs(Math.cos(p.wob)),p.w,p.h/2*Math.abs(Math.cos(p.wob))+1);
+        ctx.restore();
       }
-      if (alive && t - t0 < 3500) requestAnimationFrame(frame); else ctx.clearRect(0,0,innerWidth,innerHeight);
+      if (t - t0 < DUR) requestAnimationFrame(frame); else ctx.clearRect(0,0,W,H);
     })(t0);
+  }
+
+  // --- köszönő kártya (azonnal megjelenik felül, nem várja meg a szervert) ---
+  function showThanks(data, coming){
+    $('f').classList.add('hidden'); $('thanks').classList.remove('hidden');
+    if (data.status === 'Jövök') {
+      $('tTitle').textContent = 'Szuper, várlak!';
+      $('tText').textContent = 'November 7., szombat, 19:00, Pacsi (Mester utca, alsó szint).' + (coming > 0 ? ' Már ' + coming + ' fő jön.' : '');
+    } else if (data.status === 'Talán') {
+      $('tTitle').textContent = 'Köszi, hogy szóltál!';
+      $('tText').textContent = 'Remélem, összejön. Ha eldől, nyisd meg újra ezt a linket, és módosítsd a válaszod.';
+    } else {
+      $('tTitle').textContent = 'Kár, de köszi, hogy jeleztél!';
+      $('tText').textContent = 'Ha mégis alakul, nyisd meg újra ezt a linket. Mindig van hely.';
+    }
+    window.scrollTo({top:0,behavior:'smooth'});
   }
 
   // --- beküldés ---
@@ -200,36 +248,25 @@
     if (!st) { $('err').textContent = 'Jelöld be, hogy jössz-e.'; return; }
     if (!name) { $('err').textContent = 'Írd be a neved, hogy tudjam, ki vagy. :)'; $('name').focus(); return; }
     const data = { status: st.value, name, count, withWhom: $('with').value, message: $('msg').value };
-    if (data.status === 'Jövök') confetti();   // azonnal durran, nem várja meg a mentést
-    $('btn').disabled = true; $('btn').textContent = 'Küldés…';
 
-    fetch(API_URL, { method: 'POST', body: JSON.stringify(data) })
+    const optimistic = knownCount + (data.status === 'Jövök' ? count : 0);
+    showThanks(data, optimistic);
+    if (data.status === 'Jövök') { confetti(); showCount(optimistic); }
+
+    // mentés a háttérben; keepalive: akkor is elmegy, ha közben bezárja az oldalt
+    fetch(API_URL, { method: 'POST', body: JSON.stringify(data), keepalive: true })
       .then(r => r.json())
-      .then(res => {
-        if (!res.ok) throw new Error(res.error);
-        $('f').classList.add('hidden'); $('thanks').classList.remove('hidden');
-        if (data.status === 'Jövök') {
-          $('tTitle').textContent = 'Szuper, várlak!';
-          $('tText').textContent = 'November 7., szombat, 19:00, Pacsi (Mester utca, alsó szint). Már ' + res.coming + ' fő jön.';
-        } else if (data.status === 'Talán') {
-          $('tTitle').textContent = 'Köszi, hogy szóltál!';
-          $('tText').textContent = 'Remélem, összejön. Ha eldől, nyisd meg újra ezt a linket, és módosítsd a válaszod.';
-        } else {
-          $('tTitle').textContent = 'Kár, de köszi, hogy jeleztél!';
-          $('tText').textContent = 'Ha mégis alakul, nyisd meg újra ezt a linket. Mindig van hely.';
-        }
-        showCount(res.coming);
-        window.scrollTo({top:0,behavior:'smooth'});
-      })
+      .then(res => { if (!res.ok) throw new Error(res.error); })
       .catch(() => {
-        $('err').textContent = 'Valami nem sikerült, próbáld újra pár másodperc múlva.';
-        $('btn').disabled = false; $('btn').textContent = 'Küldés';
+        $('thanks').classList.add('hidden'); $('f').classList.remove('hidden');
+        $('err').textContent = 'Hoppá, a válaszod nem ment át. Nyomd meg újra a Küldést!';
+        $('btn').scrollIntoView({behavior:'smooth', block:'center'});
       });
   });
 
   $('again').onclick = () => {
     $('thanks').classList.add('hidden'); $('f').classList.remove('hidden');
-    $('btn').disabled = false; $('btn').textContent = 'Küldés';
+    $('f').scrollIntoView({behavior:'smooth'});
   };
 </script>
 </body>
