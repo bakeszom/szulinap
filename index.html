@@ -78,6 +78,17 @@
   .link{background:none;border:0;color:var(--accent-2);font:inherit;text-decoration:underline;cursor:pointer}
   footer{margin-top:36px;text-align:center;font-family:var(--serif);font-style:italic;font-size:20px;color:var(--muted)}
   #confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+  /* --- háttérvideó --- */
+  .bgvid{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:var(--bg) center/cover no-repeat}
+  .bgvid video{width:100%;height:100%;object-fit:cover;display:block}
+  .veil{position:fixed;inset:0;z-index:1;pointer-events:none;background:rgba(20,17,15,.42)}
+  @media (min-aspect-ratio:1/1){
+    .veil{background:linear-gradient(90deg,rgba(20,17,15,.15) 0,rgba(20,17,15,.15) calc(50% - 520px),rgba(20,17,15,.9) calc(50% - 400px),rgba(20,17,15,.9) calc(50% + 400px),rgba(20,17,15,.15) calc(50% + 520px),rgba(20,17,15,.15) 100%)}
+  }
+  .wrap{position:relative;z-index:2}
+  .quote p,h1,p.lead,.eyebrow,.note,.quote cite{text-shadow:0 1px 14px rgba(0,0,0,.85),0 0 2px rgba(0,0,0,.6)}
+  #confetti{z-index:50}
+
   @media (max-width:420px){.facts{grid-template-columns:1fr}}
   @media (min-width:900px){
     .wrap{max-width:760px;padding-top:80px}
@@ -105,6 +116,8 @@
 </head>
 <body>
 <canvas id="confetti"></canvas>
+<div class="bgvid" id="bgvid"><video id="bgv" muted loop playsinline autoplay preload="auto" aria-hidden="true"></video></div>
+<div class="veil"></div>
 <main class="wrap">
   <div class="thanks hidden" id="thanks">
     <h2 id="tTitle">Köszi!</h2>
@@ -171,6 +184,22 @@
 <script>
   const API_URL = 'https://script.google.com/macros/s/AKfycbwRC8TunESpFWwx-6JDWHLZw5CsbK_YGNzeO_7MYAKdbLyte7WAA-cl0AyCIjE66kBA/exec';
   const $ = id => document.getElementById(id);
+
+  // --- háttérvideó: álló képernyőn a mobilos, fekvőn a gépes változat ---
+  (function(){
+    const v = $('bgv'), box = $('bgvid');
+    const pick = () => matchMedia('(min-aspect-ratio: 1/1)').matches ? 'bg-desktop' : 'bg-mobil';
+    let cur = '';
+    const load = () => {
+      const n = pick(); if (n === cur) return; cur = n;
+      box.style.backgroundImage = 'url(' + n + '.jpg)';
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) { v.remove(); return; }
+      v.poster = n + '.jpg'; v.src = n + '.mp4';
+      const p = v.play(); if (p) p.catch(() => {});
+    };
+    load();
+    matchMedia('(min-aspect-ratio: 1/1)').addEventListener('change', load);
+  })();
 
   // --- élő létszám (aszinkron, nem lassítja az oldalt) ---
   let knownCount = 0;
