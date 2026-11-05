@@ -1,11 +1,11 @@
-<title>Ádám Esküvő-futás</title>
+<title>Ádám Szülinapi Kijelző</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Figtree:wght@500;700;900&display=swap">
 
 <!--
-  ÁDÁM ESKÜVŐ-FUTÁS — kijelzős progress bar
+  ÁDÁM SZÜLINAPI KIJELZŐ — gyűjtés + side quest ranglista
   ------------------------------------------------------------------
   Dávidnak — így lehet adatot adni neki (bármelyik működik):
 
@@ -20,7 +20,7 @@
 
   3) JSON-feed lekérdezés (?feed=URL, 3 mp-enként):
        progress.html?feed=https://…/allas.json
-     A JSON: { "total": 47500, "nickname": "Kapitány",
+     A JSON: { "total": 47500, "count": 12, "max": 10000, "nickname": "Kapitány",
                "last": { "id": "tx-123", "amount": 3000, "name": "Peti", "item": "Becenév" } }
 
   Éles módban (?live vagy ?feed=…) eltűnnek a demó gombok. "D" billentyű: demó gombok ki/be.
@@ -28,7 +28,7 @@
 -->
 
 <style>
-/* Layout: felül képregény-panelek (állás · következő mérföldkő · bolt), alul a kanyargó borbélyrúd-pálya, amin a nagyfejű Ádám fut. */
+/* Layout: felül három oszlop (ranglista · gyűjtés + metrikák · mérföldkő-lista), alul a kanyargó borbélyrúd-pálya, amin a nagyfejű Ádám fut. */
 :root {
   --night: #15111d;
   --night-dot: #2a2238;
@@ -64,7 +64,7 @@ body {
 /* ---------- felső panelek ---------- */
 .hud {
   display: grid;
-  grid-template-columns: 1.05fr 1.2fr 1fr 1fr;
+  grid-template-columns: 1fr 1.35fr 1.15fr;
   gap: 18px;
   align-items: start;
 }
@@ -92,30 +92,38 @@ h1 {
   text-shadow: 4px 4px 0 var(--ink);
   text-wrap: balance;
 }
-.title-wrap { display: grid; gap: 10px; }
+.center { display: grid; gap: 12px; min-width: 0; }
+.raised {
+  font: 400 clamp(26px, 2.4vw, 40px)/1 var(--font-display); letter-spacing: .03em;
+  color: var(--lemon); -webkit-text-stroke: 1.5px var(--ink); text-shadow: 3px 3px 0 var(--ink);
+}
 .total {
-  display: inline-flex; align-items: baseline; gap: 8px;
+  display: inline-flex; align-items: baseline; gap: 10px;
   background: var(--lime); color: var(--ink);
-  border: 4px solid var(--ink); box-shadow: 6px 6px 0 var(--ink);
-  padding: 4px 16px 2px; border-radius: 6px; width: fit-content;
+  border: 5px solid var(--ink); box-shadow: 8px 8px 0 var(--ink);
+  padding: 6px 20px 2px; border-radius: 6px; width: fit-content;
   transform: rotate(-1.5deg);
 }
-.total b { font: 400 clamp(38px, 4.4vw, 72px)/1 var(--font-display); letter-spacing: .02em; font-variant-numeric: tabular-nums; }
-.total span { font: 400 clamp(20px, 2vw, 32px)/1 var(--font-display); }
+.total b { font: 400 clamp(52px, 6vw, 104px)/1 var(--font-display); letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+.total span { font: 400 clamp(24px, 2.4vw, 42px)/1 var(--font-display); }
+.metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.metric { background: var(--paper); color: var(--ink); border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); border-radius: 4px; padding: 6px 10px 5px; min-width: 0; }
+.metric .k { font: 700 10.5px/1.1 var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.metric .v { font: 400 clamp(22px, 2vw, 32px)/1.05 var(--font-display); letter-spacing: .03em; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.metric.clock { background: var(--lemon); }
 .total.bump { animation: bump .5s cubic-bezier(.3,1.8,.5,1); }
 @keyframes bump { 0% { transform: rotate(-1.5deg) scale(1); } 40% { transform: rotate(2deg) scale(1.12); } 100% { transform: rotate(-1.5deg) scale(1); } }
-.goal-line { font-size: 15px; color: var(--paper); opacity: .85; }
-.goal-line b { color: var(--lemon); }
 .nick { font: 700 15px/1.2 var(--font-body); color: var(--paper); }
 .nick q { font: 400 24px/1 var(--font-display); color: var(--lime); letter-spacing: .04em; quotes: "„" "”"; }
 
+.next { padding: 10px 16px 12px; }
 .next h2 {
-  margin: 6px 0 4px;
-  font: 400 clamp(26px, 2.6vw, 40px)/1 var(--font-display);
+  margin: 4px 0 2px;
+  font: 400 clamp(24px, 2.2vw, 34px)/1 var(--font-display);
   letter-spacing: .03em;
   text-wrap: balance;
 }
-.next .task { font: 700 clamp(15px, 1.25vw, 19px)/1.3 var(--font-body); margin: 0 0 10px; max-width: 46ch; }
+.next .task { font: 700 clamp(14px, 1.15vw, 18px)/1.3 var(--font-body); margin: 0 0 8px; max-width: 46ch; }
 .next .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .chip {
   font: 400 20px/1 var(--font-display); letter-spacing: .04em;
@@ -126,13 +134,21 @@ h1 {
 .chip.trophy { background: var(--lime); }
 .chip.left { background: transparent; }
 
-.shop h3 { margin: 4px 0 8px; font: 400 26px/1 var(--font-display); letter-spacing: .04em; }
-.shop ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; }
-.shop li { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: baseline; font-size: 14.5px; line-height: 1.25; }
-.shop li b {
-  font: 400 18px/1 var(--font-display); letter-spacing: .03em; font-variant-numeric: tabular-nums;
-  background: var(--ink); color: var(--lemon); padding: 3px 6px 1px; border-radius: 3px; min-width: 64px; text-align: right;
+.miles h3 { margin: 4px 0 8px; font: 400 26px/1 var(--font-display); letter-spacing: .04em; }
+.miles ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+.miles li { display: grid; grid-template-columns: 74px 1fr; gap: 9px; align-items: baseline; font-size: 13px; line-height: 1.2; padding: 2px 4px; border-radius: 3px; }
+.miles li b {
+  font: 400 16px/1 var(--font-display); letter-spacing: .03em; font-variant-numeric: tabular-nums;
+  background: var(--ink); color: var(--lemon); padding: 3px 6px 1px; border-radius: 3px; text-align: right;
 }
+.miles li .nm { font-weight: 900; }
+.miles li .tx { color: #3d3846; }
+.miles li.task .nm::before { content: "!"; display: inline-block; width: 15px; height: 15px; margin-right: 5px; border-radius: 50%; background: var(--pop); color: var(--paper); border: 2px solid var(--ink); font: 400 11px/12px var(--font-display); text-align: center; vertical-align: 1px; }
+.miles li.done { opacity: .45; }
+.miles li.done .nm { text-decoration: line-through; text-decoration-thickness: 2px; }
+.miles li.done b { background: var(--lime); color: var(--ink); }
+.miles li.next { background: var(--lemon); outline: 3px solid var(--ink); opacity: 1; }
+.miles li.next b { background: var(--pop); color: var(--paper); }
 
 /* ---------- ranglista ---------- */
 .board { background: var(--ink); color: var(--paper); border-color: var(--ink); box-shadow: 7px 7px 0 var(--lime); outline: 3px solid var(--paper); outline-offset: -7px; }
@@ -140,6 +156,9 @@ h1 {
 .board h3 { margin: 4px 0 8px; font: 400 26px/1 var(--font-display); letter-spacing: .04em; color: var(--lemon); }
 .board ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .board li { display: grid; grid-template-columns: 30px 1fr auto; gap: 8px; align-items: center; font: 700 15px/1.2 var(--font-body); }
+.board li:first-child { grid-template-columns: 44px 1fr auto; font-size: 22px; padding: 4px 0 6px; border-bottom: 2px dashed rgba(255,251,232,.25); margin-bottom: 2px; }
+.board li:first-child .pos { font-size: 30px; }
+.board li:first-child .pt { font-size: 32px; color: var(--lemon); }
 .board li .pos { font: 400 20px/1 var(--font-display); text-align: center; border: 2px solid var(--paper); border-radius: 3px; padding: 3px 0 1px; }
 .board li:nth-child(1) .pos { background: var(--lemon); color: var(--ink); border-color: var(--lemon); }
 .board li:nth-child(2) .pos { background: var(--paper); color: var(--ink); }
@@ -204,10 +223,12 @@ h1 {
 @media (max-width: 1300px) {
   body { overflow: auto; }
   .hud { grid-template-columns: 1fr 1fr; }
+  .center { grid-column: 1 / -1; order: -1; }
   .scene { min-height: 360px; }
 }
 @media (max-width: 700px) {
   .hud { grid-template-columns: 1fr; }
+  .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .scene { min-height: 280px; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -216,35 +237,39 @@ h1 {
 </style>
 
 <section class="hud" aria-label="Állás">
-  <div class="title-wrap">
-    <h1>Ádám fut az esküvőért</h1>
-    <div class="total" id="total" aria-live="polite"><b id="totalNum">0</b><span>Ft</span></div>
-    <div class="goal-line" id="goalLine"></div>
-    <div class="nick" id="nick" hidden>Ma este a neve: <q id="nickName"></q></div>
-  </div>
-
-  <div class="panel next" id="next">
-    <div class="kicker">Következő mérföldkő</div>
-    <h2 id="nextName">—</h2>
-    <p class="task" id="nextTask"></p>
-    <div class="row">
-      <span class="chip" id="nextAmt"></span>
-      <span class="chip task" id="nextKind"></span>
-      <span class="chip left" id="nextLeft"></span>
-    </div>
-  </div>
-
-  <div class="panel shop">
-    <div class="kicker">A terminálnál megveheted</div>
-    <h3>Ádám-bolt</h3>
-    <ul id="shop"></ul>
-  </div>
-
   <div class="panel board" aria-live="polite">
     <div class="kicker">Side questek</div>
     <h3>Ranglista</h3>
     <ol id="board"></ol>
     <div class="note" id="boardNote"></div>
+  </div>
+
+  <div class="center">
+    <div class="raised">Eddig Ádámnak gyűjtött:</div>
+    <div class="total" id="total" aria-live="polite"><b id="totalNum">0</b><span>Ft</span></div>
+    <div class="metrics">
+      <div class="metric clock"><div class="k">Idő</div><div class="v" id="mClock">--:--</div></div>
+      <div class="metric"><div class="k">Befizetés</div><div class="v" id="mCount">0</div></div>
+      <div class="metric"><div class="k">Legnagyobb</div><div class="v" id="mMax">–</div></div>
+      <div class="metric"><div class="k">Kész side quest</div><div class="v" id="mQuests">–</div></div>
+    </div>
+    <div class="panel next" id="next">
+      <div class="kicker">Következő mérföldkő</div>
+      <h2 id="nextName">—</h2>
+      <p class="task" id="nextTask"></p>
+      <div class="row">
+        <span class="chip" id="nextAmt"></span>
+        <span class="chip task" id="nextKind"></span>
+        <span class="chip left" id="nextLeft"></span>
+      </div>
+    </div>
+    <div class="nick" id="nick" hidden>Ma este a neve: <q id="nickName"></q></div>
+  </div>
+
+  <div class="panel miles">
+    <div class="kicker">Mi történik, ha összejön</div>
+    <h3>Mérföldkövek</h3>
+    <ol id="miles"></ol>
   </div>
 </section>
 
@@ -282,32 +307,23 @@ h1 {
 // kind: "task" = Ádámnak teljesítenie kell · "trophy" = csak poén-mérföldkő
 const MILESTONES = [
   { a: 0,       n: "Rajt",              t: "Elindult a futás. Minden forint előre lök." },
-  { a: 5000,    n: "Insta-poszt",       t: "Ádám most azonnal kiposztolja a bulit Instára.", kind: "task" },
-  { a: 10000,   n: "Húzóra",            t: "Ádám lehúz egy korsó sört, mindenki szurkol.", kind: "task" },
-  { a: 15000,   n: "Parkett-bajnok",    t: "Ti választotok számot, Ádám végigtáncolja a parkett közepén.", kind: "task" },
-  { a: 20000,   n: "Vízhiány",          t: "Három feles, víz helyett. Egymás után.", kind: "task" },
-  { a: 25000,   n: "Side quest csere",  t: "Ti választotok egy side questet, Ádám teljesíti.", kind: "task" },
-  { a: 30000,   n: "GTA 6",             t: "Ennyibe kerül a GTA 6. De ez most az esküvőre megy.", kind: "trophy" },
-  { a: 40000,   n: "Élő adás",          t: "10 perces Instagram live: Ádám elmeséli, mi folyik itt.", kind: "task" },
-  { a: 50000,   n: "Parkett-poéta",     t: "Ádám elszaval egy verset a táncparkett közepén.", kind: "task" },
-  { a: 60000,   n: "Szkander-király",   t: "Ádám kiáll mindenki ellen. Aki legyőzi, kap tőle egy felest.", kind: "task" },
-  { a: 75000,   n: "Nagy finálé",       t: "Ti választotok dalt, Ádám karaokézik a parkett közepén.", kind: "task" },
-  { a: 100000,  n: "Hat számjegy",      t: "Egy hétig a vendégek választják Ádám Insta-profilképét.", kind: "task" },
-  { a: 150000,  n: "Bio-csere",         t: "Egy hónapig ti írjátok Ádám Insta-bióját.", kind: "task" },
-  { a: 200000,  n: "PS5",               t: "Ennyiből már PS5 lenne. Nem lesz. Esküvő lesz.", kind: "trophy" },
-  { a: 500000,  n: "Lagzi-zenekar",     t: "A zenekar ki van fizetve. Ti húzzátok majd a talpalávalót.", kind: "trophy" },
-  { a: 1000000, n: "Milliomos",         t: "Egymillió. Itt mindenki meghívót kap az esküvőre.", kind: "trophy" }
+  { a: 5000,    n: "Insta-poszt", short: "azonnal kiposztolja a bulit",       t: "Ádám most azonnal kiposztolja a bulit Instára.", kind: "task" },
+  { a: 10000,   n: "Húzóra", short: "lehúz egy korsó sört",            t: "Ádám lehúz egy korsó sört, mindenki szurkol.", kind: "task" },
+  { a: 15000,   n: "Parkett-bajnok", short: "ti választotok számot, végigtáncolja",    t: "Ti választotok számot, Ádám végigtáncolja a parkett közepén.", kind: "task" },
+  { a: 20000,   n: "Vízhiány", short: "3 feles víz helyett, egymás után",          t: "Három feles, víz helyett. Egymás után.", kind: "task" },
+  { a: 25000,   n: "Side quest csere", short: "ti választotok questet, ő teljesíti",  t: "Ti választotok egy side questet, Ádám teljesíti.", kind: "task" },
+  { a: 30000,   n: "GTA 6", short: "ennyiből már GTA 6 lenne",             t: "Ennyibe kerül a GTA 6. De ez most az esküvőre megy.", kind: "trophy" },
+  { a: 40000,   n: "Élő adás", short: "10 perces Insta live a buliról",          t: "10 perces Instagram live: Ádám elmeséli, mi folyik itt.", kind: "task" },
+  { a: 50000,   n: "Parkett-poéta", short: "verset szaval a parkett közepén",     t: "Ádám elszaval egy verset a táncparkett közepén.", kind: "task" },
+  { a: 60000,   n: "Szkander-király", short: "aki legyőzi, kap tőle egy felest",   t: "Ádám kiáll mindenki ellen. Aki legyőzi, kap tőle egy felest.", kind: "task" },
+  { a: 75000,   n: "Nagy finálé", short: "karaoke a parkett közepén",       t: "Ti választotok dalt, Ádám karaokézik a parkett közepén.", kind: "task" },
+  { a: 100000,  n: "Hat számjegy", short: "ti választjátok a profilképét 1 hétre",      t: "Egy hétig a vendégek választják Ádám Insta-profilképét.", kind: "task" },
+  { a: 150000,  n: "Bio-csere", short: "ti írjátok az Insta-bióját 1 hónapig",         t: "Egy hónapig ti írjátok Ádám Insta-bióját.", kind: "task" },
+  { a: 200000,  n: "PS5", short: "ennyiből már PS5 lenne",               t: "Ennyiből már PS5 lenne. Nem lesz. Esküvő lesz.", kind: "trophy" },
+  { a: 500000,  n: "Lagzi-zenekar", short: "ennyiből megvan a lagzi zenekara",     t: "A zenekar ki van fizetve. Ti húzzátok majd a talpalávalót.", kind: "trophy" },
+  { a: 1000000, n: "Milliomos", short: "mindenki meghívót kap az esküvőre",         t: "Egymillió. Itt mindenki meghívót kap az esküvőre.", kind: "trophy" }
 ];
 
-const SHOP = [
-  { p: 1000,  t: "Koccintás + közös kép a szelfigépben" },
-  { p: 2000,  t: "Te választod Ádám következő italát" },
-  { p: 3000,  t: "Becenevet adsz Ádámnak az estére" },
-  { p: 5000,  t: "Ádám elénekel neked egy refrént" },
-  { p: 5000,  t: "Ádám teljesíti helyetted a side questedet" },
-  { p: 10000, t: "Te írod Ádám következő Insta-storyját" },
-  { p: 15000, t: "Egy órán át a te kiegészítődet hordja" }
-];
 
 // Ranglista: ugyanaz a Supabase, mint a buliappban (app/index.html)
 const SUPABASE_URL = "https://nrxalvrmupcgorkzobru.supabase.co";
@@ -448,7 +464,7 @@ function say(text, ms = 3500) {
 }
 
 /* ================== állapot ================== */
-const S = { total: 0, shown: 0, pos: 0, target: 0, nick: "", seen: new Set(), queue: [], popOpen: false };
+const S = { count: 0, max: 0, total: 0, shown: 0, pos: 0, target: 0, nick: "", seen: new Set(), queue: [], popOpen: false };
 function store(k, v) { try { localStorage.setItem("adamfut:" + k, JSON.stringify(v)); } catch (e) {} }
 function load(k, d) { try { const v = localStorage.getItem("adamfut:" + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }
 
@@ -471,8 +487,14 @@ function renderHud() {
     $("nextTask").textContent = "Egymillió felett. Ez már legenda.";
     $("nextAmt").textContent = fmt(S.total) + " Ft"; $("nextKind").hidden = true; $("nextLeft").textContent = "";
   }
-  const done = MILESTONES.filter(m => m.a > 0 && m.a <= S.total).length;
-  $("goalLine").innerHTML = `<b>${done}</b> mérföldkő teljesítve a ${N - 1}-ból · minden forint az esküvőre megy`;
+  const nx = nextIndex(S.total);
+  [...$("miles").children].forEach((li, j) => {
+    const idx = j + 1;
+    li.classList.toggle("done", MILESTONES[idx].a <= S.total);
+    li.classList.toggle("next", idx === nx);
+  });
+  $("mCount").textContent = fmt(S.count);
+  $("mMax").textContent = S.max ? fmt(S.max) : "–";
   signEls.forEach((s, j) => {
     const ok = MILESTONES[j].a <= S.total;
     s.rect.setAttribute("fill", ok ? "#c6f432" : "#fff04a");
@@ -516,12 +538,15 @@ function setTotal(n, opts = {}) {
   S.total = n;
   S.target = amountToFrac(n);
   if (opts.nickname) S.nick = String(opts.nickname).slice(0, 28);
+  if (typeof opts.count === "number") S.count = opts.count;
+  if (typeof opts.max === "number") S.max = opts.max;
   if (n > prev && !opts.silent) {
     bumpTotal();
     const diff = n - prev;
+    if (opts.count === undefined) { S.count++; S.max = Math.max(S.max, diff); }
     say("+" + fmt(diff) + " Ft" + (opts.name ? " · " + opts.name : ""));
   }
-  store("total", S.total); store("nick", S.nick);
+  store("total", S.total); store("nick", S.nick); store("count", S.count); store("max", S.max);
   renderHud();
   checkMilestones(!opts.silent);
 }
@@ -552,7 +577,7 @@ async function poll() {
     const tx = j.last && (j.last.id || (j.last.amount + "|" + j.last.name));
     if (typeof j.total === "number" && j.total !== S.total) {
       const isNew = tx && tx !== lastTx;
-      setTotal(j.total, isNew ? { name: j.last.name } : {});
+      setTotal(j.total, Object.assign(isNew ? { name: j.last.name } : {}, typeof j.count === "number" ? { count: j.count, max: j.max } : {}));
     }
     lastTx = tx || lastTx;
   } catch (e) { console.warn("feed:", e); }
@@ -646,11 +671,14 @@ function frame(now) {
 }
 
 /* ================== indulás ================== */
-$("shop").innerHTML = SHOP.map(s => `<li><b>${fmt(s.p)}</b><span></span></li>`).join("");
-[...$("shop").querySelectorAll("span")].forEach((sp, i) => sp.textContent = SHOP[i].t);
+// mérföldkő-lista
+$("miles").innerHTML = MILESTONES.slice(1).map(m => `<li class="${m.kind || ""}"><b>${m.a >= 1000000 ? "1 M" : fmt(m.a)}</b><span><span class="nm"></span> <span class="tx"></span></span></li>`).join("");
+[...$("miles").children].forEach((li, i) => { const m = MILESTONES[i + 1]; li.querySelector(".nm").textContent = m.n; li.querySelector(".tx").textContent = m.short || m.t; });
 
 S.seen = new Set(load("seen", []));
 S.nick = load("nick", "");
+S.count = load("count", LIVE ? 0 : 9);
+S.max = load("max", LIVE ? 0 : 5000);
 const startTotal = load("total", LIVE ? 0 : 23500);
 S.total = startTotal; S.shown = startTotal; S.target = S.pos = amountToFrac(startTotal); shownPos = S.pos;
 $("totalNum").textContent = fmt(startTotal);
@@ -659,6 +687,17 @@ renderHud();
 requestAnimationFrame(frame);
 if (FEED) poll();
 pollBoard();
+function tickClock() { const d = new Date(); $("mClock").textContent = d.toLocaleTimeString("hu-HU", { hour: "2-digit", minute: "2-digit" }); }
+tickClock(); setInterval(tickClock, 5000);
+async function pollQuests() {
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/completions?select=id`, { method: "HEAD", headers: { apikey: SUPABASE_KEY, Authorization: "Bearer " + SUPABASE_KEY, Prefer: "count=exact" }, cache: "no-store" });
+    const cr = r.headers.get("content-range"); const n = cr && cr.split("/")[1];
+    if (r.ok && n && n !== "*") $("mQuests").textContent = fmt(Number(n));
+  } catch (e) { if (!LIVE) $("mQuests").textContent = "47"; }
+  setTimeout(pollQuests, 10000);
+}
+pollQuests();
 
 // demó
 const demo = $("demo");
@@ -668,7 +707,7 @@ demo.addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   if (b.dataset.add) progress.add(Number(b.dataset.add), { name: ["Peti", "Zsófi", "Bence", "Lili", "Márk"][Math.floor(Math.random() * 5)] });
   if (b.dataset.nick) progress.setNickname(DEMO_NICKS[nickI++ % DEMO_NICKS.length]);
-  if (b.dataset.reset) { S.seen.clear(); S.queue = []; S.nick = ""; setTotal(0, { silent: true }); }
+  if (b.dataset.reset) { S.seen.clear(); S.queue = []; S.nick = ""; S.count = 0; S.max = 0; setTotal(0, { silent: true }); }
 });
 document.addEventListener("keydown", e => { if (e.key === "d" || e.key === "D") demo.hidden = !demo.hidden; });
 </script>
