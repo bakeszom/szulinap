@@ -1,0 +1,21 @@
+# Naponta kétszer megpingeli a Supabase-t, hogy az ingyenes projekt ne álljon le inaktivitás miatt.
+name: Supabase ébren tartás
+
+on:
+  schedule:
+    - cron: "17 5,17 * * *"   # 06:17 és 18:17 (UTC+1)
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping
+        run: |
+          for t in players completions scores; do
+            code=$(curl -sS -o /dev/null -w "%{http_code}" \
+              "https://nrxalvrmupcgorkzobru.supabase.co/rest/v1/$t?select=*&limit=1" \
+              -H "apikey: sb_publishable_8LW2yc9cSgSqFTMn0qim3w_w0iurlcI")
+            echo "$t: $code"
+            [ "$code" = "200" ] || exit 1
+          done
