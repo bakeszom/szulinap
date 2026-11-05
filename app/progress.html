@@ -180,7 +180,20 @@ body {
 @keyframes plus { 0% { transform: translateY(10px) scale(.4); opacity: 0; } 20% { transform: translateY(0) scale(1.15); opacity: 1; } 70% { opacity: 1; } 100% { transform: translateY(-26px) scale(1); opacity: 0; } }
 .metric.hit { animation: hit .7s cubic-bezier(.3,1.8,.5,1); }
 @keyframes hit { 40% { transform: scale(1.16) rotate(-3deg); } }
-.next { padding: 10px 16px 12px; animation-delay: -4s; }
+.next { padding: 10px 16px 12px; animation-delay: -4s; min-width: 0; }
+/* következő mérföldkő + Ádám kora rubrika egymás mellett */
+.nextrow { display: grid; grid-template-columns: minmax(0, 1fr) 196px; gap: 20px; align-items: stretch; padding-right: 14px; }
+.agebox { position: relative; display: grid; align-content: center; gap: 6px; color: var(--ink); background-color: var(--lemon);
+  background-image: radial-gradient(rgba(15,13,10,.12) 1.6px, transparent 1.8px); background-size: 9px 9px;
+  border: 4px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); border-radius: 6px; padding: 10px 12px 9px; --r: 1.5deg; animation: tilt 5s ease-in-out infinite alternate; animation-delay: -2s; }
+.agebox .k { font: 800 10.5px/1.1 var(--font-body); letter-spacing: .1em; text-transform: uppercase; opacity: .75; }
+.agebox .ln { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 6px; border-top: 3px solid var(--ink); padding-top: 5px; }
+.agebox .ln span { font: 800 13px/1.1 var(--font-body); }
+.agebox .ln b { font: 400 40px/.9 var(--font-display); letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+.agebox .ln.up b { color: var(--pop); -webkit-text-stroke: 1.5px var(--ink); paint-order: stroke fill; }
+.agebox .ln.all { border-top-style: dashed; }
+.agebox .ln.all b { font-size: 28px; }
+.agebox.hit { animation: hit .7s cubic-bezier(.3,1.8,.5,1); }
 .next h2 { margin: 4px 0 2px; font: 400 34px/1 var(--font-display); letter-spacing: .03em; }
 .next .task { font: 700 17px/1.3 var(--font-body); margin: 0 0 8px; }
 .next .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
@@ -304,6 +317,7 @@ body {
             <span class="ic"><svg viewBox="0 0 26 26" aria-hidden="true"><path d="m13 2.5 3.2 6.6 7.2 1-5.2 5 1.3 7.2L13 18.9l-6.5 3.4 1.3-7.2-5.2-5 7.2-1z" fill="#c6f432" stroke="#c6f432" stroke-width="1" stroke-linejoin="round"/></svg></span>
             <div class="k">Kész quest</div><div class="v" id="mQuests">–</div></div>
         </div>
+        <div class="nextrow">
         <div class="panel next" id="next">
           <div class="kicker">Következő mérföldkő</div>
           <h2 id="nextName">—</h2>
@@ -313,6 +327,13 @@ body {
             <span class="chip task" id="nextKind"></span>
             <span class="chip left" id="nextLeft"></span>
           </div>
+        </div>
+        <div class="agebox" id="agebox" aria-live="polite">
+          <div class="k">Hány éves Ádám? Tippek:</div>
+          <div class="ln up"><span>Idősebbnek gondolja</span><b id="ageOlder">–</b></div>
+          <div class="ln"><span>Fiatalabbnak gondolja</span><b id="ageYounger">–</b></div>
+          <div class="ln all"><span>Mindent tud Ádámról</span><b id="adamAll">–</b></div>
+        </div>
         </div>
         <div class="nick" id="nick" hidden>Ma este a neve: <q id="nickName"></q></div>
       </div>
@@ -406,6 +427,8 @@ const TICKER_FILLER = [
 const SUPABASE_URL = "https://nrxalvrmupcgorkzobru.supabase.co";
 const SUPABASE_KEY = "sb_publishable_8LW2yc9cSgSqFTMn0qim3w_w0iurlcI";
 const BOARD_SIZE = 8;
+// Ádám valódi kora (a buliapp kvízpiramisának első kérdése). Ehhez képest számoljuk az idősebb/fiatalabb tippeket.
+const ADAM_AGE = 29;
 
 const DEMO_NICKS = ["Kapitány", "Vőlegény Úr", "Szkanderkirály", "A Futó", "Big Head Ádám"];
 const DEMO_NAMES = ["Peti", "Zsófi", "Bence", "Lili", "Márk", "Dóri", "Gergő", "Anna"];
@@ -807,7 +830,7 @@ fetch("index.html", { cache: "no-store" }).then(r => r.ok ? r.text() : "").then(
 let lastCompletion = null;
 async function pollCompletions() {
   try {
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/completions?select=id,player_name,quest_id,points&order=id.desc&limit=6`, { headers: Object.assign({ Prefer: "count=exact" }, SB_HEADERS), cache: "no-store" });
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/completions?select=id,player_name,quest_id,points&quest_id=like.q*&order=id.desc&limit=6`, { headers: Object.assign({ Prefer: "count=exact" }, SB_HEADERS), cache: "no-store" });
     if (!r.ok) throw new Error(r.status);
     const cr = r.headers.get("content-range"); const total = cr && cr.split("/")[1];
     if (total && total !== "*") { const n = Number(total); if (S.quests != null && n > S.quests) hit("mtQuests", "+" + (n - S.quests)); S.quests = n; }
@@ -825,6 +848,29 @@ async function pollCompletions() {
     if (!LIVE && S.quests == null) { S.quests = 47; renderHud(); }
   }
   setTimeout(pollCompletions, 6000);
+}
+
+/* ---------- Ádám kora + Ki ez az Ádám? statisztika (Supabase scores) ---------- */
+// age: az első kor-tipp (0 = lejárt az idő) · adam: Ki ez az Ádám? kvíz, score = jó válaszok, time_ms = kérdések száma
+const ageState = { older: null, younger: null, all: null };
+async function pollAge() {
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/scores?select=kind,score,time_ms&kind=in.(age,adam)&limit=5000`, { headers: SB_HEADERS, cache: "no-store" });
+    if (!r.ok) throw new Error(r.status);
+    const rows = await r.json();
+    const ages = rows.filter(x => x.kind === "age" && Number(x.score) > 0).map(x => Number(x.score));
+    const next = {
+      older: ages.filter(a => a > ADAM_AGE).length,
+      younger: ages.filter(a => a < ADAM_AGE).length,
+      all: rows.filter(x => x.kind === "adam" && Number(x.time_ms) > 0 && Number(x.score) >= Number(x.time_ms)).length
+    };
+    if (ageState.older != null && (next.older !== ageState.older || next.younger !== ageState.younger || next.all !== ageState.all)) hit("agebox");
+    Object.assign(ageState, next);
+  } catch (e) {
+    if (!LIVE && ageState.older == null) Object.assign(ageState, { older: 7, younger: 12, all: 3 });
+  }
+  animNum("ageOlder", ageState.older); animNum("ageYounger", ageState.younger); animNum("adamAll", ageState.all);
+  setTimeout(pollAge, 10000);
 }
 
 /* ================== animáció ================== */
@@ -909,7 +955,7 @@ renderHud(); renderTicker(); renderBoard(LIVE ? [] : DEMO_BOARD, LIVE ? "Kapcsol
 tickClock(); setInterval(tickClock, 1000);
 requestAnimationFrame(frame);
 if (FEED) poll();
-pollBoard(); pollCompletions();
+pollBoard(); pollCompletions(); pollAge();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { drawSigns(); renderHud(); });
 
 // demó
