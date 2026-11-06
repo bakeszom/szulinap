@@ -33,7 +33,8 @@
   Éles mód: progress.html?live  (vagy ?feed=…) — ilyenkor nincsenek demó gombok. "D" billentyű: demó gombok ki/be.
   Ranglista + side quest feed: a buliapp Supabase-éből jön magától. Ha a `leaderboard` nézetben lesz
   `longdrinks` és `shots` oszlop, a nevek mellett automatikusan megjelenik a koktél- és a feles-szám is.
-  Saját fej: img/adam-fej.png (átlátszó hátterű, kivágott fej, ~600×600).
+  Saját fej: img/fej-1-szomoru.png … fej-5-szivarvany.png (átlátszó, 640×640) – a gyűjtés arányával vált: szomorú → semleges → vidám → csillogó szem;
+  mérföldkőnél és a csillogó fokozatban időnként szivárványt hány. Tartalék: img/adam-fej.png.
 -->
 
 <style>
@@ -569,11 +570,36 @@ el("circle", { cx: 20, cy: -110, r: 2, fill: "#fff" }, eyes);
 const mouth = el("path", { d: "M -18 -89 Q 2 -73 22 -89", fill: "none", stroke: "#0f0d0a", "stroke-width": 5, "stroke-linecap": "round" }, drawn);
 el("circle", { cx: -30, cy: -93, r: 7, fill: "#ff9c8a", opacity: .6 }, drawn);
 el("circle", { cx: 32, cy: -93, r: 7, fill: "#ff9c8a", opacity: .6 }, drawn);
-const photo = el("image", { href: "img/adam-fej.png", x: -58, y: -172, width: 116, height: 116, preserveAspectRatio: "xMidYMid meet" }, head);
+/* Hangulat-fejek: a gyűjtés arányával egyre boldogabb. 0 szomorú · 1 semleges · 2 vidám · 3 csillogó szem · 4 szivárványhányás (időnként) */
+const HEADS = ["img/fej-1-szomoru.png", "img/fej-2-semleges.png", "img/fej-3-vidam.png", "img/fej-4-csillogo.png", "img/fej-5-szivarvany.png"];
+const HEAD_FALLBACK = "img/adam-fej.png";
+const photo = el("image", { href: HEAD_FALLBACK, x: -62, y: -176, width: 124, height: 124, preserveAspectRatio: "xMidYMid meet" }, head);
 photo.style.display = "none";
+let headsOk = false;
 const probe = new Image();
 probe.onload = () => { photo.style.display = ""; drawn.style.display = "none"; };
-probe.src = "img/adam-fej.png";
+probe.src = HEAD_FALLBACK;
+const probe2 = new Image();
+probe2.onload = () => { headsOk = true; photo.style.display = ""; drawn.style.display = "none"; HEADS.forEach(h => { const i = new Image(); i.src = h; }); };
+probe2.src = HEADS[2];
+// csillogás a fej körül (loop) – csak a vidám fokozatoktól
+const sparkles = el("g", { opacity: 0 }, head);
+const SPARK = [[-70, -168, 10, "#fff04a"], [66, -150, 8, "#ff4d6d"], [-58, -96, 7, "#c6f432"], [74, -104, 11, "#fff04a"], [0, -196, 7, "#fffbe8"], [-78, -130, 6, "#ff4d6d"]];
+const sparkEls = SPARK.map(([x, y, r, c]) => el("path", { d: `M ${x} ${y - r} Q ${x} ${y} ${x + r} ${y} Q ${x} ${y} ${x} ${y + r} Q ${x} ${y} ${x - r} ${y} Q ${x} ${y} ${x} ${y - r} Z`, fill: c, stroke: "#0f0d0a", "stroke-width": 1.5 }, sparkles));
+let mood = -1, moodPopAt = 0, rainbowUntil = 0, nextRainbow = performance.now() + 20000;
+function moodFor(pos) { return pos < .12 ? 0 : pos < .3 ? 1 : pos < .55 ? 2 : 3; }
+function setHead(m) {
+  if (!headsOk || m === mood) return;
+  mood = m; moodPopAt = performance.now();
+  photo.setAttribute("href", HEADS[m]);
+}
+function rainbow(ms = 2600) {
+  if (!headsOk) return;
+  rainbowUntil = performance.now() + ms;
+  photo.setAttribute("href", HEADS[4]); moodPopAt = performance.now();
+  const p = ptAt(shownPos);
+  spawn(60, p.x + 30 * facing, p.y - 110, true, ["#ff4d6d", "#fff04a", "#c6f432", "#4dc9ff", "#ff9cf0"]);
+}
 // buborék
 const bubble = el("g", { opacity: 0 }, runner);
 const bubRect = el("rect", { x: 0, y: -236, width: 10, height: 42, rx: 8, fill: "#fffbe8", stroke: "#0f0d0a", "stroke-width": 4 }, bubble);
@@ -593,12 +619,12 @@ function say(text, ms = 3500) {
 const cv = $("confetti"), cx = cv.getContext("2d");
 const COLORS = ["#c6f432", "#fff04a", "#ff4d6d", "#fffbe8"];
 let parts = [];
-function spawn(n, x, y, burst) {
+function spawn(n, x, y, burst, colors = COLORS) {
   if (reduced) return;
   for (let i = 0; i < n; i++) parts.push({
     x: x ?? Math.random() * 1600, y: y ?? -20, vx: burst ? (Math.random() - .5) * 14 : (Math.random() - .5) * .6,
     vy: burst ? -Math.random() * 12 - 3 : Math.random() * .8 + .4, r: Math.random() * Math.PI, vr: (Math.random() - .5) * .3,
-    w: 6 + Math.random() * 8, h: 4 + Math.random() * 6, c: rnd(COLORS), life: burst ? 220 : 1400
+    w: 6 + Math.random() * 8, h: 4 + Math.random() * 6, c: rnd(colors), life: burst ? 220 : 1400
   });
 }
 function stepConfetti() {
@@ -926,7 +952,26 @@ function frame(now) {
     armF.setAttribute("transform", `rotate(${-swing * 1.2},0,-56)`);
     armB.setAttribute("transform", `rotate(${swing * 1.2},0,-56)`);
   }
-  head.setAttribute("transform", `rotate(${(walking ? 4 : 0) + Math.sin(t * 1.7) * 3},0,-76)`);
+  // hangulat: a pálya aránya szerint, mérföldkőnél + időnként szivárvány
+  const m = moodFor(S.pos);
+  if (now < rainbowUntil) { /* marad a szivárvány */ }
+  else if (cheering && m >= 2 && headsOk && now > nextRainbow - 15000) { rainbow(2600); nextRainbow = now + 22000 + Math.random() * 20000; }
+  else if (m >= 3 && now > nextRainbow) { rainbow(2600); nextRainbow = now + 22000 + Math.random() * 20000; }
+  else setHead(m);
+  if (now >= rainbowUntil && mood >= 0 && photo.getAttribute("href") === HEADS[4]) { mood = -1; setHead(m); }
+  const pop = Math.max(0, 1 - (now - moodPopAt) / 320);
+  const headScale = 1 + pop * .22 * Math.sin(pop * Math.PI);
+  const bounce = m >= 2 && !reduced ? Math.sin(t * 6) * (m >= 3 ? 3 : 1.5) : 0;
+  const wobble = now < rainbowUntil && !reduced ? Math.sin(t * 28) * 4 : 0;
+  head.setAttribute("transform", `translate(0,${bounce}) rotate(${(walking ? 4 : 0) + Math.sin(t * 1.7) * 3 + wobble},0,-76) translate(0,-110) scale(${headScale}) translate(0,110)`);
+  // csillogás loop
+  const sparkOn = headsOk && (m >= 3 || now < rainbowUntil) && !reduced;
+  sparkles.setAttribute("opacity", sparkOn ? 1 : 0);
+  if (sparkOn) sparkEls.forEach((e, i) => {
+    const ph = t * 3 + i * 1.1, sc = .55 + .45 * Math.abs(Math.sin(ph));
+    const [x, y] = SPARK[i];
+    e.setAttribute("transform", `translate(${x},${y}) rotate(${ph * 40}) scale(${sc}) translate(${-x},${-y})`);
+  });
   // pislogás
   if (now > blinkAt) blinkAt = now + 2500 + Math.random() * 3000;
   eyes.setAttribute("transform", blinkAt - now < 120 ? "translate(0,-108) scale(1,.15) translate(0,108)" : "");
