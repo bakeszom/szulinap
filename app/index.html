@@ -1136,7 +1136,9 @@ function confirmQuest(q) {
 }
 
 /* ---------- Pia-számláló (főoldalon) ---------- */
-let drinkBusy = false;
+let drinkBusy = false, drinkQ = Promise.resolve();
+// gyors egymás utáni koppintások ne vesszenek el: sorba állítjuk őket
+function queueDrink(fn) { drinkQ = drinkQ.then(fn).catch(console.warn); }
 function piaHTML() {
   const alc = S.drinks.filter(d => d.kind !== "viz").length;
   const got = (K.bonuses || []).filter(b => S.done.has(b.id));
@@ -1464,8 +1466,8 @@ document.addEventListener("click", async ev => {
       <button class="btn block" data-act="close">Bezár</button>`);
     return;
   }
-  if (a === "dplus") { addDrink(el.dataset.k); return; }
-  if (a === "dminus") { removeDrink(el.dataset.k); return; }
+  if (a === "dplus") { queueDrink(() => addDrink(el.dataset.k)); return; }
+  if (a === "dminus") { queueDrink(() => removeDrink(el.dataset.k)); return; }
   if (a === "logout") {
     openSheet(`<h2>Kilépsz?</h2><p>A pontjaid megmaradnak ${esc(S.me.name)} néven.${S.me.code ? ` Visszalépni a neveddel és a <b style="color:var(--ink)">${esc(S.me.code)}</b> kóddal tudsz.` : ""}</p>
       <div class="row-btns"><button class="btn ghost" data-act="close">Maradok</button><button class="btn" data-act="logout-yes">Kilépek</button></div>`);
