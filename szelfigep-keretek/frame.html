@@ -36,9 +36,5 @@ function hd(n,x,y,w,rot){const e=document.createElement("img");e.className="hd";
 const m=document.getElementById("mont"), BH=P?330:260, cols=P?6:8, cw=W/cols;
 for(let i=0;i<17;i++){const e=document.createElement("img");e.src=`stk/stk-${i+1}.webp`;const col=i%cols,row=Math.floor(i/cols);
   Object.assign(e.style,{left:(col*cw-cw*.15+((row%2)?cw*.5:0))+"px",top:(row*(BH*.55)-BH*.2)+"px",width:(cw*1.3)+"px",transform:`rotate(${(i*37%24)-12}deg)`});m.appendChild(e)}
-if(P){ // 1200x1800 – két erős matrica a sarkokban
-  stk(1,-30,H-470,230,-10); stk(4,W-220,H-470,230,8); stk(5,W-280,40,250,9);
-}else{ // 1800x1200
-  stk(1,-30,H-400,220,-9); stk(4,W-210,H-400,220,8); stk(5,W-260,40,230,10);
-}
+// erős matricák nincsenek a kereten – a szelfigépben külön rakhatók fel
 </script></body></html>
