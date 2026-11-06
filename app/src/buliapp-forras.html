@@ -1,0 +1,1349 @@
+<title>Ádám Szülinapi Buliapp</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#15111d">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Figtree:wght@500;600;700;800;900&display=swap">
+
+<script>
+/* ============================================================
+   BEÁLLÍTÁSOK — csak ezt a blokkot kell szerkeszteni élesítéskor
+   ============================================================ */
+window.CONFIG = {
+  // Supabase: Project Settings → API. Ha üres, az app DEMÓ módban fut (csak ezen a telefonon tárol).
+  SUPABASE_URL: "https://nrxalvrmupcgorkzobru.supabase.co",
+  SUPABASE_KEY: "sb_publishable_8LW2yc9cSgSqFTMn0qim3w_w0iurlcI", // "Publishable key" (sb_publishable_...) vagy a régi "anon public" kulcs
+
+  // Ha nem üres, belépéskor kéri ezt a kódot. A QR-ba be lehet tenni: ...index.html?kod=PACSI
+  PARTY_CODE: "",
+
+  // Az app nyilvános címe a kivetítős QR-kódhoz. Ha üres, az oldal saját címét használja.
+  APP_URL: "",
+
+  // Képek a szülinaposról az img/ mappából. Ha egy fájl nincs meg, helykitöltő jelenik meg.
+  PHOTOS: ["img/adam-1.jpg","img/adam-2.jpg","img/adam-3.jpg","img/adam-4.jpg","img/adam-5.jpg","img/adam-6.jpg","img/adam-7.jpg","img/adam-8.jpg"],
+
+  // Felugró ablakok: legalább ennyi percenként egy (véletlenszerűen ±)
+  POPUP_MINUTES: 4
+};
+</script>
+
+<script>
+/* ============================================================
+   TARTALOM
+   ============================================================ */
+window.CONTENT = {
+
+  // --- Side quest kategóriák (szabadon választható, nincs zárolás) ---
+  cats: [
+    { k: "konnyu",     name: "Könnyű",     short: "Laza, bárki megcsinálja",              color: "--lv1" },
+    { k: "kozepes",    name: "Közepes",    short: "Kell hozzá egy kis kurázsi",           color: "--lv2" },
+    { k: "nehez",      name: "Nehéz",      short: "Fotó kötelező, a kivetítőn a helyed",  color: "--lv3" },
+    { k: "ismerkedos", name: "Ismerkedős", short: "Új emberek, új sztorik",               color: "--lv4" }
+  ],
+
+  // --- Side questek. photo: true = bizonyítékfotó kötelező ---
+  quests: [
+    // cat: konnyu / kozepes / nehez / ismerkedos
+    { id: "q101", cat: "ismerkedos", pts: 1, t: "Mutatkozz be valakinek, akit még sosem láttál, és derítsd ki, honnan ismeri Ádámot." },
+    { id: "q102", cat: "konnyu", pts: 2, t: "Készíts közös képet egy Márk nevű emberrel.", note: "Ha nincs Márk a buliban, keress egy Dávidot. Az fél siker." },
+    { id: "q103", cat: "ismerkedos", pts: 1, t: "Koccints valakivel, akivel ma este még egy szót sem váltottál." },
+    { id: "q104", cat: "konnyu", pts: 2, t: "Tegyél fel valakinek egy beugratós kérdést, és nézd végig, ahogy belesétál.", riddle: true },
+    { id: "q105", cat: "konnyu", pts: 2, t: "Állj be a szelfigépbe legalább 3 olyan emberrel, akiket ma ismertél meg." },
+    { id: "q106", cat: "ismerkedos", pts: 1, t: "Dicsérd meg valakinek a cipőjét, és tudd meg, hol vette." },
+    { id: "q107", cat: "ismerkedos", pts: 2, t: "Jegyezz meg 3 új nevet, és egy óra múlva köszönj rájuk név szerint." },
+    { id: "q108", cat: "konnyu", pts: 1, t: "Segíts valakinek: hozz neki inni, fogd a kabátját, vagy kísérd el a mosdóig a sorban." },
+
+    { id: "q201", cat: "kozepes", pts: 3, t: "Kérj egy cigit valakitől, és add oda valaki másnak az ő szeme láttára.", note: "Nem dohányzol? Rágóval is ér." },
+    { id: "q202", cat: "kozepes", pts: 4, t: "Mutatkozz be valakinek kitalált néven, és tartsd 10 percig." },
+    { id: "q203", cat: "kozepes", pts: 3, t: "Szerezd meg valakinek az Instáját vagy a számát egy jó indokkal." },
+    { id: "q204", cat: "kozepes", pts: 3, t: "Táncoltass meg valakit egy teljes szám erejéig." },
+    { id: "q205", cat: "kozepes", pts: 4, t: "Mesélj valakinek egy kitalált sztorit Ádámról, és hitesd el vele." },
+    { id: "q206", cat: "kozepes", pts: 3, t: "Szkanderezz le valakit.", note: "Ha nyersz, mondd el mindenkinek. Ha kikapsz, akkor is jár a pont." },
+    { id: "q207", cat: "kozepes", pts: 5, t: "Hívasd meg magad egy italra valakivel, akit ma ismertél meg." },
+    { id: "q208", cat: "kozepes", pts: 4, t: "Mondj tósztot Ádámra legalább 5 ember előtt." },
+    { id: "q209", cat: "kozepes", pts: 4, t: "Játszd el a pultnál, hogy eltévedtél, és kérdezd meg, hogyan jutsz el a Pacsiba." },
+
+    { id: "q301", cat: "nehez", pts: 6, photo: true, t: "Kérd meg valakinek a kezét, féltérdre ereszkedve. Gyűrű helyett bármi megteszi." },
+    { id: "q302", cat: "nehez", pts: 8, photo: true, t: "Szavalj el egy verset a táncparkett közepén úgy, hogy felfigyeljenek rád." },
+    { id: "q303", cat: "nehez", pts: 6, photo: true, t: "Igyál meg húzóra egy sört (vagy egy üdítőt) úgy, hogy legalább öten szurkoljanak." },
+    { id: "q304", cat: "nehez", pts: 8, photo: true, t: "Hívj meg egy egész asztalt egy körre. Egy kör shot is számít." },
+    { id: "q305", cat: "nehez", pts: 7, photo: true, t: "Szervezz egy legalább 8 fős csoportképet, amin legyen egy ember, aki nem a bulira jött." },
+    { id: "q306", cat: "nehez", pts: 8, photo: true, t: "Vedd rá a DJ-t, hogy mondjon valamit Ádámnak a mikrofonba." },
+    { id: "q307", cat: "nehez", pts: 6, photo: true, t: "Táncolj Ádámmal egy teljes számot a parkett közepén." },
+    { id: "q308", cat: "nehez", pts: 10, photo: true, t: "Titkos küldetés: vedd rá Ádámot, hogy ő teljesítsen egy side questet helyetted." },
+    { id: "q401", cat: "ismerkedos", pts: 2, t: "Találj valakit, aki ugyanabban a hónapban született, mint te." },
+    { id: "q402", cat: "ismerkedos", pts: 2, t: "Kérdezz meg valakit, akit most ismertél meg, mi volt idén a legnagyobb kalandja. Meséld el valaki harmadiknak." }
+  ],
+
+  // Beugratós kérdések a q104-hez (a régi feladatlistádból)
+  riddles: [
+    "Ha a trolibuszon minden piros, milyen színű a kipufogója?",
+    "Egy repülőgép lezuhan a magyar–lengyel határon. Hova temetik a túlélőket?",
+    "Egy villanymozdony északra tart, a szél északkelet felé fúj. Merre viszi a füstjét?",
+    "Ha egy éjjeliőr reggel hal meg, kaphat-e nyugdíjat?",
+    "Hány állatot vitt magával Mózes a bárkára?",
+    "Hány hónapban van 28 nap?",
+    "Hány ujj van 10 kézen?",
+    "Mondd tízszer gyorsan, hogy fehér. Mit iszik a tehén?"
+  ],
+
+  // --- Szülinapos-kvíz (MINTA: cserélendő a te kérdéseidre) ---
+  adamQuiz: [
+    { q: "Mivel tölti Ádám a hétköznapjait?", photo: 0,
+      a: ["Takarítószer-nagykernél IT-zik és folyamatokat rak rendbe", "Hajóskapitány a Balatonon", "Profi pókerjátékos", "Influenszer"], c: 0,
+      info: "A Higiénia és Tisztaság Kft.-nél az IT, az adatok, a folyamatok és a marketing is nála fut össze." },
+    { q: "Mi az a Playspot, amit Ádám társalapítóként csinál?", photo: 1,
+      a: ["Kutyasétáltató app", "Sportpálya-foglaló platform", "Játszótér-értékelő oldal", "Online társasjáték"], c: 1,
+      info: "A playspot.hu-n sportpályákat lehet foglalni. Ha legközelebb focizni mész, már tudod, hol." },
+    { q: "Kié a szelfigép, amibe ma este beállsz?", photo: 2,
+      a: ["Bérelt", "A Pacsié", "Ádám saját vállalkozásáé", "Egy haveré, aki még nem tudja"], c: 2,
+      info: "Snapify néven Ádám esküvőkre és bulikra viszi a szelfigépet. Ma este ingyen próbálhatod." },
+    { q: "Melyik kerületben lakik Ádám?", photo: 3,
+      a: ["V.", "XIII.", "XI.", "VIII."], c: 2,
+      info: "Újbuda. Ha arra jársz, ugorj be. Mondjuk ne hajnali háromkor." },
+    { q: "Mi a közös Ádámban és Johann Sebastian Bachban?", photo: 4,
+      a: ["Mindketten orgonáznak", "A vezetéknév", "Mindkettőjüknek 20 gyereke van", "Semmi"], c: 1,
+      info: "Bach Ádám. A 20 gyereket Johann Sebastian vállalta, Ádám egyelőre a webshopokat sokszorozza." }
+  ],
+
+  // --- Témadobó: az érem két oldala ---
+  dilemmas: [
+    { q: "Szuperképesség", a: "Tudj repülni", b: "Légy láthatatlan" },
+    { q: "Egy életen át", a: "Soha többé kávé", b: "Soha többé alkohol" },
+    { q: "Hol élnél?", a: "Nagy ház vidéken, kerttel", b: "Kis lakás a belváros közepén" },
+    { q: "Időgép", a: "Lásd a jövőt", b: "Változtass a múltadon" },
+    { q: "Pizza", a: "Az ananász a pizzán zseniális", b: "Az ananász a pizzán bűncselekmény" },
+    { q: "Választanod kell", a: "10 évvel fiatalabb leszel", b: "10 millióval gazdagabb leszel" },
+    { q: "Pontosság", a: "Mindig 10 percet késel", b: "Mindig 20 perccel korábban érsz oda" },
+    { q: "Örök évszak", a: "Csak nyár", b: "Csak tél, karácsonnyal" },
+    { q: "Tehetség", a: "Beszélsz minden nyelvet", b: "Játszol minden hangszeren" },
+    { q: "Társ", a: "Kutya", b: "Macska" },
+    { q: "Munka", a: "Örökre home office", b: "Örökre iroda, jó kollégákkal" },
+    { q: "Egy évig nélküle", a: "Telefon", b: "Filmek és sorozatok" },
+    { q: "Hírnév", a: "Híres, de átlagos fizetéssel", b: "Gazdag, de senki nem ismer" },
+    { q: "Nyaralás", a: "Balaton", b: "Tenger" },
+    { q: "Utazás az időben", a: "Vissza 2010-be", b: "Előre 2040-be" },
+    { q: "Buli", a: "Kis házibuli 6 jó baráttal", b: "Hatalmas buli 200 emberrel" },
+    { q: "Étel", a: "Csak édes egy életen át", b: "Csak sós egy életen át" },
+    { q: "Igazság", a: "Mindig tudod, ha hazudnak neked", b: "Neked mindig elhiszik, amit mondasz" },
+    { q: "Hétvége", a: "Minden hétvége kaland", b: "Minden hétvége pizsamás pihenés" },
+    { q: "Szomszéd", a: "Egy híres zenész, aki éjjel gyakorol", b: "Egy kedves néni, aki mindent lát" }
+  ],
+
+  // --- Jégtörők ---
+  icebreakers: [
+    "Honnan ismered Ádámot, és mi az első emléked róla?",
+    "Mi volt a legjobb dolog, ami idén történt veled?",
+    "Ha holnap nem kéne dolgozni, mit csinálnál egész nap?",
+    "Melyik az a hely, ahová mindenkinek el kéne mennie legalább egyszer?",
+    "Mi az a dolog, amiben titokban nagyon jó vagy?",
+    "Melyik volt az utolsó koncert, amin voltál?",
+    "Ha nyitnál egy kocsmát, mi lenne a neve?",
+    "Mi a legfurcsább munka, amit valaha csináltál?",
+    "Mi az, amit idén mindenképp ki akarsz még próbálni?",
+    "Melyik sorozatot nézted meg kétszer?",
+    "Ha egy hétre cserélhetnél életet valakivel itt a buliban, kivel?",
+    "Mi a kedvenc reggelid, és miért nem az, amit tényleg eszel?"
+  ],
+
+  // --- Kvízpiramis: szintenként 2 kérdés, mindenki véletlenszerűen kap egyet ---
+  pyramid: [
+    [ { q: "Melyik ország jellegzetes itala az ouzo?", a: ["Görögország","Spanyolország","Mexikó","Portugália"], c: 0 },
+      { q: "Hány hónapban van 28 nap?", a: ["Egyben","Kettőben","Mind a 12-ben","Négyévente egyben"], c: 2 } ],
+    [ { q: "Milyen zöldségről híres Szeged?", a: ["Hagyma","Paprika","Uborka","Káposzta"], c: 1 },
+      { q: "Melyik ország söre az Estrella Damm?", a: ["Olaszország","Mexikó","Spanyolország","Portugália"], c: 2 } ],
+    [ { q: "Melyik ország itala a bölényfüves Żubrówka vodka?", a: ["Oroszország","Lengyelország","Ukrajna","Fehéroroszország"], c: 1 },
+      { q: "Hány Forma–1-es világbajnoki címet nyert Michael Schumacher?", a: ["5","6","7","8"], c: 2 } ],
+    [ { q: "Hány játékos van egy vízilabdacsapatból egyszerre a vízben?", a: ["5","6","7","8"], c: 2 },
+      { q: "Melyik évben tartották a rendszerváltás utáni első szabad választást Magyarországon?", a: ["1988","1989","1990","1991"], c: 2 } ],
+    [ { q: "Hány gyereke volt Johann Sebastian Bachnak, a szülinapos névrokonának?", a: ["4","9","12","20"], c: 3 },
+      { q: "Ki találta fel a golyóstollat?", a: ["Bíró László","Puskás Tivadar","Jedlik Ányos","Irinyi János"], c: 0 } ],
+    [ { q: "Hány csontból áll egy felnőtt ember csontváza?", a: ["186","206","226","256"], c: 1 },
+      { q: "Melyik ország itala a Pitú nevű cukornádpárlat?", a: ["Kuba","Jamaica","Brazília","Mexikó"], c: 2 } ],
+    [ { q: "Melyik kémiai elem vegyjele a W?", a: ["Vanádium","Volfrám","Wolfgangium","Xenon"], c: 1 },
+      { q: "Melyik a Föld legmélyebb tava?", a: ["Tanganyika-tó","Kaszpi-tenger","Bajkál-tó","Titicaca-tó"], c: 2 } ],
+    [ { q: "Melyik évben indult el a budapesti Millenniumi Földalatti Vasút?", a: ["1867","1896","1913","1950"], c: 1 },
+      { q: "Nagyjából milyen magas ma az Eiffel-torony az antennákkal együtt?", a: ["220 m","280 m","330 m","410 m"], c: 2 } ],
+    [ { q: "Melyik ország rendelkezik a legtöbb időzónával, ha a tengerentúli területeit is számoljuk?", a: ["Oroszország","USA","Franciaország","Egyesült Királyság"], c: 2 },
+      { q: "Melyik évben ért véget a százéves háború?", a: ["1415","1453","1492","1337"], c: 1 } ]
+  ],
+  pyramidSeconds: 20,
+  // A piramis első kérdése mindig ez. Az első tippet mindenkitől elmentjük, a kijelző statisztikát mutat belőle.
+  ageQuestion: { q: "Hány éves lett ma Ádám?", a: ["27", "28", "29", "30"], c: 2 },
+  pyramidRetryFactor: 0.5,   // újrapróbálkozásnál ennyi pont jár szintenként
+
+  // --- Pia-számláló ---
+  drinks: [
+    { k: "longdrink", name: "Long drink",  sub: "koktél, mixelt",       ic: "longdrink" },
+    { k: "sor",       name: "Sör / bor",   sub: "korsó, pohár, fröccs", ic: "sor" },
+    { k: "feles",     name: "Feles",       sub: "shot",                 ic: "feles" },
+    { k: "viz",       name: "Üdítő / víz", sub: "pohár",                ic: "viz" }
+  ],
+  // Titkos bónuszok: a játékosok nem látják előre. "at" = hányadik után jár, "pts" = pont a ranglistára.
+  bonuses: [
+    { id: "b_longdrink5", kind: "longdrink", at: 5, pts: 5, name: "Long drink-mester", t: "Titkos bónusz: 5. long drink" },
+    { id: "b_feles3",     kind: "feles",     at: 3, pts: 3, name: "Feleshős",          t: "Titkos bónusz: 3. feles" },
+    { id: "b_viz3",       kind: "viz",       at: 3, pts: 2, name: "Vízfelelős",        t: "Titkos bónusz: 3 pohár víz" }
+  ],
+
+  // --- Felugró ablakok ---
+  popups: [
+    "Hívd meg a szülinapost egy shotra. Megérdemli, és te is.",
+    "Jófej ember vagy. Nézz körül: van valaki, aki egyedül áll? Menj oda.",
+    "Ádám most éppen szomjas. Csak mondjuk.",
+    "Mikor koccintottál utoljára? Pótold.",
+    "Valaki a közeledben még nem csinált egy side questet sem. Segíts neki.",
+    "Állj be a szelfigépbe. Most. Ne gondolkodj.",
+    "Kérdezz meg valakit, honnan ismeri Ádámot. Mindig van egy jó sztori.",
+    "Táncparkett. Egy szám. Bírod."
+  ]
+};
+</script>
+
+<style>
+/* Koncepció: ugyanaz a képregényes világ, mint a kijelzőn (progress.html): pöttyös éjszaka, krémpapír panelek vastag fekete kerettel és kemény árnyékkal, Bangers címek. */
+:root {
+  /* paletta (megegyezik a progress.html-lel) */
+  --c-night: #15111d;
+  --c-dot: #2a2238;
+  --c-paper: #fffbe8;
+  --c-black: #0f0d0a;
+  --c-lime: #c6f432;
+  --c-lemon: #fff04a;
+  --c-pop: #ff4d6d;
+  --c-muted: #6b6474;
+  /* szerepek a sötét háttéren (paneleken felülírjuk) */
+  --night: var(--c-night);
+  --night-2: #221b2e;
+  --night-3: #2e2640;
+  --ink: var(--c-paper);
+  --ink-dim: #d6cfe0;
+  --ink-faint: #9a90a8;
+  --line: var(--c-paper);
+  --gold: var(--c-lemon);
+  --coral: var(--c-pop);
+  --mint: var(--c-lime);
+  --lv1: var(--c-lime);
+  --lv2: var(--c-lemon);
+  --lv3: var(--c-pop);
+  --lv4: #7fd8ff;
+  --font-display: "Bangers", "Impact", "Arial Black", sans-serif;
+  --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Figtree", system-ui, sans-serif;
+  --r: 6px;
+  --bd: 3px solid var(--c-black);
+  --sh: 5px 5px 0 var(--c-black);
+  color-scheme: dark;
+}
+/* papír-felületek: itt a szöveg fekete */
+.sheet, .tile, .ticket, .choice, .opt, .drink, .info, .rules, .code-box, .field input, .toast, .ice, .side, .dsum {
+  --ink: var(--c-black); --ink-dim: #3d3846; --ink-faint: var(--c-muted); --gold: var(--c-black);
+  --night-2: #f3ecd0; --night-3: #ebe2c0; --line: var(--c-black);
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  margin: 0;
+  background-color: var(--c-night);
+  background-image: radial-gradient(var(--c-dot) 1.6px, transparent 1.7px);
+  background-size: 14px 14px;
+  color: var(--ink);
+  font: 16px/1.45 var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+#app {
+  position: relative; z-index: 1;
+  max-width: 560px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 12px 48px;
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--c-lime); outline-offset: 2px; }
+h1, h2, h3 { margin: 0; text-wrap: balance; font-weight: 400; }
+p { margin: 0; }
+.shout { font-family: var(--font-display); letter-spacing: .02em; color: var(--c-lemon); -webkit-text-stroke: 2px var(--c-black); text-shadow: 4px 4px 0 var(--c-black); paint-order: stroke fill; }
+
+/* fejléc */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 4px 16px; }
+.brand { font: 26px/1 var(--font-display); letter-spacing: .04em; color: var(--c-lemon); -webkit-text-stroke: 1px var(--c-black); text-shadow: 2px 2px 0 var(--c-black); display: flex; gap: 10px; align-items: baseline; }
+.brand small { font: 800 11px/1 var(--font-body); color: var(--ink-faint); letter-spacing: .14em; text-shadow: none; -webkit-text-stroke: 0; }
+.back { background: none; border: 0; color: var(--c-paper); font: 22px/1 var(--font-display); letter-spacing: .04em; padding: 8px 0; display: inline-flex; align-items: center; gap: 6px; }
+.pill-pts { font: 22px/1 var(--font-display); letter-spacing: .04em; background: var(--c-lime); color: var(--c-black); border: var(--bd); box-shadow: 3px 3px 0 var(--c-black); border-radius: 4px; padding: 6px 10px 3px; white-space: nowrap; }
+.demo-flag { font: 800 10px/1 var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--c-paper); background: var(--c-pop); border: 2px solid var(--c-black); padding: 4px 6px; border-radius: 3px; }
+
+/* gombok */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: var(--bd); border-radius: var(--r); padding: 12px 20px 9px; font: 24px/1 var(--font-display); letter-spacing: .05em; background: var(--c-pop); color: var(--c-paper); box-shadow: var(--sh); transition: transform .08s, box-shadow .08s; text-shadow: 2px 2px 0 var(--c-black); }
+.btn:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 var(--c-black); }
+.btn.ghost { background: var(--c-paper); color: var(--c-black); text-shadow: none; }
+.btn.gold { background: var(--c-lemon); color: var(--c-black); text-shadow: none; }
+.btn.block { width: 100%; }
+.btn[disabled] { opacity: .5; pointer-events: none; }
+.linkbtn { background: none; border: 0; padding: 6px 0; color: var(--ink-dim); text-decoration: underline; text-underline-offset: 3px; font-weight: 700; font-size: 14px; }
+
+/* belépés */
+.hero { display: grid; gap: 22px; padding-top: 6px; }
+.hero h1 { font: clamp(56px, 17vw, 84px)/.86 var(--font-display); letter-spacing: .02em; color: var(--c-lemon); -webkit-text-stroke: 2.5px var(--c-black); text-shadow: 5px 5px 0 var(--c-black); paint-order: stroke fill; }
+.hero h1 span { color: var(--c-pop); display: block; }
+.meta-row { display: flex; flex-wrap: wrap; gap: 8px; font: 800 12px/1 var(--font-body); text-transform: uppercase; letter-spacing: .1em; color: var(--c-black); }
+.meta-row span { background: var(--c-paper); border: 2px solid var(--c-black); box-shadow: 3px 3px 0 var(--c-black); border-radius: 3px; padding: 6px 8px 5px; }
+.meta-row span:nth-child(2) { background: var(--c-lime); }
+.meta-row span:nth-child(3) { background: var(--c-lemon); }
+.field { display: grid; gap: 8px; }
+.field label { font: 800 12px/1 var(--font-body); color: var(--ink-dim); letter-spacing: .12em; text-transform: uppercase; }
+.field input { width: 100%; font: 800 20px/1.2 var(--font-body); color: var(--c-black); background: var(--c-paper); border: var(--bd); box-shadow: var(--sh); border-radius: var(--r); padding: 14px 16px; }
+.field input::placeholder { color: #a39b86; font-weight: 600; }
+.err { color: var(--c-black); background: var(--c-pop); border: var(--bd); border-radius: 4px; padding: 10px 12px; font-weight: 800; font-size: 14px; }
+
+/* fotó-keret */
+.photo { position: relative; border-radius: 4px; overflow: hidden; background: var(--c-paper); aspect-ratio: 4 / 5; max-width: 100%; border: 4px solid var(--c-black); box-shadow: var(--sh); }
+.photo img { width: 100%; height: 100%; object-fit: cover; display: block; position: relative; }
+.photo .ph { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 12px; font: 18px/1.05 var(--font-display); color: var(--c-black); letter-spacing: .04em;
+  background-color: var(--c-lemon); background-image: radial-gradient(rgba(15,13,10,.16) 2px, transparent 2.2px); background-size: 12px 12px; }
+.photo.wide { aspect-ratio: 16 / 9; }
+.strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.strip .photo { aspect-ratio: 3 / 4; transform: rotate(-3deg); }
+.strip .photo:nth-child(2) { transform: rotate(2deg) translateY(8px); }
+.strip .photo:nth-child(2) .ph { background-color: var(--c-lime); }
+.strip .photo:nth-child(3) { transform: rotate(-1deg); }
+.strip .photo:nth-child(3) .ph { background-color: var(--c-pop); }
+
+/* főmenü */
+.hello { display: grid; gap: 8px; padding-block: 2px 20px; }
+.hello h1 { font: 46px/.95 var(--font-display); letter-spacing: .02em; color: var(--c-lemon); -webkit-text-stroke: 2px var(--c-black); text-shadow: 4px 4px 0 var(--c-black); paint-order: stroke fill; }
+.hello p { color: var(--ink-dim); font-weight: 600; }
+.menu { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.tile { text-align: left; border: 4px solid var(--c-black); background: var(--c-paper); color: var(--c-black); border-radius: var(--r); box-shadow: 6px 6px 0 var(--c-black); padding: 14px 14px 16px; display: grid; gap: 10px; align-content: space-between; min-height: 150px; transition: transform .08s, box-shadow .08s; }
+.tile:active { transform: translate(3px, 3px); box-shadow: 3px 3px 0 var(--c-black); }
+.tile .k { font: 800 11px/1.2 var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--c-muted); }
+.tile h2 { font: 28px/.95 var(--font-display); letter-spacing: .03em; }
+.tile p { font-size: 13px; color: #3d3846; line-height: 1.35; font-weight: 600; }
+.tile[data-go="drinks"] { background-color: var(--c-lemon); background-image: radial-gradient(rgba(15,13,10,.12) 2px, transparent 2.2px); background-size: 12px 12px; }
+.tile.main { grid-column: 1 / -1; background: var(--c-lime); min-height: 0; grid-template-columns: 1fr auto; align-items: center; box-shadow: 7px 7px 0 var(--c-black); transform: rotate(-.6deg); }
+.tile.main:active { transform: rotate(-.6deg) translate(3px, 3px); }
+.tile.main h2 { font-size: 38px; }
+.tile.main .k { color: #2f3a0a; }
+.tile.main .big { font: 64px/.9 var(--font-display); text-align: right; letter-spacing: .02em; }
+.tile.main .big small { display: block; font: 800 11px/1.2 var(--font-body); letter-spacing: .1em; text-transform: uppercase; }
+.section { display: grid; gap: 12px; margin-top: 30px; }
+.section h3 { font: 26px/1 var(--font-display); letter-spacing: .04em; color: var(--c-lemon); -webkit-text-stroke: 1px var(--c-black); text-shadow: 3px 3px 0 var(--c-black); }
+
+/* ranglista (mint a kijelzőn) */
+.board { display: grid; gap: 4px; background: var(--c-black); color: var(--c-paper); border: 4px solid var(--c-black); border-radius: var(--r); box-shadow: 7px 7px 0 var(--c-lime); outline: 3px solid var(--c-paper); outline-offset: -8px; padding: 14px 16px; }
+.row { display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: center; padding: 4px 2px; border-radius: 3px; }
+.row .pos { font: 20px/1 var(--font-display); text-align: center; border: 2px solid var(--c-paper); border-radius: 3px; padding: 3px 0 1px; }
+.row:nth-child(1) .pos { background: var(--c-lemon); color: var(--c-black); border-color: var(--c-lemon); }
+.row:nth-child(2) .pos { background: var(--c-paper); color: var(--c-black); }
+.row:nth-child(3) .pos { background: var(--c-lime); color: var(--c-black); border-color: var(--c-lime); }
+.row .nm { font-weight: 800; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row .val { font: 22px/1 var(--font-display); letter-spacing: .03em; color: var(--c-lime); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.row.me { background: rgba(255,240,74,.14); }
+.row.me .nm::after { content: " · te"; color: var(--c-lemon); }
+.empty { color: var(--ink-dim); border: 3px dashed var(--ink-faint); border-radius: var(--r); padding: 16px; text-align: center; font-size: 14px; font-weight: 700; }
+.board .empty { border: 0; padding: 6px; color: var(--c-paper); opacity: .75; }
+
+/* besorolás */
+.intake { display: grid; gap: 18px; }
+.step { font: 800 12px/1 var(--font-body); letter-spacing: .14em; color: var(--c-lime); text-transform: uppercase; }
+.intake h2 { font: 38px/1 var(--font-display); letter-spacing: .02em; color: var(--c-paper); text-shadow: 3px 3px 0 var(--c-black); }
+.choices { display: grid; gap: 12px; }
+.choice { text-align: left; padding: 15px 16px; border-radius: var(--r); border: var(--bd); background: var(--c-paper); color: var(--c-black); box-shadow: var(--sh); font-weight: 800; font-size: 16px; transition: transform .08s, box-shadow .08s; }
+.choice:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 var(--c-black); background: var(--c-lemon); }
+.verdict { display: grid; gap: 16px; text-align: center; justify-items: center; padding-top: 18px; }
+.verdict .lvl-badge { font: 76px/.9 var(--font-display); letter-spacing: .02em; -webkit-text-stroke: 2.5px var(--c-black); text-shadow: 5px 5px 0 var(--c-black); paint-order: stroke fill; transform: rotate(-3deg); }
+.verdict p { color: var(--ink-dim); max-width: 34ch; font-weight: 600; }
+
+/* questek */
+.lv-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin-bottom: 18px; }
+.lv-tab { border: var(--bd); background: var(--c-paper); color: var(--c-black); border-radius: 4px; padding: 8px 4px 6px; display: grid; gap: 3px; justify-items: center; box-shadow: 3px 3px 0 var(--c-black); }
+.lv-tab b { font: 17px/1 var(--font-display); font-weight: 400; letter-spacing: .02em; }
+.lv-tab small { font: 800 10px/1 var(--font-body); letter-spacing: .1em; text-transform: uppercase; }
+.lv-tab.on { background: var(--c); transform: translateY(-2px); box-shadow: 5px 5px 0 var(--c-black); }
+.lv-tab.locked { background: var(--night-3); color: var(--ink-faint); border-color: var(--ink-faint); box-shadow: none; }
+.lv-head { display: grid; gap: 4px; margin-bottom: 16px; }
+.lv-head h2 { font: 48px/.9 var(--font-display); letter-spacing: .02em; color: var(--c); -webkit-text-stroke: 2px var(--c-black); text-shadow: 4px 4px 0 var(--c-black); paint-order: stroke fill; }
+.lv-head p { color: var(--ink-dim); font-size: 14px; font-weight: 600; }
+.quests { display: grid; gap: 16px; }
+.ticket { position: relative; display: grid; grid-template-columns: 1fr 72px; background: var(--c-paper); color: var(--c-black); border-radius: var(--r); border: 4px solid var(--c-black); box-shadow: 6px 6px 0 var(--c-black); overflow: hidden; }
+.ticket .body { padding: 14px 14px 14px 16px; display: grid; gap: 8px; min-width: 0; }
+.ticket .txt { font-weight: 800; font-size: 16px; line-height: 1.3; }
+.ticket .note { font-size: 13px; color: #3d3846; font-weight: 600; }
+.ticket .riddle { font-size: 14px; background: var(--c-lemon); border: 2px solid var(--c-black); border-radius: 4px; padding: 9px 11px; font-weight: 700; font-style: italic; }
+.ticket .tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag { font: 800 10px/1 var(--font-body); letter-spacing: .1em; text-transform: uppercase; padding: 5px 7px 4px; border-radius: 3px; border: 2px solid var(--c-black); background: var(--c-paper); }
+.tag.cam { background: var(--c-pop); color: var(--c-paper); }
+.ticket .stub { border-left: 3px dashed var(--c-black); display: grid; place-items: center; align-content: center; gap: 2px; padding: 10px 4px; background: var(--c); }
+.ticket .stub::before, .ticket .stub::after { content: ""; position: absolute; right: 61px; width: 18px; height: 18px; border-radius: 50%; background: var(--c-night); border: 3px solid var(--c-black); }
+.ticket .stub::before { top: -12px; } .ticket .stub::after { bottom: -12px; }
+.stub .p { font: 38px/1 var(--font-display); color: var(--c-black); }
+.stub .u { font: 800 10px/1 var(--font-body); letter-spacing: .12em; color: var(--c-black); text-transform: uppercase; }
+.ticket .act { grid-column: 1 / -1; border-top: 3px solid var(--c-black); display: flex; }
+.ticket .act button { flex: 1; border: 0; background: var(--c-paper); padding: 11px 12px 8px; font: 20px/1 var(--font-display); letter-spacing: .05em; color: var(--c-black); }
+.ticket .act button:active { background: var(--c); }
+.ticket.done { opacity: .82; }
+.ticket.done .txt { text-decoration: line-through; text-decoration-thickness: 2px; }
+.ticket.done .act button { color: var(--c-muted); font: 800 13px/1 var(--font-body); padding: 12px; }
+.ticket .proof { width: 100%; max-height: 180px; object-fit: cover; border-radius: 4px; border: 3px solid var(--c-black); }
+.locked-box { text-align: center; padding: 30px 18px; border: 3px dashed var(--ink-faint); border-radius: var(--r); display: grid; gap: 12px; justify-items: center; }
+.locked-box b { font: 30px/1 var(--font-display); font-weight: 400; letter-spacing: .03em; }
+.locked-box p { color: var(--ink-dim); max-width: 32ch; font-size: 14px; font-weight: 600; }
+.lock-ic { font: 56px/1 var(--font-display); color: var(--c-lemon); -webkit-text-stroke: 2px var(--c-black); text-shadow: 4px 4px 0 var(--c-black); }
+
+/* modal */
+.scrim { position: fixed; inset: 0; z-index: 50; background: rgba(15,13,10,.62); display: grid; align-items: end; justify-items: center;
+  padding: 16px max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); animation: fadein .15s ease-out; }
+.sheet { width: 100%; max-width: 520px; background: var(--c-paper); color: var(--c-black); border: 5px solid var(--c-black); border-radius: 8px; box-shadow: 10px 10px 0 var(--c-black); padding: 22px 20px 20px; display: grid; gap: 14px; animation: slam .35s cubic-bezier(.2,1.5,.4,1); max-height: 88vh; overflow-y: auto; }
+.sheet h2 { font: 36px/.95 var(--font-display); letter-spacing: .03em; }
+.sheet p { color: #3d3846; font-weight: 600; }
+.sheet .step { color: var(--c-pop); }
+.sheet .row-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@keyframes fadein { from { opacity: 0; } }
+@keyframes slam { 0% { transform: scale(.7) rotate(-4deg); opacity: 0; } 70% { transform: scale(1.03) rotate(1deg); opacity: 1; } 100% { transform: none; } }
+@keyframes rise { from { transform: translateY(20px); opacity: 0; } }
+.upload { display: grid; place-items: center; gap: 6px; border: 3px dashed var(--c-black); border-radius: var(--r); padding: 22px; text-align: center; color: #3d3846; font-weight: 700; cursor: pointer; background: #f3ecd0; }
+.upload input { display: none; }
+.upload img { max-height: 220px; border-radius: 4px; border: 3px solid var(--c-black); }
+
+/* toast */
+.toast { position: fixed; left: 50%; transform: translateX(-50%) rotate(-1deg); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); z-index: 60; background: var(--c-lemon); color: var(--c-black); font: 22px/1 var(--font-display); letter-spacing: .04em; border: var(--bd); border-radius: 4px; padding: 11px 16px 8px; box-shadow: var(--sh); animation: rise .2s ease-out; max-width: calc(100% - 32px); text-align: center; }
+
+/* kvíz */
+.quiz { display: grid; gap: 16px; }
+.qhead { display: flex; justify-content: space-between; align-items: center; gap: 10px; font: 800 12px/1 var(--font-body); letter-spacing: .12em; color: var(--c-lime); text-transform: uppercase; }
+.dots { display: flex; gap: 5px; }
+.dots i { width: 12px; height: 12px; border-radius: 2px; background: var(--night-3); border: 2px solid var(--c-paper); }
+.dots i.ok { background: var(--c-lime); } .dots i.bad { background: var(--c-pop); } .dots i.cur { background: var(--c-lemon); }
+.quiz h2 { font: 900 24px/1.25 var(--font-body); color: var(--c-paper); }
+.opt { text-align: left; padding: 13px 14px; border-radius: var(--r); border: var(--bd); background: var(--c-paper); color: var(--c-black); box-shadow: var(--sh); font-weight: 800; display: flex; gap: 12px; align-items: center; transition: transform .08s, box-shadow .08s; }
+.opt:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 var(--c-black); }
+.opt .l { font: 20px/1 var(--font-display); width: 30px; height: 30px; flex: none; display: grid; place-items: center; background: var(--c-black); color: var(--c-lemon); border-radius: 3px; padding-top: 2px; }
+.opt.right { background: var(--c-lime); }
+.opt.wrong { background: var(--c-pop); color: var(--c-paper); }
+.opt.wrong .l { color: var(--c-pop); }
+.opt[disabled] { cursor: default; }
+.info { background: var(--c-lemon); color: var(--c-black); border: var(--bd); border-radius: var(--r); box-shadow: var(--sh); padding: 14px 16px; font-size: 15px; font-weight: 600; display: grid; gap: 6px; }
+.info b { font: 26px/1 var(--font-display); letter-spacing: .03em; font-weight: 400; }
+.result { display: grid; gap: 16px; justify-items: center; text-align: center; padding-top: 10px; }
+.result .score { font: 120px/.9 var(--font-display); color: var(--c-lemon); -webkit-text-stroke: 3px var(--c-black); text-shadow: 6px 6px 0 var(--c-black); paint-order: stroke fill; transform: rotate(-3deg); }
+.result p { color: var(--ink-dim); max-width: 34ch; font-weight: 600; }
+.result .photo { width: 100%; }
+
+/* témadobó */
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 18px; }
+.seg button { border: var(--bd); background: var(--c-paper); color: var(--c-black); border-radius: 4px; padding: 10px 8px 7px; font: 20px/1 var(--font-display); letter-spacing: .04em; box-shadow: 3px 3px 0 var(--c-black); }
+.seg button.on { background: var(--c-lemon); transform: translateY(-2px); box-shadow: 5px 5px 0 var(--c-black); }
+.dilemma { display: grid; gap: 16px; }
+.dilemma .topic { font: 34px/1 var(--font-display); letter-spacing: .03em; text-align: center; color: var(--c-paper); text-shadow: 3px 3px 0 var(--c-black); }
+.coin { display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch; gap: 8px; }
+.side { border-radius: var(--r); padding: 14px 12px; display: grid; gap: 8px; align-content: start; min-height: 150px; border: 4px solid var(--c-black); box-shadow: var(--sh); color: var(--c-black); }
+.side.a { background: var(--c-pop); transform: rotate(-1.5deg); }
+.side.b { background: var(--c-lime); transform: rotate(1.5deg); }
+.side .who { font: 800 10px/1.2 var(--font-body); letter-spacing: .12em; text-transform: uppercase; }
+.side .what { font: 900 18px/1.2 var(--font-body); }
+.vs { align-self: center; font: 32px/1 var(--font-display); color: var(--c-lemon); -webkit-text-stroke: 1.5px var(--c-black); text-shadow: 3px 3px 0 var(--c-black); }
+.rules { font-size: 14px; font-weight: 600; color: #3d3846; background: var(--c-paper); border: var(--bd); border-radius: var(--r); padding: 14px 16px; }
+.rules b { color: var(--c-black); }
+.timer { font: 96px/1 var(--font-display); text-align: center; font-variant-numeric: tabular-nums; color: var(--c-paper); -webkit-text-stroke: 2px var(--c-black); text-shadow: 5px 5px 0 var(--c-black); paint-order: stroke fill; letter-spacing: .03em; }
+.timer.hot { color: var(--c-pop); }
+.ice { background-color: var(--c-lemon); background-image: radial-gradient(rgba(15,13,10,.12) 2px, transparent 2.2px); background-size: 12px 12px; color: var(--c-black); border: 5px solid var(--c-black); box-shadow: 8px 8px 0 var(--c-black); border-radius: var(--r); padding: 26px 22px; min-height: 220px; display: grid; align-content: space-between; gap: 18px; transform: rotate(-1.5deg); }
+.ice q { font: 900 26px/1.2 var(--font-body); quotes: none; }
+.ice small { font: 800 11px/1.2 var(--font-body); letter-spacing: .12em; text-transform: uppercase; }
+.btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* piramis */
+.pyr { display: grid; gap: 4px; justify-items: center; margin-block: 6px 8px; width: 100%; }
+.pyr i { display: block; height: 22px; border-radius: 3px; background: var(--c-paper); border: 2.5px solid var(--c-black); font: 16px/18px var(--font-display); color: var(--c-black); text-align: center; font-style: normal; box-shadow: 3px 3px 0 var(--c-black); }
+.pyr i.done { background: var(--c-lime); }
+.pyr i.cur { background: var(--c-lemon); animation: pulse .8s ease-in-out infinite alternate; }
+.pyr i.fell { background: var(--c-pop); color: var(--c-paper); }
+@keyframes pulse { to { transform: scale(1.04); } }
+.tbar { height: 14px; border-radius: 3px; background: var(--c-paper); border: 3px solid var(--c-black); overflow: hidden; }
+.tbar > div { height: 100%; background: var(--c-pop); transform-origin: left; }
+.pyr-intro { display: grid; gap: 16px; }
+.pyr-intro h1 { font: 60px/.9 var(--font-display); letter-spacing: .02em; color: var(--c-lemon); -webkit-text-stroke: 2.5px var(--c-black); text-shadow: 5px 5px 0 var(--c-black); paint-order: stroke fill; }
+.pyr-intro ul { margin: 0; padding-left: 20px; color: var(--ink-dim); display: grid; gap: 6px; font-weight: 600; }
+
+/* pia-számláló */
+.drinks { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.drink { position: relative; display: grid; gap: 4px; justify-items: start; text-align: left; border: 4px solid var(--c-black); background: var(--c-paper); color: var(--c-black); border-radius: var(--r); box-shadow: 6px 6px 0 var(--c-black); padding: 14px 14px 12px; min-height: 124px; transition: transform .08s, box-shadow .08s, background-color .2s; }
+.drink:active { transform: translate(3px, 3px); box-shadow: 3px 3px 0 var(--c-black); }
+.drink .ic { font-size: 32px; line-height: 1; }
+.drink b { font: 24px/1 var(--font-display); font-weight: 400; letter-spacing: .03em; }
+.drink small { font-size: 12px; color: var(--c-muted); font-weight: 700; }
+.drink .n { position: absolute; top: 8px; right: 12px; font: 50px/1 var(--font-display); color: var(--c-black); font-variant-numeric: tabular-nums; }
+.drink .plus { position: absolute; right: 10px; bottom: 10px; font: 18px/1 var(--font-display); background: var(--c-black); color: var(--c-lemon); padding: 3px 6px 1px; border-radius: 3px; letter-spacing: .04em; }
+.drink.pop { background: var(--c-lemon); }
+.drink:last-child:nth-child(odd) { grid-column: 1 / -1; min-height: 0; grid-template-columns: auto 1fr; align-items: center; column-gap: 12px; background: #dff6ff; }
+.drink:last-child:nth-child(odd) .ic { grid-row: span 2; }
+.drink:last-child:nth-child(odd) .n { top: 50%; transform: translateY(-50%); right: 58px; }
+.drink:last-child:nth-child(odd) .plus { bottom: auto; top: 50%; transform: translateY(-50%); }
+.drink[disabled] { opacity: .6; }
+.dsum { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--c-lime); border: 4px solid var(--c-black); box-shadow: 6px 6px 0 var(--c-black); border-radius: var(--r); padding: 12px 14px; color: var(--c-black); transform: rotate(-.6deg); }
+.dsum .big { font: 64px/.9 var(--font-display); letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+.dsum .lbl { font: 800 11px/1.3 var(--font-body); letter-spacing: .12em; text-transform: uppercase; }
+.dsum .btn { font-size: 18px; padding: 9px 12px 7px; }
+.badges { display: flex; flex-wrap: wrap; gap: 10px; }
+.badge { font: 20px/1 var(--font-display); letter-spacing: .04em; padding: 7px 10px 5px; border-radius: 4px; background: var(--c-lemon); color: var(--c-black); border: var(--bd); box-shadow: 3px 3px 0 var(--c-black); }
+.code-box { display: grid; justify-items: center; gap: 4px; background-color: var(--c-lemon); background-image: radial-gradient(rgba(15,13,10,.12) 2px, transparent 2.2px); background-size: 12px 12px; color: var(--c-black); border: 4px solid var(--c-black); box-shadow: 6px 6px 0 var(--c-black); border-radius: var(--r); padding: 16px; transform: rotate(-1deg); }
+.code-box b { font: 84px/.9 var(--font-display); letter-spacing: .12em; padding-left: .12em; font-weight: 400; }
+.code-box small { font: 800 11px/1 var(--font-body); letter-spacing: .14em; text-transform: uppercase; }
+
+/* főoldali piaszámláló */
+.pia { grid-column: 1 / -1; background-color: var(--c-lemon); background-image: radial-gradient(rgba(15,13,10,.12) 2px, transparent 2.2px); background-size: 12px 12px; color: var(--c-black); border: 4px solid var(--c-black); border-radius: var(--r); box-shadow: 7px 7px 0 var(--c-black); padding: 14px 14px 12px; display: grid; gap: 10px; transform: rotate(.5deg);
+  --ink: var(--c-black); --ink-dim: #3d3846; --ink-faint: var(--c-muted); --gold: var(--c-black); --line: var(--c-black); }
+.pia-head { display: flex; justify-content: space-between; align-items: end; gap: 10px; }
+.pia-head h2 { font: 38px/.9 var(--font-display); letter-spacing: .03em; }
+.pia-head .k { font: 800 11px/1.2 var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: #5b5320; }
+.pia-head .big { font: 54px/.85 var(--font-display); text-align: right; }
+.pia-head .big small { display: block; font: 800 10px/1.2 var(--font-body); letter-spacing: .1em; text-transform: uppercase; }
+.pia-rows { display: grid; gap: 6px; }
+.pia-row { display: grid; grid-template-columns: 34px 1fr auto auto auto; align-items: center; gap: 8px; background: var(--c-paper); border: 3px solid var(--c-black); border-radius: 4px; padding: 5px 6px 5px 8px; }
+.pia-row svg { width: 26px; height: 30px; color: var(--c-black); }
+.pia-row .nm { font: 21px/1 var(--font-display); letter-spacing: .03em; min-width: 0; }
+.pia-row .nm small { display: block; font: 700 11px/1.2 var(--font-body); color: var(--c-muted); letter-spacing: 0; }
+.pia-row .cnt { font: 34px/1 var(--font-display); min-width: 34px; text-align: center; font-variant-numeric: tabular-nums; }
+.pia-row button { width: 44px; height: 44px; border: 3px solid var(--c-black); border-radius: 4px; font: 30px/1 var(--font-display); display: grid; place-items: center; padding-top: 3px; box-shadow: 3px 3px 0 var(--c-black); transition: transform .06s, box-shadow .06s; }
+.pia-row button:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--c-black); }
+.pia-row .minus { background: var(--c-paper); color: var(--c-black); font: 900 28px/1 var(--font-body); padding-top: 0; }
+.pia-row .plus { background: var(--c-pop); color: var(--c-paper); text-shadow: 2px 2px 0 var(--c-black); }
+.pia-row button[disabled] { opacity: .35; box-shadow: none; }
+.pia-row.flash { animation: flash .6s ease-out; }
+@keyframes flash { 0% { background: var(--c-lime); } 100% { background: var(--c-paper); } }
+.pia .badges { gap: 6px; }
+.pia .badge { font-size: 16px; padding: 5px 8px 3px; }
+.pia-note { font: 700 12px/1.3 var(--font-body); color: #5b5320; text-align: center; }
+/* ital-ikonok a ranglistán */
+.row .dr { display: inline-flex; align-items: center; gap: 6px; flex-wrap: nowrap; }
+.row .dr span { display: inline-flex; align-items: center; gap: 1px; font: 16px/1 var(--font-display); color: var(--c-paper); font-variant-numeric: tabular-nums; }
+.row .dr svg { width: 14px; height: 17px; color: var(--c-paper); flex: none; }
+.row { grid-template-columns: 34px minmax(0, 1fr) auto auto; }
+body.tv .row .dr span { font-size: 24px; }
+body.tv .row .dr svg { width: 21px; height: 25px; }
+/* piramis kor-statisztika */
+.agestat { background: var(--c-lime); color: var(--c-black); border: var(--bd); box-shadow: var(--sh); border-radius: var(--r); padding: 12px 14px; font-weight: 700; display: grid; gap: 4px; }
+.agestat b { font: 28px/1 var(--font-display); font-weight: 400; letter-spacing: .03em; }
+.club { width: 100%; text-align: left; background: var(--c-paper); color: var(--c-black); border: var(--bd); border-radius: var(--r); box-shadow: var(--sh); padding: 10px 14px; }
+.club summary { font: 22px/1.1 var(--font-display); letter-spacing: .03em; cursor: pointer; }
+.club ol { margin: 8px 0 2px; padding-left: 22px; display: grid; gap: 3px; font-weight: 700; }
+.mode-intro { background: var(--c-paper); color: var(--c-black); border: var(--bd); border-radius: var(--r); box-shadow: var(--sh); padding: 14px 16px; font-weight: 600; font-size: 15px; display: grid; gap: 4px; }
+.mode-intro b { font: 24px/1 var(--font-display); font-weight: 400; letter-spacing: .03em; }
+
+/* felugró */
+.pop { text-align: center; }
+.pop .photo { aspect-ratio: 1; max-width: 220px; justify-self: center; width: 100%; transform: rotate(-3deg); }
+.pop h2 { color: var(--c-pop); -webkit-text-stroke: 1.5px var(--c-black); text-shadow: 3px 3px 0 var(--c-black); paint-order: stroke fill; }
+
+/* ===== kivetítő ===== */
+body.tv #app { max-width: none; padding: 28px 36px; height: 100vh; }
+.tvgrid { display: grid; grid-template-columns: 1.25fr 1fr 0.8fr; grid-template-rows: auto 1fr; gap: 28px; height: 100%; }
+.tvtitle { grid-column: 1 / -1; display: flex; align-items: end; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+.tvtitle h1 { font: 72px/.9 var(--font-display); letter-spacing: .02em; color: var(--c-lemon); -webkit-text-stroke: 2.5px var(--c-black); text-shadow: 5px 5px 0 var(--c-black); paint-order: stroke fill; }
+.tvtitle h1 span { color: var(--c-pop); }
+.tvtitle .meta-row { font-size: 15px; }
+.tvcol { display: grid; gap: 16px; align-content: start; min-height: 0; overflow: hidden; padding: 0 8px 8px 0; }
+.tvcol h3 { font: 30px/1 var(--font-display); letter-spacing: .04em; color: var(--c-lemon); -webkit-text-stroke: 1px var(--c-black); text-shadow: 3px 3px 0 var(--c-black); }
+body.tv .row { grid-template-columns: 48px minmax(0, 1fr) auto auto; padding: 6px 4px; }
+body.tv .row .nm { font-size: 24px; }
+body.tv .row .val { font-size: 30px; }
+body.tv .row .pos { font-size: 26px; }
+.feed { display: grid; gap: 10px; }
+.feed div { background: var(--c-paper); color: var(--c-black); border: var(--bd); box-shadow: 4px 4px 0 var(--c-black); border-radius: 4px; padding: 10px 12px; font-size: 17px; font-weight: 700; animation: rise .4s ease-out; }
+.feed b { font: 22px/1 var(--font-display); letter-spacing: .03em; font-weight: 400; }
+.feed small { display: block; color: var(--c-muted); font: 800 11px/1 var(--font-body); letter-spacing: .1em; text-transform: uppercase; margin-top: 4px; }
+.feed .empty { color: var(--ink-dim); }
+.wall { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.wall figure { margin: 0; position: relative; border-radius: 4px; overflow: hidden; aspect-ratio: 1; background: var(--c-paper); border: 4px solid var(--c-black); box-shadow: 5px 5px 0 var(--c-black); }
+.wall img { width: 100%; height: 100%; object-fit: cover; }
+.wall figcaption { position: absolute; inset: auto 0 0; padding: 6px 8px 4px; font: 18px/1 var(--font-display); letter-spacing: .03em; background: var(--c-lemon); color: var(--c-black); border-top: 3px solid var(--c-black); }
+.qrbox { background: var(--c-paper); border: 5px solid var(--c-black); box-shadow: 8px 8px 0 var(--c-lime); border-radius: var(--r); padding: 14px; display: grid; gap: 10px; justify-items: center; color: var(--c-black); transform: rotate(1deg); }
+.qrbox b { font: 32px/1 var(--font-display); letter-spacing: .03em; font-weight: 400; text-align: center; }
+.qrbox #qr img, .qrbox #qr canvas { width: 100% !important; max-width: 230px; height: auto !important; }
+
+@media (max-width: 380px) { .menu { grid-template-columns: 1fr; } .tile.main { grid-template-columns: 1fr; } .tile.main .big { text-align: left; } .drinks { grid-template-columns: 1fr; } }
+</style>
+
+<div id="app" aria-live="polite"></div>
+<div id="layer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.99.3/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script>
+(function () {
+"use strict";
+const C = window.CONFIG, K = window.CONTENT;
+const $app = document.getElementById("app");
+const $layer = document.getElementById("layer");
+
+/* ---------- segédek ---------- */
+const esc = s => String(s ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const shuffle = arr => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const ls = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : "id-" + Date.now() + "-" + Math.random().toString(16).slice(2));
+const questById = id => K.quests.find(q => q.id === id) || (K.bonuses || []).find(b => b.id === id);
+const firstName = n => { const t = String(n || "").trim().split(/\s+/); const last = t[t.length - 1] || ""; return t.length > 1 && !/\.$/.test(last) && last.length > 1 ? last : t[0]; };
+const ICON = {
+  sor: `<svg viewBox="0 0 24 28" aria-hidden="true"><path d="M4.5 8h11.5v15.5a2 2 0 0 1-2 2H6.5a2 2 0 0 1-2-2z" fill="#fff04a"/><path d="M4 7h12.5v16.5a2.5 2.5 0 0 1-2.5 2.5H6.5A2.5 2.5 0 0 1 4 23.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M16.5 10.5h2.5a2 2 0 0 1 2 2v5.5a2 2 0 0 1-2 2h-2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 8c-.4-2.6 2-4.4 4.3-3.6 1.2-2.4 5-2.3 5.9.2 2.2-.6 4.6.8 4.3 3.4z" fill="#fffbe8" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.3 12.5v9M12.2 12.5v9" stroke="currentColor" stroke-width="1.4" opacity=".45"/></svg>`,
+  bor: `<svg viewBox="0 0 24 28" aria-hidden="true"><path d="M6.4 8h11.2l-.1 1.2a5.5 5.5 0 0 1-11 0z" fill="#ff4d6d"/><path d="M6 3h12l-.5 6.2a5.5 5.5 0 0 1-11 0z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 14.7V24M7.5 25.5h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`,
+  longdrink: `<svg viewBox="0 0 24 28" aria-hidden="true"><path d="M14.5 1.5 11.5 12" stroke="#ff4d6d" stroke-width="2.2" stroke-linecap="round"/><path d="M5.9 11.5h12.2l-1 13.5H6.9z" fill="#c6f432"/><path d="M5 6h14l-1.5 20h-11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="18.6" cy="6.2" r="3.3" fill="#fff04a" stroke="currentColor" stroke-width="1.5"/></svg>`,
+  feles: `<svg viewBox="0 0 24 28" aria-hidden="true"><path d="M6.4 13h11.2l-1.1 9H7.5z" fill="#fff04a"/><path d="M5 8h14l-1.8 15H6.8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M6 23h12v3H6z" fill="currentColor"/></svg>`,
+  viz: `<svg viewBox="0 0 24 28" aria-hidden="true"><path d="M6.3 12h11.4l-1.1 12.5H7.4z" fill="#7fd8ff"/><path d="M5 6h14l-1.6 20H6.6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 14.5c-1.5 2-2.2 3-2.2 4a2.2 2.2 0 0 0 4.4 0c0-1-.7-2-2.2-4z" fill="#fffbe8"/></svg>`
+};
+const DRINK_COLS = { sor: "beers", bor: "wines", longdrink: "longdrinks", feles: "shots", viz: "waters" };
+const fmtPts = n => (Math.round(n * 10) / 10).toString().replace(".", ",");
+const newCode = () => String(Math.floor(1000 + Math.random() * 9000));
+const fmtTime = ms => (ms / 1000).toFixed(1).replace(".", ",") + " mp";
+const ago = iso => { const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000); if (s < 60) return "most"; if (s < 3600) return Math.floor(s / 60) + " perce"; return Math.floor(s / 3600) + " órája"; };
+
+function toast(msg) {
+  const t = document.createElement("div"); t.className = "toast"; t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
+}
+
+function photoHTML(i, cls = "") {
+  const list = C.PHOTOS || [];
+  const src = list.length ? list[((i % list.length) + list.length) % list.length] : "";
+  return `<div class="photo ${cls}"><div class="ph">Ide jön egy kép Ádámról</div>${src ? `<img src="${esc(src)}" alt="Ádám" loading="lazy" onerror="this.remove()">` : ""}</div>`;
+}
+
+/* képtömörítés feltöltés előtt */
+function compressImage(file, maxSide = 1280, quality = 0.75) {
+  return new Promise((resolve, reject) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const s = Math.min(1, maxSide / Math.max(img.width, img.height));
+      const cv = document.createElement("canvas"); cv.width = Math.round(img.width * s); cv.height = Math.round(img.height * s);
+      cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
+      URL.revokeObjectURL(url);
+      cv.toBlob(b => b ? resolve(b) : reject(new Error("blob")), "image/jpeg", quality);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("img")); };
+    img.src = url;
+  });
+}
+
+/* ---------- ADAT: Supabase vagy demó ---------- */
+const LIVE = !!(C.SUPABASE_URL && C.SUPABASE_KEY && window.supabase);
+
+const DemoStore = (() => {
+  const db = ls.get("bp_demo_db", null) || seed();
+  function seed() {
+    const names = ["Demó Dóri", "Minta Márk", "Teszt Tomi", "Próba Panni", "Példa Peti", "Kamu Kata"];
+    const d = { players: [], completions: [], scores: [], drinks: [] };
+    names.forEach((n, i) => {
+      const id = "demo-" + i; d.players.push({ id, name: n, level: 1 + (i % 3) });
+      shuffle(K.quests.filter((q, k) => k % 3 !== i % 3)).slice(0, 2 + (i % 4)).forEach((q, k) =>
+        d.completions.push({ id: uid(), player_id: id, player_name: n, quest_id: q.id, points: q.pts, photo_url: null, created_at: new Date(Date.now() - (i * 7 + k * 3) * 60000).toISOString() }));
+      d.scores.push({ player_id: id, player_name: n, kind: "pyramid", score: 2 * (2 + ((i * 3) % 7)), time_ms: 40000 + i * 9300 });
+      d.scores.push({ player_id: id, player_name: n, kind: "age", score: [29, 28, 29, 30, 29, 27][i], time_ms: 0 });
+      d.scores.push({ player_id: id, player_name: n, kind: "adam", score: [5, 3, 5, 4, 2, 5][i], time_ms: 5 });
+      ["sor", "sor", "longdrink", "feles", "bor", "feles", "viz"].slice(0, 2 + i).forEach((k, j) => d.drinks.push({ id: uid(), player_id: id, player_name: n, kind: k, created_at: new Date(Date.now() - j * 600000).toISOString() }));
+    });
+    return d;
+  }
+  if (!db.drinks) db.drinks = [];
+  const save = () => ls.set("bp_demo_db", db);
+  const later = v => new Promise(r => setTimeout(() => r(v), 120));
+  return {
+    async createPlayer(name, code) { const p = { id: uid(), name, level: null, code }; db.players.push(p); save(); return later({ id: p.id, name: p.name, level: p.level }); },
+    async nameTaken(name) { return later(db.players.some(p => p.name.toLowerCase() === name.toLowerCase())); },
+    async resume(name, code) { const p = db.players.slice().reverse().find(p => p.name.toLowerCase() === name.trim().toLowerCase() && p.code === code.trim()); return later(p ? { id: p.id, name: p.name, level: p.level } : null); },
+    async playerExists(id) { return later(db.players.some(p => p.id === id)); },
+    async myDrinks(id) { return later(db.drinks.filter(d => d.player_id === id)); },
+    async addDrink(me, kind) { const d = { id: uid(), player_id: me.id, player_name: me.name, kind, created_at: new Date().toISOString() }; db.drinks.push(d); save(); return later(d); },
+    async removeDrink(id) { db.drinks = db.drinks.filter(d => d.id !== id); save(); return later(true); },
+    async drinkCount() { return later(db.drinks.filter(d => d.kind !== "viz").length); },
+    async questCount() { return later(db.completions.filter(c => String(c.quest_id).startsWith("q")).length); },
+    async setLevel(id, level) { const p = db.players.find(x => x.id === id); if (p) p.level = level; save(); return later(true); },
+    async myCompletions(id) { return later(db.completions.filter(c => c.player_id === id)); },
+    async complete(me, q, blob) {
+      if (db.completions.some(c => c.player_id === me.id && c.quest_id === q.id)) throw new Error("dup");
+      let photo_url = null;
+      if (blob) photo_url = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(blob); });
+      const c = { id: uid(), player_id: me.id, player_name: me.name, quest_id: q.id, points: q.pts, photo_url, created_at: new Date().toISOString() };
+      db.completions.push(c); save(); return later(c);
+    },
+    async uncomplete(me, qid) { db.completions = db.completions.filter(c => !(c.player_id === me.id && c.quest_id === qid)); save(); return later(true); },
+    async leaderboard(n = 50) {
+      const m = new Map(db.players.map(p => [p.id, { player_id: p.id, name: p.name, points: 0, quests: 0, beers: 0, wines: 0, longdrinks: 0, shots: 0, waters: 0 }]));
+      db.completions.forEach(c => { const r = m.get(c.player_id); if (r) { r.points += Number(c.points); if (String(c.quest_id).startsWith("q")) r.quests++; } });
+      db.drinks.forEach(d => { const r = m.get(d.player_id); if (r && DRINK_COLS[d.kind]) r[DRINK_COLS[d.kind]]++; });
+      return later([...m.values()].filter(r => r.points > 0).sort((a, b) => b.points - a.points || b.quests - a.quests).slice(0, n));
+    },
+    async feed(n = 12) { return later(db.completions.slice().sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, n)); },
+    async photos(n = 6) { return later(db.completions.filter(c => c.photo_url).sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, n)); },
+    async getScore(id, kind) { return later(db.scores.find(s => s.player_id === id && s.kind === kind) || null); },
+    async saveScore(me, kind, score, time_ms) {
+      const ex = db.scores.find(s => s.player_id === me.id && s.kind === kind);
+      if (ex) Object.assign(ex, { score, time_ms }); else db.scores.push({ player_id: me.id, player_name: me.name, kind, score, time_ms });
+      save(); return later(true);
+    },
+    async scoreBoard(kind, n = 20) { return later(db.scores.filter(s => s.kind === kind).sort((a, b) => b.score - a.score || a.time_ms - b.time_ms).slice(0, n)); },
+    async allScores(kind) { return later(db.scores.filter(s => s.kind === kind).map(s => ({ score: s.score }))); },
+    reset() { ls.del("bp_demo_db"); }
+  };
+})();
+
+const SupaStore = (() => {
+  if (!LIVE) return null;
+  const sb = window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_KEY, { auth: { persistSession: false } });
+  const ok = ({ data, error }) => { if (error) throw error; return data; };
+  return {
+    async createPlayer(name, code) { return ok(await sb.from("players").insert({ name, code }).select("id,name,level").single()); },
+    async nameTaken(name) { const pat = name.replace(/[\\%_]/g, m => "\\" + m); const rows = ok(await sb.from("players").select("id").ilike("name", pat).limit(1)); return rows.length > 0; },
+    async resume(name, code) { const rows = ok(await sb.rpc("resume_player", { p_name: name, p_code: code })); return rows && rows[0] ? rows[0] : null; },
+    async playerExists(id) { const rows = ok(await sb.from("players").select("id").eq("id", id).limit(1)); return rows.length > 0; },
+    async myDrinks(id) { return ok(await sb.from("drinks").select("id,kind,created_at").eq("player_id", id).order("created_at")); },
+    async addDrink(me, kind) { return ok(await sb.from("drinks").insert({ player_id: me.id, player_name: me.name, kind }).select("id,kind,created_at").single()); },
+    async removeDrink(id) { ok(await sb.from("drinks").delete().eq("id", id)); return true; },
+    async drinkCount() { const { count, error } = await sb.from("drinks").select("id", { count: "exact", head: true }).neq("kind", "viz"); if (error) throw error; return count || 0; },
+    async questCount() { const { count, error } = await sb.from("completions").select("id", { count: "exact", head: true }).like("quest_id", "q%"); if (error) throw error; return count || 0; },
+    async setLevel(id, level) { ok(await sb.from("players").update({ level }).eq("id", id)); return true; },
+    async myCompletions(id) { return ok(await sb.from("completions").select("*").eq("player_id", id)); },
+    async complete(me, q, blob) {
+      let photo_url = null;
+      if (blob) {
+        const path = `${me.id}/${q.id}-${Date.now()}.jpg`;
+        ok(await sb.storage.from("proofs").upload(path, blob, { contentType: "image/jpeg", upsert: false }));
+        photo_url = sb.storage.from("proofs").getPublicUrl(path).data.publicUrl;
+      }
+      return ok(await sb.from("completions").insert({ player_id: me.id, player_name: me.name, quest_id: q.id, points: q.pts, photo_url }).select().single());
+    },
+    async uncomplete(me, qid) { ok(await sb.from("completions").delete().eq("player_id", me.id).eq("quest_id", qid)); return true; },
+    async leaderboard(n = 50) { return ok(await sb.from("leaderboard").select("*").gt("points", 0).order("points", { ascending: false }).order("quests", { ascending: false }).limit(n)); },
+    async feed(n = 12) { return ok(await sb.from("completions").select("player_name,quest_id,points,photo_url,created_at").order("created_at", { ascending: false }).limit(n)); },
+    async photos(n = 6) { return ok(await sb.from("completions").select("player_name,quest_id,photo_url,created_at").not("photo_url", "is", null).order("created_at", { ascending: false }).limit(n)); },
+    async getScore(id, kind) { return ok(await sb.from("scores").select("*").eq("player_id", id).eq("kind", kind).maybeSingle()); },
+    async saveScore(me, kind, score, time_ms) { ok(await sb.from("scores").upsert({ player_id: me.id, player_name: me.name, kind, score, time_ms }, { onConflict: "player_id,kind" })); return true; },
+    async scoreBoard(kind, n = 20) { return ok(await sb.from("scores").select("*").eq("kind", kind).order("score", { ascending: false }).order("time_ms", { ascending: true }).limit(n)); },
+    async allScores(kind) { return ok(await sb.from("scores").select("score").eq("kind", kind).limit(2000)); }
+  };
+})();
+
+const store = SupaStore || DemoStore;
+
+/* ---------- állapot ---------- */
+const S = {
+  me: ls.get("bp_me", null),          // {id, name, level}
+  done: new Map(),                    // quest_id -> completion
+  drinks: [],                         // saját pia-bejegyzések
+  board: [],
+  view: "home",
+  questCat: "konnyu",
+  busy: false
+};
+const myPoints = () => [...S.done.values()].reduce((s, c) => s + Number(c.points), 0);
+function myRank() { const i = S.board.findIndex(r => r.player_id === S.me?.id); return i >= 0 ? i + 1 : null; }
+
+async function refreshMine() {
+  if (!S.me) return;
+  try { const rows = await store.myCompletions(S.me.id); S.done = new Map(rows.map(r => [r.quest_id, r])); } catch (e) { console.warn(e); }
+}
+async function refreshDrinks() {
+  if (!S.me) return;
+  try { S.drinks = await store.myDrinks(S.me.id); } catch (e) { console.warn(e); }
+}
+const drinkN = k => S.drinks.filter(d => d.kind === k).length;
+async function refreshBoard() {
+  const [b, ad] = await Promise.all([store.leaderboard(50).catch(e => { console.warn(e); return null; }), adamStats().catch(() => null)]);
+  if (b) S.board = b;
+  if (ad) S.adamAll = ad.perfect.length;
+}
+
+/* ---------- router ---------- */
+function go(view, opts = {}) { S.view = view; Object.assign(S, opts); render(); window.scrollTo(0, 0); }
+
+function header(back = true) {
+  return `<header class="top">
+    ${back ? `<button class="back" data-go="home" aria-label="Vissza a főoldalra">← Főoldal</button>` : `<div class="brand">ÁDÁM <small>NOV 7 · PACSI</small></div>`}
+    <div style="display:flex;gap:8px;align-items:center">${LIVE ? "" : `<span class="demo-flag" title="Nincs bekötve a közös adatbázis">Demó</span>`}<span class="pill-pts">${fmtPts(myPoints())} pont</span></div>
+  </header>`;
+}
+
+function render() {
+  if (!S.me) return renderJoin();
+  const v = S.view;
+  if (v === "home") return renderHome();
+  if (v === "quests") return renderQuests();
+  if (v === "adamquiz") return renderAdamQuiz();
+  if (v === "topics") return renderTopics();
+  if (v === "pyramid") return renderPyramid();
+  renderHome();
+}
+
+/* ---------- belépés ---------- */
+let joinMode = "new";
+function renderJoin(err = "") {
+  const urlCode = new URLSearchParams(location.search).get("kod") || "";
+  const needCode = !!C.PARTY_CODE && urlCode.toUpperCase() !== C.PARTY_CODE.toUpperCase();
+  const resume = joinMode === "resume";
+  $app.innerHTML = `
+    <header class="top"><div class="brand">ÁDÁM <small>NOV 7 · PACSI</small></div>${LIVE ? "" : `<span class="demo-flag">Demó</span>`}</header>
+    <section class="hero">
+      <div class="strip">${photoHTML(0)}${photoHTML(1)}${photoHTML(2)}</div>
+      <h1>${resume ? "Vissza&shy;lépés" : `Szülinapi<span>side questek</span>`}</h1>
+      ${resume ? `<p style="color:var(--ink-dim)">Írd be ugyanazt a nevet, amivel beléptél, és a 4 jegyű belépőkódodat. A pontjaid ott várnak.</p>`
+               : `<div class="meta-row"><span>2026. nov. 7.</span><span>Pacsi, alsó szint</span><span>19:00-tól</span></div>`}
+      <form id="join" class="hero" style="gap:14px" autocomplete="off">
+        <div class="field"><label for="nm">${resume ? "A neved" : "Hogy hívnak?"}</label><input id="nm" name="nm" maxlength="24" placeholder="Pl. Kovács Márk" required></div>
+        ${resume ? `<div class="field"><label for="pin">Belépőkód</label><input id="pin" name="pin" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="4 számjegy" required></div>` : ""}
+        ${needCode && !resume ? `<div class="field"><label for="code">Buli-kód</label><input id="code" name="code" maxlength="20" placeholder="A meghívóban vagy a falon"></div>` : ""}
+        ${err ? `<p class="err">${esc(err)}</p>` : ""}
+        <button class="btn block" type="submit" id="joinbtn">${resume ? "Folytatom" : "Beszállok"}</button>
+        <button class="linkbtn" type="button" data-act="joinmode">${resume ? "Új vagyok, most lépek be először" : "Már játszottam, visszalépek a kódommal"}</button>
+      </form>
+    </section>`;
+  document.getElementById("join").addEventListener("submit", async ev => {
+    ev.preventDefault();
+    const name = document.getElementById("nm").value.trim().replace(/\s+/g, " ");
+    if (name.length < 2) return renderJoin("Írd be a neved, hogy a ranglistán is lássanak.");
+    const btn = document.getElementById("joinbtn"); btn.disabled = true;
+    if (resume) {
+      const pin = (document.getElementById("pin").value || "").trim();
+      try {
+        const p = await store.resume(name, pin);
+        if (!p) { joinMode = "resume"; return renderJoin("Ezzel a névvel és kóddal nem találtalak. Ellenőrizd a betűzést, vagy kérdezd meg Ádámot."); }
+        S.me = { id: p.id, name: p.name, level: p.level, code: pin }; ls.set("bp_me", S.me);
+        await Promise.all([refreshMine(), refreshDrinks(), refreshBoard()]);
+        joinMode = "new"; go("home"); schedulePopup(); toast("Visszaléptél, " + firstName(p.name) + "!");
+      } catch (e) { console.error(e); joinMode = "resume"; renderJoin("Nem sikerült visszalépni. Ellenőrizd a netet, és próbáld újra."); }
+      return;
+    }
+    if (needCode) {
+      const code = (document.getElementById("code").value || "").trim();
+      if (code.toUpperCase() !== C.PARTY_CODE.toUpperCase()) return renderJoin("Ez nem a jó buli-kód. Nézd meg a falon kitett QR-kód mellett.");
+    }
+    try {
+      if (await store.nameTaken(name)) {
+        return renderJoin(`Már van „${name}” nevű játékos. Ha te vagy az, lépj vissza a kódoddal lent. Ha nem, írj a neved mellé egy kezdőbetűt is (pl. ${name.split(" ")[0]} K.).`);
+      }
+      const pin = newCode();
+      const p = await store.createPlayer(name, pin);
+      S.me = { id: p.id, name: p.name, level: null, code: pin }; ls.set("bp_me", S.me);
+      await refreshBoard(); go("home"); showCode(true); schedulePopup();
+    } catch (e) { console.error(e); renderJoin("Nem sikerült csatlakozni. Ellenőrizd a netet, és próbáld újra."); }
+  });
+}
+function showCode(first) {
+  if (!S.me || !S.me.code) return;
+  openSheet(`
+    <h2>${first ? "Ez a belépőkódod" : "A belépőkódod"}</h2>
+    <div class="code-box"><small>${esc(S.me.name)}</small><b>${esc(S.me.code)}</b></div>
+    <p>Ha bezárod az appot, nyugi: ezen a telefonon ott folytatod, ahol abbahagytad. Ha mégis elveszne (másik böngésző, törölt előzmények, másik telefon), a neveddel és ezzel a kóddal visszaléphetsz.</p>
+    <p style="color:var(--ink)"><b>Csinálj róla képernyőképet.</b></p>
+    <button class="btn block" data-act="close">Megjegyeztem</button>`);
+}
+
+/* ---------- főoldal ---------- */
+function renderHome() {
+  const rank = myRank(), pts = myPoints();
+  const top = S.board.slice(0, 5);
+  const meIn = top.some(r => r.player_id === S.me.id);
+  const mine = S.board.find(r => r.player_id === S.me.id);
+  const doneQ = K.quests.filter(q => S.done.has(q.id)).length;
+  $app.innerHTML = `${header(false)}
+    <section class="hello">
+      <h1>Szia, ${esc(firstName(S.me.name))}!</h1>
+      <p>Válassz, mivel kezdesz. A pontjaid a kivetítőn is látszanak.</p>
+    </section>
+    <nav class="menu">
+      <button class="tile main" data-go="quests">
+        <div style="display:grid;gap:8px"><span class="k">${doneQ ? doneQ + " kész / " + K.quests.length : "Kezdd itt"}</span><h2>Side questek</h2><p>Könnyű, közepes, nehéz vagy ismerkedős. Te választasz.</p></div>
+        <div class="big">${fmtPts(pts)}<small>pont${rank ? " · " + rank + ". hely" : ""}</small></div>
+      </button>
+      ${piaHTML()}
+      <button class="tile" data-go="pyramid"><span class="k">${K.pyramid.length + 1} szint</span><div style="display:grid;gap:6px"><h2>Kvíz&shy;piramis</h2><p>Egyre nehezebb. Egy hiba, és lezuhansz.</p></div></button>
+      <button class="tile" data-go="topics"><span class="k">Jégtörők · viták</span><div style="display:grid;gap:6px"><h2>Téma&shy;dobó</h2><p>Nem tudod, mit kérdezz? Húzz egy kérdést.</p></div></button>
+    </nav>
+    <section class="section">
+      <h3>Ranglista</h3>
+      ${top.length ? `<div class="board">${top.map((r, i) => boardRow(r, i)).join("")}${!meIn && mine && Number(mine.points) > 0 ? boardRow(mine, S.board.indexOf(mine)) : ""}</div>` : `<div class="empty">Még senkinek nincs pontja. Legyél te az első.</div>`}
+    </section>
+    <nav class="menu" style="margin-top:26px">
+      <button class="tile" data-go="adamquiz" style="grid-column:1/-1;min-height:0"><span class="k">${K.adamQuiz.length} kérdés a szülinaposról${S.adamAll != null ? ` · ${S.adamAll} vendég mindent tud` : ""}</span><div style="display:grid;gap:6px"><h2>Ki ez az Ádám?</h2><p>Mennyire ismered? Képekkel és pár sztorival.</p></div></button>
+    </nav>
+    <section class="section">
+      <h3>A szülinapos, véletlenszerűen</h3>
+      ${photoHTML(Math.floor(Math.random() * 99), "wide")}
+    </section>
+    <p style="margin-top:28px;text-align:center;font-size:13px;color:var(--ink-faint)">${esc(S.me.name)} néven vagy bent.${S.me.code ? ` <button class="back" data-act="showcode" style="display:inline;padding:0;font:700 13px var(--font-body);text-decoration:underline">Belépőkód: ${esc(S.me.code)}</button> ·` : ""} <button class="back" data-act="logout" style="display:inline;padding:0;font:700 13px var(--font-body);text-decoration:underline">Nem te vagy?</button></p>`;
+}
+function drinksHTML(r) {
+  const parts = K.drinks.map(d => ({ d, n: Number(r[DRINK_COLS[d.k]] || 0) })).filter(x => x.n > 0);
+  return parts.length ? `<span class="dr">${parts.map(x => `<span title="${esc(x.d.name)}">${ICON[x.d.k]}${x.n}</span>`).join("")}</span>` : "<span></span>";
+}
+function boardRow(r, i, val, noDrinks) {
+  return `<div class="row ${r.player_id === S.me?.id ? "me" : ""}"><span class="pos">${i + 1}.</span><span class="nm">${esc(r.name ?? r.player_name)}</span>${noDrinks ? "<span></span>" : drinksHTML(r)}<span class="val">${val ?? (fmtPts(Number(r.points)) + " p")}</span></div>`;
+}
+
+/* ---------- questek ---------- */
+function renderQuests() {
+  const cat = K.cats.find(c => c.k === S.questCat) || K.cats[0];
+  const list = K.quests.filter(q => q.cat === cat.k);
+  const tabs = K.cats.map(c => {
+    const all = K.quests.filter(q => q.cat === c.k);
+    const cnt = all.filter(q => S.done.has(q.id)).length;
+    return `<button class="lv-tab ${c.k === cat.k ? "on" : ""}" style="--c:var(${c.color})" data-act="cattab" data-c="${c.k}">
+      <b>${esc(c.name)}</b><small>${cnt}/${all.length}</small></button>`;
+  }).join("");
+  $app.innerHTML = `${header()}
+    <div class="lv-tabs">${tabs}</div>
+    <div class="lv-head" style="--c:var(${cat.color})"><h2>${esc(cat.name)}</h2><p>${esc(cat.short)}</p></div>
+    <div class="quests">${list.map(q => ticketHTML(q, cat)).join("") || `<div class="empty">Ide még nem került quest.</div>`}</div>
+    <p style="margin-top:22px;font-size:13px;color:var(--ink-faint);text-align:center">Becsületkassza: azt pipáld ki, amit tényleg megcsináltál.</p>`;
+}
+function ticketHTML(q, L) {
+  const d = S.done.get(q.id);
+  const riddle = q.riddle ? `<div class="riddle">„${esc(pick(K.riddles))}”</div>` : "";
+  return `<article class="ticket ${d ? "done" : ""}" style="--c:var(${L.color})">
+    <div class="body">
+      <p class="txt">${esc(q.t)}</p>
+      ${q.note ? `<p class="note">${esc(q.note)}</p>` : ""}
+      ${riddle}
+      ${q.photo ? `<div class="tags"><span class="tag cam">Fotó kötelező</span></div>` : ""}
+      ${d && d.photo_url ? `<img class="proof" src="${esc(d.photo_url)}" alt="Bizonyíték">` : ""}
+    </div>
+    <div class="stub"><span class="p">${d ? "✓" : q.pts}</span><span class="u">${d ? "+" + q.pts + " p" : "pont"}</span></div>
+    <div class="act">${d
+      ? `<button data-act="undo" data-q="${q.id}">Mégsem csináltam meg</button>`
+      : `<button data-act="done" data-q="${q.id}">${q.photo ? "Megvan, feltöltöm a fotót" : "Megcsináltam"}</button>`}</div>
+  </article>`;
+}
+
+function openSheet(html, onMount) {
+  $layer.innerHTML = `<div class="scrim" data-act="close-scrim"><div class="sheet" role="dialog" aria-modal="true">${html}</div></div>`;
+  onMount && onMount($layer.querySelector(".sheet"));
+}
+function closeSheet() { $layer.innerHTML = ""; }
+
+function confirmQuest(q) {
+  let blob = null;
+  openSheet(`
+    <h2>${q.photo ? "Mutasd a bizonyítékot" : "Tényleg megvan?"}</h2>
+    <p>${esc(q.t)}</p>
+    <label class="upload" id="up"><input type="file" id="file" accept="image/*" ${q.photo ? "" : ""}>
+      <span id="upmsg">${q.photo ? "Koppints ide, és fotózz vagy válassz képet" : "Fotó opcionális, de a kivetítőn jól mutat"}</span></label>
+    <div class="row-btns"><button class="btn ghost" data-act="close">Mégse</button><button class="btn" id="ok" ${q.photo ? "disabled" : ""}>+${q.pts} pont</button></div>`,
+  sheet => {
+    const file = sheet.querySelector("#file"), ok = sheet.querySelector("#ok"), up = sheet.querySelector("#upmsg");
+    file.addEventListener("change", async () => {
+      const f = file.files[0]; if (!f) return;
+      up.textContent = "Kép előkészítése…";
+      try {
+        blob = await compressImage(f);
+        const u = URL.createObjectURL(blob);
+        up.innerHTML = `<img src="${u}" alt="Előnézet">`;
+        ok.disabled = false;
+      } catch (e) { up.textContent = "Ezt a képet nem tudtam megnyitni. Próbálj egy másikat."; }
+    });
+    ok.addEventListener("click", async () => {
+      if (S.busy) return; S.busy = true; ok.disabled = true; ok.textContent = "Mentés…";
+      try {
+        const c = await store.complete(S.me, q, blob);
+        S.done.set(q.id, c); closeSheet();
+        toast(`+${q.pts} pont!`);
+        refreshBoard(); render();
+      } catch (e) {
+        console.error(e);
+        if (String(e.message).includes("dup") || e.code === "23505") { toast("Ezt már kipipáltad."); closeSheet(); await refreshMine(); render(); }
+        else { ok.disabled = false; ok.textContent = "Újrapróbálom"; toast("Nem sikerült menteni. Próbáld újra."); }
+      } finally { S.busy = false; }
+    });
+  });
+}
+
+/* ---------- Pia-számláló (főoldalon) ---------- */
+let drinkBusy = false;
+function piaHTML() {
+  const alc = S.drinks.filter(d => d.kind !== "viz").length;
+  const got = (K.bonuses || []).filter(b => S.done.has(b.id));
+  return `<section class="pia" id="pia" aria-label="Piaszámláló">
+    <div class="pia-head"><div style="display:grid;gap:6px"><span class="k">Mindegyik külön számít</span><h2>Pia&shy;számláló</h2></div>
+      <div class="big">${alc}<small>ital ma este</small></div></div>
+    <div class="pia-rows">${K.drinks.map(d => { const n = drinkN(d.k); return `<div class="pia-row" data-row="${d.k}">
+      ${ICON[d.k]}<span class="nm">${esc(d.name)}<small>${esc(d.sub)}</small></span>
+      <button class="minus" data-act="dminus" data-k="${d.k}" aria-label="Egy ${esc(d.name)} le" ${n ? "" : "disabled"}>−</button>
+      <span class="cnt">${n}</span>
+      <button class="plus" data-act="dplus" data-k="${d.k}" aria-label="Egy ${esc(d.name)} fel">+</button></div>`; }).join("")}</div>
+    ${got.length ? `<div class="badges">${got.map(b => `<span class="badge">${esc(b.name)} · +${b.pts} p</span>`).join("")}</div>` : ""}
+    <p class="pia-note">Becsületkassza. A víz is számít, és nem csak a lelkiismeretednek.</p>
+  </section>`;
+}
+function refreshPia(flashKind) {
+  if (S.view !== "home" || !document.getElementById("pia")) return;
+  renderHome();
+  if (flashKind) { const r = document.querySelector(`[data-row="${flashKind}"]`); if (r) r.classList.add("flash"); }
+}
+async function addDrink(kind) {
+  if (drinkBusy) return; drinkBusy = true;
+  const d = K.drinks.find(x => x.k === kind);
+  try {
+    const row = await store.addDrink(S.me, kind);
+    S.drinks.push(row);
+    const n = drinkN(kind);
+    const bonus = (K.bonuses || []).find(b => b.kind === kind && b.at === n && !S.done.has(b.id));
+    if (bonus) {
+      try {
+        const c = await store.complete(S.me, { id: bonus.id, pts: bonus.pts }, null);
+        S.done.set(bonus.id, c); refreshBoard();
+        openSheet(`<div style="display:grid;gap:12px;text-align:center"><span class="step">Titkos bónusz</span>
+          <h2 style="font-size:44px">${esc(bonus.name)}</h2><p style="color:var(--ink);font-size:18px;font-weight:800">+${bonus.pts} pont a ranglistán</p>
+          <p>Ezt senki nem mondta előre. Most már tudod.</p><button class="btn block gold" data-act="close">Egészségedre!</button></div>`);
+      } catch (e) { if (!(String(e.message).includes("dup") || e.code === "23505")) console.warn(e); }
+    } else toast(`+1 ${d ? d.name : ""} · ${n}. ma este`);
+  } catch (e) { console.error(e); toast("Nem sikerült menteni. Próbáld újra."); }
+  finally { drinkBusy = false; refreshPia(kind); }
+}
+async function removeDrink(kind) {
+  const mineK = S.drinks.filter(d => d.kind === kind);
+  const last = mineK[mineK.length - 1];
+  if (!last || drinkBusy) return; drinkBusy = true;
+  try {
+    await store.removeDrink(last.id);
+    S.drinks = S.drinks.filter(d => d !== last);
+    const n = drinkN(kind);
+    for (const b of (K.bonuses || []).filter(b => b.kind === kind && n < b.at && S.done.has(b.id))) {
+      await store.uncomplete(S.me, b.id).catch(console.warn); S.done.delete(b.id); refreshBoard();
+    }
+    toast("Egy levonva.");
+  } catch (e) { toast("Nem sikerült. Próbáld újra."); }
+  finally { drinkBusy = false; refreshPia(); }
+}
+
+/* ---------- Ádám-kvíz ---------- */
+// Az első kitöltést mentjük: score = jó válaszok, time_ms = kérdések száma (így a kijelző is tudja, ki ért el maximumot).
+let aq = null;
+async function adamStats() {
+  const rows = await store.scoreBoard("adam", 1000).catch(() => []);
+  const perfect = rows.filter(r => Number(r.time_ms) > 0 && Number(r.score) >= Number(r.time_ms));
+  return { total: rows.length, perfect };
+}
+function adamClubHTML(st) {
+  if (!st) return "";
+  const names = st.perfect.map(r => r.player_name);
+  return `<div class="agestat" style="width:100%;text-align:left"><b>${st.perfect.length} / ${st.total} mindent tud</b>Ennyien válaszoltak elsőre minden kérdésre jól a szülinaposról.</div>
+    ${names.length ? `<details class="club"><summary>Mindent tudók klubja (${names.length})</summary><ol>${names.map(n => `<li>${esc(n)}</li>`).join("")}</ol></details>` : ""}`;
+}
+async function renderAdamQuiz() {
+  if (!aq) {
+    $app.innerHTML = `${header()}<p class="empty">Betöltés…</p>`;
+    const prev = await store.getScore(S.me.id, "adam").catch(() => null);
+    aq = { i: 0, score: 0, answered: null, marks: [], prev };
+  }
+  const st = aq, Q = K.adamQuiz;
+  if (st.i >= Q.length) {
+    if (!st.saved) {
+      st.saved = true;
+      (st.prev ? Promise.resolve() : store.saveScore(S.me, "adam", st.score, Q.length).catch(console.warn))
+        .then(() => adamStats()).then(x => { st.stats = x; if (S.view === "adamquiz") renderAdamQuiz(); });
+    }
+    const msg = st.score === Q.length ? "Ez már gyanús. Te vagy Ádám?" : st.score >= Q.length - 1 ? "Közeli barát vagy, vagy nagyon figyelsz." : st.score >= 2 ? "Van mit pótolni. Menj oda hozzá, és kérdezd ki." : "Most ismerted meg? Itt az ideje bemutatkozni.";
+    $app.innerHTML = `${header()}<section class="result">
+      <span class="step">Ki ez az Ádám?</span>
+      <div class="score">${st.score}/${Q.length}</div>
+      <p>${esc(msg)}${st.prev ? " Ez már nem az első kitöltésed, a statisztikába az első számít." : ""}</p>
+      ${adamClubHTML(st.stats)}
+      ${photoHTML(7, "wide")}
+      <div class="btn-row" style="width:100%"><button class="btn ghost" data-act="aq-again">Újra</button><button class="btn" data-go="home">Főoldal</button></div>
+    </section>`;
+    return;
+  }
+  const item = Q[st.i], ans = st.answered;
+  $app.innerHTML = `${header()}<section class="quiz">
+    <div class="qhead"><span>Ki ez az Ádám? · ${st.i + 1}/${Q.length}</span><span class="dots">${Q.map((_, k) => `<i class="${st.marks[k] === true ? "ok" : st.marks[k] === false ? "bad" : k === st.i ? "cur" : ""}"></i>`).join("")}</span></div>
+    ${photoHTML(item.photo ?? st.i, "wide")}
+    <h2>${esc(item.q)}</h2>
+    <div class="choices">${item.a.map((t, k) => {
+      const cls = ans === null ? "" : k === item.c ? "right" : k === ans ? "wrong" : "";
+      return `<button class="opt ${cls}" data-act="aq" data-k="${k}" ${ans !== null ? "disabled" : ""}><span class="l">${"ABCD"[k]}</span>${esc(t)}</button>`;
+    }).join("")}</div>
+    ${ans !== null ? `<div class="info"><b>${ans === item.c ? "Talált" : "Nem egészen"}</b>${esc(item.info)}</div><button class="btn block" data-act="aq-next">${st.i + 1 < Q.length ? "Következő" : "Eredmény"}</button>` : ""}
+  </section>`;
+}
+
+/* ---------- Témadobó ---------- */
+const T = { tab: "ice", d: null, assign: null, ice: null, timerEnd: 0, timerId: null };
+function renderTopics() {
+  if (!T.d) T.d = pick(K.dilemmas);
+  if (!T.ice) T.ice = pick(K.icebreakers);
+  let body;
+  if (T.tab === "coin") {
+    const left = T.timerEnd ? Math.max(0, T.timerEnd - Date.now()) : 120000;
+    const mm = Math.floor(left / 60000), ss = Math.floor((left % 60000) / 1000);
+    body = `<section class="dilemma">
+      <div class="mode-intro"><b>Az érem két oldala</b>Kettőtöknek egy vitatéma. Mindenki kap egy oldalt, és két percig azt védi, akkor is, ha valójában egyetért a másikkal. A végén a körülöttetek állók döntik el, ki nyert.</div>
+      <span class="topic">${esc(T.d.q)}</span>
+      <div class="coin">
+        <div class="side a"><span class="who">${T.assign ? esc(T.assign[0]) : "Egyik oldal"}</span><span class="what">${esc(T.d.a)}</span></div>
+        <span class="vs">VS</span>
+        <div class="side b"><span class="who">${T.assign ? esc(T.assign[1]) : "Másik oldal"}</span><span class="what">${esc(T.d.b)}</span></div>
+      </div>
+      <div class="timer ${left < 20000 && T.timerEnd ? "hot" : ""}" id="timer">${mm}:${String(ss).padStart(2, "0")}</div>
+      <div class="btn-row">
+        <button class="btn ghost" data-act="flip">${T.assign ? "Újrasorsol" : "Ki melyik oldal?"}</button>
+        <button class="btn gold" data-act="timer">${T.timerEnd ? "Leállít" : "2 perc indul"}</button>
+      </div>
+      <button class="btn block" data-act="newd">Új dilemma</button>
+    </section>`;
+  } else {
+    body = `<section class="dilemma">
+      <div class="mode-intro"><b>Jégtörő kérdések</b>Odamennél valakihez, de nem tudod, mivel kezdd? Húzz egy kérdést, és tedd fel neki. A legjobb sztorik innen szoktak indulni.</div>
+      <div class="ice"><small>Kérdezd meg tőle</small><q>${esc(T.ice)}</q><small>Tipp: a válasz után kérdezz vissza egy „és miért?”-tel</small></div>
+      <button class="btn block" data-act="newice">Másikat kérek</button>
+    </section>`;
+  }
+  $app.innerHTML = `${header()}
+    <div class="seg"><button class="${T.tab === "ice" ? "on" : ""}" data-act="ttab" data-t="ice">Jégtörők</button><button class="${T.tab === "coin" ? "on" : ""}" data-act="ttab" data-t="coin">Érem két oldala</button></div>
+    ${body}`;
+}
+function tickTimer() {
+  const el = document.getElementById("timer");
+  if (!T.timerEnd) return;
+  const left = Math.max(0, T.timerEnd - Date.now());
+  if (el) { const mm = Math.floor(left / 60000), ss = Math.ceil((left % 60000) / 1000) % 60; el.textContent = `${mm}:${String(left > 0 && ss === 0 && left % 60000 > 0 ? 0 : ss).padStart(2, "0")}`; el.classList.toggle("hot", left < 20000); }
+  if (left <= 0) { clearInterval(T.timerId); T.timerId = null; T.timerEnd = 0; if (navigator.vibrate) navigator.vibrate([200, 100, 200]); toast("Lejárt az idő! Ki győzött?"); if (S.view === "topics") renderTopics(); }
+}
+
+/* ---------- Kvízpiramis ---------- */
+// Pontozás: első próbálkozás = 1 pont / szint, minden további = pyramidRetryFactor pont / szint. A legjobb számít.
+// A "pyramid" pontszámot fél pontokban tároljuk (egész szám), a "pyr_tries" a próbálkozások száma, az "age" az első kor-tipp.
+let P = null;
+const pLevels = () => K.pyramid.length + 1;
+async function ageStats() {
+  const rows = await store.allScores("age").catch(() => []);
+  const right = Number(K.ageQuestion.a[K.ageQuestion.c]);
+  const tips = rows.map(r => Number(r.score)).filter(a => a > 0);
+  return { total: rows.length, right: tips.filter(a => a === right).length, older: tips.filter(a => a > right).length, younger: tips.filter(a => a < right).length };
+}
+async function renderPyramid() {
+  if (!P) {
+    $app.innerHTML = `${header()}<p class="empty">Betöltés…</p>`;
+    const [best, tries, age, board] = await Promise.all([
+      store.getScore(S.me.id, "pyramid").catch(() => null), store.getScore(S.me.id, "pyr_tries").catch(() => null),
+      store.getScore(S.me.id, "age").catch(() => null), store.scoreBoard("pyramid", 20).catch(() => [])]);
+    const t = tries ? Number(tries.score) : (best ? 1 : 0);
+    P = { phase: t ? "done" : "intro", best, tries: t, age, board, lvl: 0, qs: null, start: 0, qStart: 0, ans: null, timer: null, last: null, stats: null };
+  }
+  const levels = pLevels();
+  const pyr = (cur, fell) => `<div class="pyr" aria-hidden="true">${Array.from({ length: levels }, (_, k) => { const lv = levels - 1 - k; return `<i style="width:${28 + (levels - lv) * 7}%" class="${lv < cur ? "done" : lv === cur ? (fell ? "fell" : "cur") : ""}">${lv + 1}</i>`; }).join("")}</div>`;
+
+  if (P.phase === "intro") {
+    $app.innerHTML = `${header()}<section class="pyr-intro">
+      <h1>Kvízpiramis</h1>
+      ${pyr(-1)}
+      <ul><li>${levels} szint, mindegyik nehezebb az előzőnél. Az első egy könnyű bemelegítő a szülinaposról.</li><li>Kérdésenként ${K.pyramidSeconds} másodperc.</li><li>Egy rossz válasz vagy lejárt idő, és lezuhansz.</li><li>Minden megmászott szint 1 pont. <b style="color:var(--gold)">Újrapróbálni lehet, de akkor már csak fél pont jár szintenként.</b> A legjobb eredményed számít.</li></ul>
+      <button class="btn block gold" data-act="pstart">Indulás a csúcsra</button>
+      ${pBoard()}
+    </section>`;
+    return;
+  }
+  if (P.phase === "play") {
+    const q = P.qs[P.lvl], ans = P.ans;
+    const isAge = P.lvl === 0;
+    $app.innerHTML = `${header()}<section class="quiz">
+      <div class="qhead"><span>${P.lvl + 1}. szint / ${levels}${P.tries > 1 ? " · fél pontért" : ""}</span><span id="ptime">${K.pyramidSeconds} mp</span></div>
+      ${pyr(P.lvl, ans !== null && ans !== q.c)}
+      <div class="tbar"><div id="pbar"></div></div>
+      <h2>${esc(q.q)}</h2>
+      <div class="choices">${q.a.map((t, k) => { const cls = ans === null ? "" : k === q.c ? "right" : k === ans ? "wrong" : ""; return `<button class="opt ${cls}" data-act="pans" data-k="${k}" ${ans !== null ? "disabled" : ""}><span class="l">${"ABCD"[k]}</span>${esc(t)}</button>`; }).join("")}</div>
+      ${isAge && ans !== null && P.stats ? `<div class="agestat"><b>${P.stats.right} / ${P.stats.total} eltalálta</b>Ennyien tippelték el elsőre Ádám korát. ${P.stats.older} vendég idősebbnek gondolja, ${P.stats.younger} fiatalabbnak.</div>` : ""}
+    </section>`;
+    if (ans === null) runPTimer();
+    return;
+  }
+  // done
+  const bestPts = P.best ? Number(P.best.score) / 2 : 0;
+  const L = P.last;
+  const top = L && L.reached >= levels;
+  $app.innerHTML = `${header()}<section class="result">
+    <span class="step">Kvízpiramis · ${P.tries}. próbálkozás</span>
+    <div class="score">${L ? L.reached : Math.round(bestPts)}/${levels}</div>
+    <p>${L ? (top ? "A csúcson vagy. Ezt kevesen mondhatják el." : L.reached === 0 ? "Az első lépcsőnél csúsztál el. Előfordul a legjobbakkal is." : `A ${L.reached}. szintig jutottál, ${fmtTime(L.time_ms)} alatt. Ez ${fmtPts(L.pts)} pont.`) : ""}
+      A legjobb eredményed: <b style="color:var(--gold)">${fmtPts(bestPts)} pont</b>.</p>
+    ${pyr(L ? L.reached : -1, L && !top)}
+    <button class="btn block gold" data-act="pstart">Újra (fél pontért)</button>
+    ${pBoard()}
+    <button class="btn block ghost" data-go="home">Főoldal</button>
+  </section>`;
+}
+function pBoard() {
+  const b = (P.board || []).filter(r => Number(r.score) > 0);
+  return `<div class="section" style="width:100%;text-align:left"><h3>Örökranglista</h3>${b.length ? `<div class="board">${b.slice(0, 10).map((r, i) => boardRow({ ...r, name: r.player_name }, i, `${fmtPts(Number(r.score) / 2)} p`, true)).join("")}</div>` : `<div class="empty">Még senki nem mászott.</div>`}</div>`;
+}
+function runPTimer() {
+  clearInterval(P.timer);
+  P.qStart = Date.now();
+  const total = K.pyramidSeconds * 1000;
+  P.timer = setInterval(() => {
+    const left = Math.max(0, total - (Date.now() - P.qStart));
+    const bar = document.getElementById("pbar"), lab = document.getElementById("ptime");
+    if (bar) bar.style.transform = `scaleX(${left / total})`;
+    if (lab) lab.textContent = Math.ceil(left / 1000) + " mp";
+    if (left <= 0) { clearInterval(P.timer); pAnswer(-1); }
+  }, 100);
+}
+async function startPyramid() {
+  const aq0 = K.ageQuestion;
+  P.qs = [{ q: aq0.q, a: aq0.a.slice(), c: aq0.c }].concat(K.pyramid.map(pair => { const q = pick(pair); const order = shuffle([0, 1, 2, 3]); return { q: q.q, a: order.map(i => q.a[i]), c: order.indexOf(q.c) }; }));
+  P.tries += 1; P.phase = "play"; P.lvl = 0; P.ans = null; P.start = Date.now(); P.stats = null; P.last = null;
+  await store.saveScore(S.me, "pyr_tries", P.tries, 0).catch(console.warn); // a próbálkozás elindult
+  renderPyramid();
+}
+async function pAnswer(k) {
+  if (!P || P.phase !== "play" || P.ans !== null) return;
+  clearInterval(P.timer);
+  const q = P.qs[P.lvl];
+  P.ans = k;
+  const right = k === q.c;
+  if (k === -1) toast("Lejárt az idő!");
+  let wait = right ? 900 : 1800;
+  if (P.lvl === 0) {
+    if (!P.age) { P.age = { score: k >= 0 ? Number(q.a[k]) : 0 }; await store.saveScore(S.me, "age", P.age.score, 0).catch(console.warn); }
+    P.stats = await ageStats(); wait = 2600;
+  }
+  renderPyramid();
+  const elapsed = Date.now() - P.start;
+  const reached = right ? P.lvl + 1 : P.lvl;
+  const factor = P.tries > 1 ? (K.pyramidRetryFactor ?? 0.5) : 1;
+  const half = Math.round(reached * factor * 2);
+  const prev = P.best ? Number(P.best.score) : -1;
+  if (half > prev || (half === prev && P.best && elapsed < Number(P.best.time_ms))) {
+    P.best = { score: half, time_ms: elapsed };
+    await store.saveScore(S.me, "pyramid", half, elapsed).catch(console.warn);
+  }
+  setTimeout(async () => {
+    if (right && P.lvl + 1 < pLevels()) { P.lvl++; P.ans = null; renderPyramid(); return; }
+    P.last = { reached, time_ms: elapsed, pts: reached * factor };
+    P.board = await store.scoreBoard("pyramid", 20).catch(() => P.board);
+    P.phase = "done"; renderPyramid();
+  }, wait);
+}
+
+/* ---------- felugró ablakok ---------- */
+let popTimer = null;
+function schedulePopup() {
+  clearTimeout(popTimer);
+  if (!S.me || document.body.classList.contains("tv")) return;
+  const base = (C.POPUP_MINUTES || 4) * 60000;
+  popTimer = setTimeout(showPopup, base * (0.75 + Math.random() * 0.6));
+}
+function showPopup() {
+  const busy = $layer.innerHTML || (S.view === "pyramid" && P && P.phase === "play") || document.hidden;
+  if (busy) { popTimer = setTimeout(showPopup, 45000); return; }
+  openSheet(`<div class="pop" style="display:grid;gap:14px">
+    ${photoHTML(Math.floor(Math.random() * 99))}
+    <h2>${esc(pick(["Egy pillanat!", "Hé, te ott!", "Üzenet a szülinapostól", "Kis emlékeztető"]))}</h2>
+    <p style="color:var(--ink);font-size:18px;font-weight:600">${esc(pick(K.popups))}</p>
+    <button class="btn block" data-act="close">Megyek!</button></div>`);
+  schedulePopup();
+}
+
+/* ---------- események ---------- */
+document.addEventListener("click", async ev => {
+  const el = ev.target.closest("[data-go],[data-act]");
+  if (!el) return;
+  if (el.dataset.act === "close-scrim") { if (ev.target === el) closeSheet(); return; }
+  if (el.dataset.go) {
+    const v = el.dataset.go;
+    if (v === "adamquiz") aq = null;
+    if (v === "pyramid") { if (P && P.timer) clearInterval(P.timer); P = null; }
+    if (v === "home") { refreshBoard().then(() => { if (S.view === "home") renderHome(); }); }
+    go(v); return;
+  }
+  const a = el.dataset.act;
+  if (a === "close") return closeSheet();
+  if (a === "joinmode") { joinMode = joinMode === "resume" ? "new" : "resume"; renderJoin(); return; }
+  if (a === "showcode") { showCode(false); return; }
+  if (a === "dplus") { addDrink(el.dataset.k); return; }
+  if (a === "dminus") { removeDrink(el.dataset.k); return; }
+  if (a === "logout") {
+    openSheet(`<h2>Kilépsz?</h2><p>A pontjaid megmaradnak ${esc(S.me.name)} néven.${S.me.code ? ` Visszalépni a neveddel és a <b style="color:var(--ink)">${esc(S.me.code)}</b> kóddal tudsz.` : ""}</p>
+      <div class="row-btns"><button class="btn ghost" data-act="close">Maradok</button><button class="btn" data-act="logout-yes">Kilépek</button></div>`);
+    return;
+  }
+  if (a === "logout-yes") { closeSheet(); ls.del("bp_me"); S.me = null; S.done = new Map(); S.drinks = []; joinMode = "new"; render(); return; }
+  if (a === "cattab") { S.questCat = el.dataset.c; renderQuests(); return; }
+  if (a === "done") { const q = questById(el.dataset.q); if (q) confirmQuest(q); return; }
+  if (a === "undo") {
+    const q = questById(el.dataset.q);
+    openSheet(`<h2>Visszavonod?</h2><p>${esc(q.t)}</p><div class="row-btns"><button class="btn ghost" data-act="close">Mégse</button><button class="btn" data-act="undo-yes" data-q="${q.id}">Visszavonom</button></div>`);
+    return;
+  }
+  if (a === "undo-yes") {
+    const id = el.dataset.q;
+    try { await store.uncomplete(S.me, id); S.done.delete(id); closeSheet(); toast("Visszavonva."); refreshBoard(); render(); }
+    catch (e) { toast("Nem sikerült. Próbáld újra."); }
+    return;
+  }
+  if (a === "aq") { if (aq.answered !== null) return; const k = Number(el.dataset.k); aq.answered = k; const ok = k === K.adamQuiz[aq.i].c; aq.marks[aq.i] = ok; if (ok) aq.score++; renderAdamQuiz(); return; }
+  if (a === "aq-next") { aq.i++; aq.answered = null; renderAdamQuiz(); window.scrollTo(0, 0); return; }
+  if (a === "aq-again") { aq = { i: 0, score: 0, answered: null, marks: [], prev: true, stats: aq && aq.stats }; renderAdamQuiz(); return; }
+  if (a === "ttab") { T.tab = el.dataset.t; renderTopics(); return; }
+  if (a === "newd") { let n; do { n = pick(K.dilemmas); } while (n === T.d && K.dilemmas.length > 1); T.d = n; T.assign = null; renderTopics(); return; }
+  if (a === "newice") { let n; do { n = pick(K.icebreakers); } while (n === T.ice && K.icebreakers.length > 1); T.ice = n; renderTopics(); return; }
+  if (a === "flip") { T.assign = Math.random() < 0.5 ? ["Te védd ezt", "A másik ezt"] : ["A másik ezt", "Te védd ezt"]; renderTopics(); return; }
+  if (a === "timer") {
+    if (T.timerEnd) { T.timerEnd = 0; clearInterval(T.timerId); T.timerId = null; }
+    else { T.timerEnd = Date.now() + 120000; clearInterval(T.timerId); T.timerId = setInterval(tickTimer, 250); }
+    renderTopics(); return;
+  }
+  if (a === "pstart") { if (P) await startPyramid(); return; }
+  if (a === "pans") { pAnswer(Number(el.dataset.k)); return; }
+});
+
+/* ===================== KIVETÍTŐS NÉZET (#tv) ===================== */
+async function renderTV() {
+  document.body.classList.add("tv");
+  $app.innerHTML = `<div class="tvgrid">
+    <div class="tvtitle"><h1>ÁDÁM <span>SIDE QUESTEK</span></h1><div class="meta-row"><span>2026. nov. 7.</span><span>Pacsi</span><span id="tvq">– quest</span><span id="tvd">– ital</span><span id="tva">– kor-tipp</span><span id="tvall">– mindent tud</span>${LIVE ? "" : "<span>Demó</span>"}</div></div>
+    <div class="tvcol"><h3>Ranglista</h3><div class="board" id="tvboard"></div></div>
+    <div class="tvcol"><h3>Kvízpiramis csúcsai</h3><div class="board" id="tvpyr"></div><h3 style="margin-top:10px">Most történt</h3><div class="feed" id="tvfeed"></div></div>
+    <div class="tvcol"><div class="qrbox"><b>Szállj be te is</b><div id="qr"></div></div><h3>Bizonyítékok</h3><div class="wall" id="tvwall"></div></div>
+  </div>`;
+  try { if (window.QRCode) new QRCode(document.getElementById("qr"), { text: C.APP_URL || (location.origin + location.pathname), width: 220, height: 220, colorDark: "#0f0d0a", colorLight: "#fffbe8" }); } catch (e) {}
+  const tick = async () => {
+    try {
+      const [board, pyr, feed, pics, qn, dn] = await Promise.all([store.leaderboard(10), store.scoreBoard("pyramid", 5), store.feed(6), store.photos(4), store.questCount().catch(() => null), store.drinkCount().catch(() => null)]);
+      if (qn !== null) document.getElementById("tvq").textContent = qn + " kész quest";
+      if (dn !== null) document.getElementById("tvd").textContent = dn + " ital";
+      const as = await ageStats(); if (as.total) document.getElementById("tva").textContent = `${as.older} idősebbnek · ${as.younger} fiatalabbnak gondolja`;
+      const ad = await adamStats(); document.getElementById("tvall").textContent = `${ad.perfect.length} mindent tud Ádámról`;
+      document.getElementById("tvboard").innerHTML = board.length ? board.map((r, i) => boardRow(r, i)).join("") : `<div class="empty">Még üres. Olvasd be a QR-kódot!</div>`;
+      document.getElementById("tvpyr").innerHTML = pyr.filter(r => Number(r.score) > 0).length ? pyr.filter(r => Number(r.score) > 0).map((r, i) => boardRow({ ...r, name: r.player_name }, i, `${fmtPts(Number(r.score) / 2)} p`, true)).join("") : `<div class="empty">Még senki nem mászott.</div>`;
+      document.getElementById("tvfeed").innerHTML = feed.map(c => { const q = questById(c.quest_id); return `<div><b>${esc(c.player_name)}</b> +${c.points} p · ${esc(q ? (q.name ? q.name + " (titkos bónusz)" : q.t) : "")}<small>${ago(c.created_at)}</small></div>`; }).join("") || `<div class="empty">Itt jelennek meg a teljesített questek.</div>`;
+      document.getElementById("tvwall").innerHTML = pics.map(c => `<figure><img src="${esc(c.photo_url)}" alt=""><figcaption>${esc(c.player_name)}</figcaption></figure>`).join("") || `<div class="empty" style="grid-column:1/-1">A nehéz questek fotói ide kerülnek.</div>`;
+    } catch (e) { console.warn(e); }
+  };
+  await tick(); setInterval(tick, 8000);
+}
+
+/* ---------- indulás ---------- */
+async function boot() {
+  if (location.hash === "#tv") return renderTV();
+  if (location.hash === "#demo-reset" && !LIVE) { DemoStore.reset(); ls.del("bp_me"); location.hash = ""; location.reload(); return; }
+  if (S.me) {
+    $app.innerHTML = `<p class="empty" style="margin-top:40px">Betöltés…</p>`;
+    let exists = true;
+    try { exists = await store.playerExists(S.me.id); } catch (e) { console.warn(e); }
+    if (!exists) { ls.del("bp_me"); S.me = null; return renderJoin("A korábbi belépésed már nem él (lenulláztuk a játékot). Lépj be újra."); }
+    await Promise.all([refreshMine(), refreshDrinks(), refreshBoard()]); schedulePopup();
+  }
+  try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {}
+  render();
+  setInterval(() => { if (S.me && S.view === "home" && !$layer.innerHTML) refreshBoard().then(() => { if (S.view === "home" && !$layer.innerHTML) renderHome(); }); }, 20000);
+}
+window.addEventListener("hashchange", () => location.reload());
+boot();
+})();
+</script>
