@@ -3,7 +3,7 @@
 Buli: **2026. november 7., szombat, 19:00, Pacsi (Mester utca), alsó szint.**
 Várható létszám: kb. 50 fő, akik egyszerre használják az appot a telefonjukon.
 
-Állapot ehhez a leíráshoz: **2026. november 5.** Ami még hátravan, az a végén, a „Nyitott teendők” részben szerepel.
+Állapot ehhez a leíráshoz: **2026. november 6.** Ami még hátravan, az a végén, a „Nyitott teendők” részben szerepel.
 
 ---
 
@@ -237,9 +237,9 @@ Aki a törlés előtt már belépett (pl. teszteléskor), annak az app automatik
 
 ## 10. Nyitott teendők (nov. 5. állapot)
 
-- [ ] **SQL lefuttatása** Supabase-en (belépőkód, piaszámláló tábla, italos ranglista). Enélkül az új verzió nem tud élesbe menni.
+- [x] **SQL lefuttatása** Supabase-en (belépőkód, piaszámláló tábla, italos ranglista) – kész, nov. 6.
 - [ ] **Side questek** végleges listája a Google táblázatban, kategóriákkal.
 - [ ] **Ki ez az Ádám?** 5 saját kérdése (most mintakérdések vannak benne).
 - [ ] **8 kép** Ádámról (`adam-1.jpg` … `adam-8.jpg`).
-- [ ] Az új verzió élesítése és élő teszt (ezt én csinálom, ha az előzők megvannak).
+- [x] Az új verzió élesítése és élő teszt – kész, nov. 6. (az új tartalom és a képek után még egyszer frissítjük)
 - [ ] Buli előtti takarítás (8. pont).
