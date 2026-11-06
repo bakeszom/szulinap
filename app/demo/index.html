@@ -205,6 +205,40 @@ window.CONTENT = {
     { id: "b_viz3",       kind: "viz",       at: 3, pts: 2, name: "Vízfelelős",        t: "Titkos bónusz: 3 pohár víz" }
   ],
 
+  // --- Gyűjtés az esküvőre (ugyanaz, mint a progress.html kijelzőn) ---
+  wedding: {
+    title: "Gyűjtés az esküvőre",
+    lead: "Ez egy vicces szülinapi gyűjtés, teljesen önkéntes. Minden forint Ádám esküvőjére megy.",
+    how: "A szelfigép melletti terminálnál tudsz beszállni. Az összeget te választod.",
+    more: "A kivetítőn egy pályán fut az összeg. Minden mérföldkőnél Ádámnak teljesítenie kell valamit, élőben.",
+    milestones: [
+      [3000, "Csoportkép", "Ádám közös képet csinál mindenkivel."],
+      [5000, "Insta-poszt", "Ádám most azonnal kiposztolja a bulit Instára."],
+      [7500, "Stand-up", "Ádám elmond egy viccet a mikrofonba. Nevetni kötelező."],
+      [10000, "Feleskör", "Ádám lehúz egy felest. Aki akar, csatlakozhat."],
+      [12500, "Kutyaüzemmód", "Ádám fél percig kutyát imitál. Simogatni szabad."],
+      [15000, "Parkett-bajnok", "Ti választotok számot, Ádám végigtáncolja a parkett közepén."],
+      [20000, "Vízhiány", "Két feles, víz helyett. Egymás után."],
+      [25000, "Quest-ajándék", "Aki ezt a mérföldkövet behozta, választhat Ádámnak egy side questet."],
+      [29000, "Utolsó 29", "Ez az utolsó mérföldkő, amit Ádám még 29 évesen ér el."],
+      [30000, "GTA 6", "Ennyiből kijönne a GTA 6. De ne törjön meg a lendület."],
+      [35000, "Beugratós", "Ádám átver valakit egy találós kérdéssel."],
+      [40000, "Élő adás", "10 perces Instagram live: Ádám elmeséli, mi folyik itt."],
+      [45000, "Köszönöm, anya", "Ádám felhívja az anyukáját, és megköszöni neki, hogy világra hozta."],
+      [50000, "Még egy kör", "Újabb feleskör. De csak egy."],
+      [55000, "Ádám fizet", "Ádám meghív pár embert egy italra."],
+      [60000, "Szkander-király", "Ádám kiáll legfeljebb három kihívó ellen. Aki legyőzi, kap tőle egy felest."],
+      [70000, "Sörpárbaj", "Sörivó verseny Ádám ellen. Ki bírja?"],
+      [75000, "Bio-csere", "Egy hónapig ti írjátok Ádám Insta-bióját."],
+      [100000, "Hat számjegy", "Egy hétig a vendégek választják Ádám Insta-profilképét."],
+      [150000, "Szólótánc", "Ádám egyedül kezdi a táncot, aztán jön mindenki."],
+      [200000, "PS5", "Ennyiből már PS5 lenne. Nem lesz. Esküvő lesz."],
+      [300000, "Harmincas csomag", "Ennyiből telik térdvédőre, hátkrémre és egy jó fotelre. Jön a 30."],
+      [500000, "Lagzi-zenekar", "Ennyiből megvan a lagzi zenekara. Ti húzzátok majd a talpalávalót."],
+      [1000000, "Milliomos", "Egymillió. Aki most itt van, meghívót kap az esküvőre."]
+    ]
+  },
+
   // --- Felugró ablakok ---
   popups: [
     "Hívd meg a szülinapost egy shotra. Megérdemli, és te is.",
@@ -625,6 +659,29 @@ img { -webkit-user-drag: none; }
 .stk-grid .photo .zoom-hint { display: none; }
 .stk-grid .photo { padding: 0; }
 
+/* esküvői gyűjtés kártya */
+.wed { background: var(--c-pop); color: var(--c-black); border: 4px solid var(--c-black); border-radius: var(--r); box-shadow: 7px 7px 0 var(--c-black); padding: 14px 16px; display: grid; gap: 8px; transform: rotate(-.4deg); }
+.wed h2 { font: 34px/.95 var(--font-display); letter-spacing: .03em; color: var(--c-paper); -webkit-text-stroke: 1.5px var(--c-black); text-shadow: 3px 3px 0 var(--c-black); paint-order: stroke fill; }
+.wed p { font-weight: 700; font-size: 15px; line-height: 1.35; }
+.wed .how { background: var(--c-paper); border: 3px solid var(--c-black); border-radius: 4px; padding: 8px 10px; font-weight: 800; }
+.wed details { background: var(--c-paper); border: 3px solid var(--c-black); border-radius: 4px; padding: 8px 10px; }
+.wed summary { font: 20px/1.1 var(--font-display); letter-spacing: .03em; cursor: pointer; }
+.wed ol { list-style: none; margin: 8px 0 2px; padding: 0; display: grid; gap: 6px; }
+.wed li { display: grid; grid-template-columns: 76px 1fr; gap: 8px; font-size: 13px; font-weight: 600; line-height: 1.3; }
+.wed li b { font: 17px/1.1 var(--font-display); letter-spacing: .02em; background: var(--c-lemon); border: 2px solid var(--c-black); border-radius: 3px; text-align: center; padding: 3px 2px 1px; align-self: start; }
+.wed li strong { font-weight: 900; }
+/* mi történik (feed) */
+.act-list { display: grid; gap: 12px; }
+.act-item { background: var(--c-paper); color: var(--c-black); border: var(--bd); border-radius: var(--r); box-shadow: 5px 5px 0 var(--c-black); padding: 12px 14px; display: grid; gap: 6px; }
+.act-item .who { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.act-item .who b { font: 22px/1 var(--font-display); letter-spacing: .03em; }
+.act-item .who span { font: 20px/1 var(--font-display); background: var(--c-lime); border: 2px solid var(--c-black); border-radius: 3px; padding: 3px 6px 1px; white-space: nowrap; }
+.act-item .what { font-weight: 700; font-size: 15px; line-height: 1.3; }
+.act-item small { font: 800 11px/1 var(--font-body); letter-spacing: .1em; text-transform: uppercase; color: var(--c-muted); }
+.act-item .pf { width: 100%; max-height: 260px; object-fit: cover; border-radius: 4px; border: 3px solid var(--c-black); cursor: zoom-in; display: block; }
+.act-item.bonus { background: var(--c-lemon); }
+.qcount { font: 800 11px/1 var(--font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--c-muted); }
+
 /* nagyító (lightbox) */
 .lb { position: fixed; inset: 0; z-index: 90; background: rgba(15, 13, 10, .96); display: grid; grid-template-rows: auto 1fr auto; overscroll-behavior: contain; touch-action: pan-y; animation: fadein .15s ease-out; }
 .lb-top, .lb-bot { display: flex; align-items: center; justify-content: space-between; gap: 10px;
@@ -699,8 +756,8 @@ function photoHTML(i, cls = "", num) {
 const HEADS = ["fej-1-szomoru", "fej-2-semleges", "fej-3-vidam", "fej-4-csillogo", "fej-5-szivarvany", "fej-i1-kacsint", "fej-i2-nyelv", "fej-i3-asit", "fej-i4-meglepett", "fej-i5-napszemuveg", "fej-i6-alszik", "fej-i7-puszi", "fej-i8-morcos"];
 const LB = { list: [], i: 0, el: null, blobs: new Map() };
 function lbItems() { return STK.map(n => ({ src: stkSrc(n), name: `adam-matrica-${n}.jpg` })).concat(HEADS.map(h => ({ src: `../img/${h}.png`, name: `adam-${h}.png` }))); }
-function openLightbox(src) {
-  LB.list = lbItems(); LB.i = Math.max(0, LB.list.findIndex(x => x.src === src));
+function openLightbox(src, items) {
+  LB.list = items || lbItems(); LB.i = Math.max(0, LB.list.findIndex(x => x.src === src));
   if (!LB.el) { LB.el = document.createElement("div"); LB.el.className = "lb"; LB.el.setAttribute("role", "dialog"); LB.el.setAttribute("aria-modal", "true"); document.body.appendChild(LB.el); }
   document.body.classList.add("lock");
   drawLightbox();
@@ -805,6 +862,8 @@ const DemoStore = (() => {
       db.drinks.forEach(d => { const r = m.get(d.player_id); if (r && DRINK_COLS[d.kind]) r[DRINK_COLS[d.kind]]++; });
       return later([...m.values()].slice(0, n));
     },
+    async activity(n = 60) { return later(db.completions.slice().sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, n)); },
+    async questCounts() { return later(db.completions.map(c => ({ quest_id: c.quest_id }))); },
     async feed(n = 12) { return later(db.completions.slice().sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, n)); },
     async photos(n = 6) { return later(db.completions.filter(c => c.photo_url).sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, n)); },
     async getScore(id, kind) { return later(db.scores.find(s => s.player_id === id && s.kind === kind) || null); },
@@ -846,6 +905,8 @@ const SupaStore = (() => {
     },
     async uncomplete(me, qid) { ok(await sb.from("completions").delete().eq("player_id", me.id).eq("quest_id", qid)); return true; },
     async leaderboard(n = 1000) { return ok(await sb.from("leaderboard").select("*").limit(n)); },
+    async activity(n = 60) { return ok(await sb.from("completions").select("player_name,quest_id,points,photo_url,created_at").order("created_at", { ascending: false }).limit(n)); },
+    async questCounts() { return ok(await sb.from("completions").select("quest_id").like("quest_id", "q%").limit(5000)); },
     async feed(n = 12) { return ok(await sb.from("completions").select("player_name,quest_id,points,photo_url,created_at").order("created_at", { ascending: false }).limit(n)); },
     async photos(n = 6) { return ok(await sb.from("completions").select("player_name,quest_id,photo_url,created_at").not("photo_url", "is", null).order("created_at", { ascending: false }).limit(n)); },
     async getScore(id, kind) { return ok(await sb.from("scores").select("*").eq("player_id", id).eq("kind", kind).maybeSingle()); },
@@ -939,6 +1000,8 @@ function render() {
   if (v === "adamquiz") return renderAdamQuiz();
   if (v === "topics") return renderTopics();
   if (v === "pyramid") return renderPyramid();
+  if (v === "activity") return renderActivity();
+  if (v === "wedding") return renderWedding();
   renderHome();
 }
 
@@ -1039,6 +1102,8 @@ function renderHome() {
       ${piaHTML()}
       <button class="tile" data-go="pyramid"><span class="k">${K.pyramid.length + 1} szint</span><div style="display:grid;gap:6px"><h2>Kvíz&shy;piramis</h2><p>Egyre nehezebb. Egy hiba, és lezuhansz.</p></div></button>
       <button class="tile" data-go="topics"><span class="k">Jégtörők · viták</span><div style="display:grid;gap:6px"><h2>Téma&shy;dobó</h2><p>Nem tudod, mit kérdezz? Húzz egy kérdést.</p></div></button>
+      <button class="tile" data-go="activity" style="grid-column:1/-1;min-height:0;background:#dff6ff"><span class="k">Élőben, fotókkal</span><div style="display:grid;gap:6px"><h2>Ki mit csinált?</h2><p>Itt látod, ki melyik side questet teljesítette, és a bizonyítékfotókat is.</p></div></button>
+      <button class="tile" data-go="wedding" style="grid-column:1/-1;min-height:0;background:var(--c-pop)"><span class="k" style="color:var(--c-black)">Mire megy a pénz a terminálnál?</span><div style="display:grid;gap:6px"><h2>Gyűjtés az esküvőre</h2><p style="color:var(--c-black)">Önkéntes, vicces gyűjtés. Mérföldkövenként Ádámnak élőben teljesítenie kell valamit.</p></div></button>
     </nav>
     <section class="section">
       <h3>Ranglista</h3>
@@ -1077,9 +1142,19 @@ function renderQuests() {
     <div class="lv-head" style="--c:var(${cat.color})"><h2>${esc(cat.name)}</h2><p>${esc(cat.short)}</p></div>
     <div class="quests">${list.map(q => ticketHTML(q, cat)).join("") || `<div class="empty">Ide még nem került quest.</div>`}</div>
     <p style="margin-top:22px;font-size:13px;color:var(--ink-faint);text-align:center">Becsületkassza: azt pipáld ki, amit tényleg megcsináltál.</p>`;
+  refreshQuestCounts();
+}
+let QCOUNT = new Map();
+async function refreshQuestCounts() {
+  try {
+    const rows = await store.questCounts(); const m = new Map();
+    rows.forEach(r => m.set(r.quest_id, (m.get(r.quest_id) || 0) + 1)); QCOUNT = m;
+    document.querySelectorAll("[data-qc]").forEach(e => { const n = QCOUNT.get(e.dataset.qc) || 0; e.textContent = n ? `${n} vendég megcsinálta` : "Még senki nem csinálta meg"; });
+  } catch (e) { console.warn(e); }
 }
 function ticketHTML(q, L) {
   const d = S.done.get(q.id);
+  const qn = QCOUNT.get(q.id) || 0;
   const riddle = q.riddle ? `<div class="riddle">„${esc(pick(K.riddles))}”</div>` : "";
   return `<article class="ticket ${d ? "done" : ""}" style="--c:var(${L.color})">
     <div class="body">
@@ -1087,6 +1162,7 @@ function ticketHTML(q, L) {
       ${q.note ? `<p class="note">${esc(q.note)}</p>` : ""}
       ${riddle}
       ${q.photo ? `<div class="tags"><span class="tag cam">Fotó kötelező</span></div>` : ""}
+      <span class="qcount" data-qc="${q.id}">${qn ? `${qn} vendég megcsinálta` : "Még senki nem csinálta meg"}</span>
       ${d && d.photo_url ? `<img class="proof" src="${esc(d.photo_url)}" alt="Bizonyíték">` : ""}
     </div>
     <div class="stub"><span class="p">${d ? "✓" : q.pts}</span><span class="u">${d ? "+" + q.pts + " p" : "pont"}</span></div>
@@ -1137,6 +1213,46 @@ function confirmQuest(q) {
       } finally { S.busy = false; }
     });
   });
+}
+
+/* ---------- Ki mit csinált? ---------- */
+let ACT = null;
+async function renderActivity() {
+  if (S.view !== "activity") return;
+  if (!ACT) $app.innerHTML = `${header()}<p class="empty">Betöltés…</p>`;
+  const rows = await store.activity(80).catch(() => null);
+  if (S.view !== "activity") return;
+  if (rows) ACT = rows;
+  const list = ACT || [];
+  const pics = list.filter(c => c.photo_url).map(c => ({ src: c.photo_url, name: `bizonyitek-${String(c.player_name).replace(/\W+/g, "-")}.jpg` }));
+  const items = list.map(c => {
+    const q = questById(c.quest_id), bonus = q && q.name;
+    return `<article class="act-item ${bonus ? "bonus" : ""}">
+      <div class="who"><b>${esc(c.player_name)}</b><span>+${fmtPts(Number(c.points))} p</span></div>
+      <div class="what">${esc(q ? (bonus ? q.name + " (titkos bónusz)" : q.t) : "Side quest")}</div>
+      ${c.photo_url ? `<img class="pf" src="${esc(c.photo_url)}" alt="Bizonyíték" loading="lazy" data-act="zoomproof">` : ""}
+      <small>${ago(c.created_at)}</small></article>`;
+  }).join("");
+  $app.innerHTML = `${header()}
+    <section class="lv-head" style="--c:var(--lv4)"><h2>Ki mit csinált?</h2><p>A legfrissebb teljesítések elöl. Magától frissül, a fotókra koppintva nagyban látod őket.</p></section>
+    <div class="act-list">${items || `<div class="empty">Még senki nem teljesített side questet. Legyél te az első.</div>`}</div>`;
+  ACT_PICS = pics;
+}
+let ACT_PICS = [];
+
+/* ---------- Gyűjtés az esküvőre ---------- */
+function renderWedding() {
+  const W = K.wedding;
+  $app.innerHTML = `${header()}
+    <section class="wed">
+      <h2>${esc(W.title)}</h2>
+      <p>${esc(W.lead)}</p>
+      <p class="how">${esc(W.how)}</p>
+      <p>${esc(W.more)}</p>
+      <details open><summary>Mérföldkövek (${W.milestones.length})</summary>
+        <ol>${W.milestones.map(([a, n, t]) => `<li><b>${a >= 1000000 ? "1 M" : a.toLocaleString("hu-HU")}</b><span><strong>${esc(n)}</strong> · ${esc(t)}</span></li>`).join("")}</ol>
+      </details>
+    </section>`;
 }
 
 /* ---------- Pia-számláló (főoldalon) ---------- */
@@ -1459,6 +1575,7 @@ document.addEventListener("click", async ev => {
   if (a === "rephoto") { let n; do { n = Math.floor(Math.random() * 99); } while (STK.length > 1 && stkAt(n) === stkAt(S.homePhoto)); S.homePhoto = n; setHTML("homephoto", photoHTML(n, "tall")); return; }
   if (a === "zoom") { const img = el.querySelector("img"); if (img) openLightbox(img.getAttribute("src")); return; }
   if (a === "lb-close") { closeLightbox(); return; }
+  if (a === "zoomproof") { openLightbox(el.getAttribute("src"), ACT_PICS); return; }
   if (a === "lb-prev") { lbStep(-1); return; }
   if (a === "lb-next") { lbStep(1); return; }
   if (a === "lb-dl") { downloadCurrent(); return; }
@@ -1547,7 +1664,7 @@ async function boot() {
   try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {}
   render();
   // ranglista + pontok frissítése: csak a változó részeket írja át (nem ugrik az oldal)
-  setInterval(() => { if (S.me && !document.hidden) refreshBoard(); }, 15000);
+  setInterval(() => { if (S.me && !document.hidden) { refreshBoard(); if (S.view === "activity" && !LB.el) { const y = scrollY; renderActivity().then(() => scrollTo(0, y)); } if (S.view === "quests") refreshQuestCounts(); } }, 15000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden && S.me) { refreshMine().then(refreshBoard); } });
 }
 window.addEventListener("hashchange", () => location.reload());
