@@ -872,7 +872,7 @@ function renderBoard(rows, note) {
   const ol = $("board");
   if (!rows.length) ol.innerHTML = `<li class="empty">Még senkinek nincs pontja. Az első side quest után itt a neved.</li>`;
   else {
-    ol.innerHTML = rows.map((r, i) => `<li><span class="pos">${i + 1}</span><span class="nm"></span>${drinkHTML(r)}<span class="pt">${Number(r.points)}<small>p</small></span></li>`).join("");
+    ol.innerHTML = rows.map((r, i) => `<li><span class="pos">${i + 1}</span><span class="nm"></span>${drinkHTML(r)}<span class="pt">${String(Math.round(Number(r.points) * 10) / 10).replace(".", ",")}<small>p</small></span></li>`).join("");
     [...ol.children].forEach((li, i) => {
       const r = rows[i];
       li.querySelector(".nm").textContent = r.name;
@@ -888,9 +888,16 @@ function renderBoard(rows, note) {
 }
 async function pollBoard() {
   try {
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=*&points=gt.0&order=points.desc,quests.desc&limit=${BOARD_SIZE}`, { headers: SB_HEADERS, cache: "no-store" });
+    // A pontokba a kvízpiramis legjobb eredménye is beleszámít (scores.kind = pyramid, fél pontokban tárolva) – ugyanúgy, mint az appban.
+    const [r, rp] = await Promise.all([
+      fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=*&limit=1000`, { headers: SB_HEADERS, cache: "no-store" }),
+      fetch(`${SUPABASE_URL}/rest/v1/scores?select=player_id,score&kind=eq.pyramid&limit=1000`, { headers: SB_HEADERS, cache: "no-store" })
+    ]);
     if (!r.ok) throw new Error(r.status);
-    const rows = (await r.json()).map(x => ({ name: x.name ?? x.player_name ?? "?", points: x.points, longdrinks: x.longdrinks ?? x.long_drinks ?? null, shots: x.shots ?? null }));
+    const pyr = new Map(rp.ok ? (await rp.json()).map(x => [x.player_id, Number(x.score) / 2]) : []);
+    const rows = (await r.json())
+      .map(x => ({ name: x.name ?? x.player_name ?? "?", points: Number(x.points || 0) + (pyr.get(x.player_id) || 0), quests: Number(x.quests || 0), longdrinks: x.longdrinks ?? x.long_drinks ?? null, shots: x.shots ?? null }))
+      .filter(x => x.points > 0).sort((a, b) => b.points - a.points || b.quests - a.quests).slice(0, BOARD_SIZE);
     if (!boardLive) { prevLeader = null; prevBoard = new Map(); }
     boardLive = true;
     renderBoard(rows, "");

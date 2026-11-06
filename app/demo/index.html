@@ -6,9 +6,17 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#15111d">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Figtree:wght@500;600;700;800;900&display=swap">
+<!-- saját fontok (nem kell hozzá Google, gyorsabb és nem ugrik a szöveg) -->
+<link rel="preload" href="../fonts/bangers-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../fonts/bangers-latin-ext-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../fonts/figtree-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../fonts/figtree-latin-ext-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face { font-family: "Bangers"; font-style: normal; font-weight: 400; font-display: swap; src: url(../fonts/bangers-latin-400-normal.woff2) format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: "Bangers"; font-style: normal; font-weight: 400; font-display: swap; src: url(../fonts/bangers-latin-ext-400-normal.woff2) format("woff2"); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: "Figtree"; font-style: normal; font-weight: 300 900; font-display: swap; src: url(../fonts/figtree-latin-wght-normal.woff2) format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: "Figtree"; font-style: normal; font-weight: 300 900; font-display: swap; src: url(../fonts/figtree-latin-ext-wght-normal.woff2) format("woff2"); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+</style>
 
 <script>
 /* ============================================================
@@ -25,8 +33,9 @@ window.CONFIG = {
   // Az app nyilvános címe a kivetítős QR-kódhoz. Ha üres, az oldal saját címét használja.
   APP_URL: "",
 
-  // Képek a szülinaposról az img/ mappából. Ha egy fájl nincs meg, helykitöltő jelenik meg.
-  PHOTOS: ["../img/adam-1.jpg","../img/adam-2.jpg","../img/adam-3.jpg","../img/adam-4.jpg","../img/adam-5.jpg","../img/adam-6.jpg","../img/adam-7.jpg","../img/adam-8.jpg","../img/adam-9.jpg","../img/adam-10.jpg","../img/adam-11.jpg","../img/adam-12.jpg","../img/adam-13.jpg","../img/adam-14.jpg","../img/adam-15.jpg","../img/adam-16.jpg","../img/adam-17.jpg","../img/adam-18.jpg","../img/adam-19.jpg","../img/adam-20.jpg","../img/adam-21.jpg","../img/adam-22.jpg","../img/adam-23.jpg","../img/adam-24.jpg","../img/adam-25.jpg","../img/adam-26.jpg","../img/adam-27.jpg"],
+  // MATRICÁK: melyik sorszámú matrica legyen benne az appban (img/adam-N.jpg + img/stk/stk-N.webp).
+  // Ha egy matrica ne szerepeljen, töröld ki a számát ebből a listából. Ez vezérli a galériát, a lebegő matricákat és a véletlen képeket is.
+  STICKERS: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27],
 
   // Felugró ablakok: legalább ennyi percenként egy (véletlenszerűen ±)
   POPUP_MINUTES: 4
@@ -93,21 +102,21 @@ window.CONTENT = {
     "Mondd tízszer gyorsan, hogy fehér. Mit iszik a tehén?"
   ],
 
-  // --- Szülinapos-kvíz (MINTA: cserélendő a te kérdéseidre) ---
+  // --- Szülinapos-kvíz (MINTA: cserélendő a te kérdéseidre). photo = a matrica sorszáma (lásd STICKERS) ---
   adamQuiz: [
-    { q: "Mivel tölti Ádám a hétköznapjait?", photo: 0,
+    { q: "Mivel tölti Ádám a hétköznapjait?", photo: 25,
       a: ["Takarítószer-nagykernél IT-zik és folyamatokat rak rendbe", "Hajóskapitány a Balatonon", "Profi pókerjátékos", "Influenszer"], c: 0,
       info: "A Higiénia és Tisztaság Kft.-nél az IT, az adatok, a folyamatok és a marketing is nála fut össze." },
-    { q: "Mi az a Playspot, amit Ádám társalapítóként csinál?", photo: 1,
+    { q: "Mi az a Playspot, amit Ádám társalapítóként csinál?", photo: 26,
       a: ["Kutyasétáltató app", "Sportpálya-foglaló platform", "Játszótér-értékelő oldal", "Online társasjáték"], c: 1,
       info: "A playspot.hu-n sportpályákat lehet foglalni. Ha legközelebb focizni mész, már tudod, hol." },
-    { q: "Kié a szelfigép, amibe ma este beállsz?", photo: 2,
+    { q: "Kié a szelfigép, amibe ma este beállsz?", photo: 1,
       a: ["Bérelt", "A Pacsié", "Ádám saját vállalkozásáé", "Egy haveré, aki még nem tudja"], c: 2,
       info: "Snapify néven Ádám esküvőkre és bulikra viszi a szelfigépet. Ma este ingyen próbálhatod." },
-    { q: "Melyik kerületben lakik Ádám?", photo: 3,
+    { q: "Melyik kerületben lakik Ádám?", photo: 15,
       a: ["V.", "XIII.", "XI.", "VIII."], c: 2,
       info: "Újbuda. Ha arra jársz, ugorj be. Mondjuk ne hajnali háromkor." },
-    { q: "Mi a közös Ádámban és Johann Sebastian Bachban?", photo: 4,
+    { q: "Mi a közös Ádámban és Johann Sebastian Bachban?", photo: 22,
       a: ["Mindketten orgonáznak", "A vezetéknév", "Mindkettőjüknek 20 gyereke van", "Semmi"], c: 1,
       info: "Bach Ádám. A 20 gyereket Johann Sebastian vállalta, Ádám egyelőre a webshopokat sokszorozza." }
   ],
@@ -587,6 +596,43 @@ body.tv .row .pos { font-size: 26px; }
 .qrbox b { font: 32px/1 var(--font-display); letter-spacing: .03em; font-weight: 400; text-align: center; }
 .qrbox #qr img, .qrbox #qr canvas { width: 100% !important; max-width: 230px; height: auto !important; }
 
+/* ===== mobil stabilitás ===== */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; overflow-x: hidden; }
+@supports (overflow: clip) { html, body { overflow-x: clip; } }
+button, a, input, label, .photo, .opt, .tile { touch-action: manipulation; }
+body.lock { overflow: hidden; }
+.scrim { overscroll-behavior: contain; }
+.sheet { max-height: 88dvh; }
+.sheet { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+img { -webkit-user-drag: none; }
+
+/* ragadós fejléc: a vissza gomb mindig bal felül marad */
+.top { position: sticky; top: 0; z-index: 40; min-height: 64px;
+  margin: -12px calc(-1 * max(16px, env(safe-area-inset-left, 0px))) 14px calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+  padding: calc(env(safe-area-inset-top, 0px) + 10px) max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px));
+  background: rgba(21, 17, 29, .94); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border-bottom: 3px solid var(--c-black); }
+.backbtn { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 9px 14px 6px 10px; background: var(--c-paper); color: var(--c-black); border: var(--bd); border-radius: 4px; box-shadow: 3px 3px 0 var(--c-black); font: 22px/1 var(--font-display); letter-spacing: .04em; }
+.backbtn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--c-black); }
+.backbtn .ar { font: 900 20px/1 var(--font-body); margin-top: -3px; }
+.sheet-top { position: sticky; top: -22px; z-index: 2; margin: -22px -20px 0; padding: 12px 14px; background: var(--c-paper); border-bottom: 3px solid var(--c-black); display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.sheet-top b { font: 22px/1 var(--font-display); letter-spacing: .03em; }
+.photo.zoomable { cursor: zoom-in; }
+.photo .zoom-hint { position: absolute; right: 6px; bottom: 6px; z-index: 2; background: var(--c-black); color: var(--c-lemon); font: 800 10px/1 var(--font-body); letter-spacing: .1em; text-transform: uppercase; padding: 5px 6px 4px; border-radius: 3px; pointer-events: none; }
+.stk-grid .photo .zoom-hint { display: none; }
+.stk-grid .photo { padding: 0; }
+
+/* nagyító (lightbox) */
+.lb { position: fixed; inset: 0; z-index: 90; background: rgba(15, 13, 10, .96); display: grid; grid-template-rows: auto 1fr auto; overscroll-behavior: contain; touch-action: pan-y; animation: fadein .15s ease-out; }
+.lb-top, .lb-bot { display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: calc(env(safe-area-inset-top, 0px) + 10px) max(14px, env(safe-area-inset-right, 0px)) 10px max(14px, env(safe-area-inset-left, 0px)); }
+.lb-bot { padding: 10px max(14px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 14px) max(14px, env(safe-area-inset-left, 0px)); }
+.lb-cnt { font: 22px/1 var(--font-display); color: var(--c-lemon); letter-spacing: .04em; }
+.lb-stage { position: relative; min-height: 0; display: grid; place-items: center; padding: 0 12px; }
+.lb-stage img { max-width: 100%; max-height: 100%; object-fit: contain; border: 4px solid var(--c-black); border-radius: 6px; box-shadow: 0 0 0 3px var(--c-paper), 8px 8px 0 3px var(--c-lime); background: #15111d; user-select: none; -webkit-user-select: none; }
+.lb-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 46px; height: 46px; border-radius: 50%; border: var(--bd); background: var(--c-paper); color: var(--c-black); font: 900 24px/1 var(--font-body); display: grid; place-items: center; box-shadow: 3px 3px 0 var(--c-black); }
+.lb-nav.prev { left: 6px; } .lb-nav.next { right: 6px; }
+.lb-bot .btn { flex: 1; font-size: 22px; }
+
 @media (max-width: 380px) { .menu { grid-template-columns: 1fr; } .tile.main { grid-template-columns: 1fr; } .tile.main .big { text-align: left; } .drinks { grid-template-columns: 1fr; } }
 </style>
 
@@ -635,11 +681,61 @@ function toast(msg) {
   document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
 }
 
-function photoHTML(i, cls = "") {
-  const list = C.PHOTOS || [];
-  const src = list.length ? list[((i % list.length) + list.length) % list.length] : "";
-  return `<div class="photo ${cls}"><div class="ph">Ide jön egy kép Ádámról</div>${src ? `<img src="${esc(src)}" alt="Ádám" loading="lazy" onerror="this.remove()">` : ""}</div>`;
+/* matricák: a CONFIG.STICKERS sorszámaiból */
+const STK = (C.STICKERS || []).map(Number).filter(n => n > 0);
+const stkSrc = n => `../img/adam-${n}.jpg`;
+const stkAt = i => STK.length ? STK[((i % STK.length) + STK.length) % STK.length] : null;
+// i = hányadik a listában; num = konkrét matrica-sorszám (ha meg van adva, az nyer)
+function photoHTML(i, cls = "", num) {
+  const n = num != null && STK.includes(Number(num)) ? Number(num) : stkAt(i);
+  return `<div class="photo zoomable ${cls}" ${n ? `data-act="zoom" data-n="${n}" role="button" aria-label="Kép nagyban"` : ""}><div class="ph">Ide jön egy kép Ádámról</div>${n ? `<img src="${esc(stkSrc(n))}" alt="Ádám" loading="lazy" onerror="this.remove()"><span class="zoom-hint">Nagyít</span>` : ""}</div>`;
 }
+
+/* ---------- nagyító + letöltés ---------- */
+const HEADS = ["fej-1-szomoru", "fej-2-semleges", "fej-3-vidam", "fej-4-csillogo", "fej-5-szivarvany", "fej-i1-kacsint", "fej-i2-nyelv", "fej-i3-asit", "fej-i4-meglepett", "fej-i5-napszemuveg", "fej-i6-alszik", "fej-i7-puszi", "fej-i8-morcos"];
+const LB = { list: [], i: 0, el: null, blobs: new Map() };
+function lbItems() { return STK.map(n => ({ src: stkSrc(n), name: `adam-matrica-${n}.jpg` })).concat(HEADS.map(h => ({ src: `../img/${h}.png`, name: `adam-${h}.png` }))); }
+function openLightbox(src) {
+  LB.list = lbItems(); LB.i = Math.max(0, LB.list.findIndex(x => x.src === src));
+  if (!LB.el) { LB.el = document.createElement("div"); LB.el.className = "lb"; LB.el.setAttribute("role", "dialog"); LB.el.setAttribute("aria-modal", "true"); document.body.appendChild(LB.el); }
+  document.body.classList.add("lock");
+  drawLightbox();
+}
+function drawLightbox() {
+  const it = LB.list[LB.i]; if (!it || !LB.el) return;
+  LB.el.innerHTML = `<div class="lb-top"><button class="backbtn" data-act="lb-close"><span class="ar">←</span> Vissza</button><span class="lb-cnt">${LB.i + 1} / ${LB.list.length}</span></div>
+    <div class="lb-stage"><img src="${esc(it.src)}" alt="Ádám, nagyban"><button class="lb-nav prev" data-act="lb-prev" aria-label="Előző">‹</button><button class="lb-nav next" data-act="lb-next" aria-label="Következő">›</button></div>
+    <div class="lb-bot"><button class="btn gold" data-act="lb-dl">Letöltöm</button></div>`;
+  prefetchBlob(it);
+}
+function closeLightbox() { if (LB.el) { LB.el.remove(); LB.el = null; } if (!$layer.innerHTML) document.body.classList.remove("lock"); }
+function lbStep(d) { if (!LB.list.length) return; LB.i = (LB.i + d + LB.list.length) % LB.list.length; drawLightbox(); }
+function prefetchBlob(it) { if (!LB.blobs.has(it.src)) LB.blobs.set(it.src, fetch(it.src).then(r => r.ok ? r.blob() : null).catch(() => null)); return LB.blobs.get(it.src); }
+async function downloadCurrent() {
+  const it = LB.list[LB.i]; if (!it) return;
+  const blob = await prefetchBlob(it);
+  if (!blob) { window.open(it.src, "_blank"); return; }
+  const file = new File([blob], it.name, { type: blob.type || "image/jpeg" });
+  const mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if (mobile && navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file] }); return; } catch (e) { if (e && e.name === "AbortError") return; }
+  }
+  const u = URL.createObjectURL(blob), a = document.createElement("a");
+  a.href = u; a.download = it.name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(u), 5000);
+  toast("Letöltve");
+}
+// lapozás húzással
+(() => {
+  let x0 = null, y0 = 0;
+  document.addEventListener("touchstart", e => { if (LB.el && LB.el.contains(e.target)) { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; } }, { passive: true });
+  document.addEventListener("touchend", e => {
+    if (x0 == null || !LB.el) { x0 = null; return; }
+    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; x0 = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.3) lbStep(dx < 0 ? 1 : -1);
+  }, { passive: true });
+  document.addEventListener("keydown", e => { if (!LB.el) return; if (e.key === "Escape") closeLightbox(); if (e.key === "ArrowRight") lbStep(1); if (e.key === "ArrowLeft") lbStep(-1); });
+})();
 
 /* képtömörítés feltöltés előtt */
 function compressImage(file, maxSide = 1280, quality = 0.75) {
@@ -703,7 +799,7 @@ const DemoStore = (() => {
       const m = new Map(db.players.map(p => [p.id, { player_id: p.id, name: p.name, points: 0, quests: 0, beers: 0, wines: 0, longdrinks: 0, shots: 0, waters: 0 }]));
       db.completions.forEach(c => { const r = m.get(c.player_id); if (r) { r.points += Number(c.points); if (String(c.quest_id).startsWith("q")) r.quests++; } });
       db.drinks.forEach(d => { const r = m.get(d.player_id); if (r && DRINK_COLS[d.kind]) r[DRINK_COLS[d.kind]]++; });
-      return later([...m.values()].filter(r => r.points > 0).sort((a, b) => b.points - a.points || b.quests - a.quests).slice(0, n));
+      return later([...m.values()].slice(0, n));
     },
     async feed(n = 12) { return later(db.completions.slice().sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, n)); },
     async photos(n = 6) { return later(db.completions.filter(c => c.photo_url).sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, n)); },
@@ -745,7 +841,7 @@ const SupaStore = (() => {
       return ok(await sb.from("completions").insert({ player_id: me.id, player_name: me.name, quest_id: q.id, points: q.pts, photo_url }).select().single());
     },
     async uncomplete(me, qid) { ok(await sb.from("completions").delete().eq("player_id", me.id).eq("quest_id", qid)); return true; },
-    async leaderboard(n = 50) { return ok(await sb.from("leaderboard").select("*").gt("points", 0).order("points", { ascending: false }).order("quests", { ascending: false }).limit(n)); },
+    async leaderboard(n = 1000) { return ok(await sb.from("leaderboard").select("*").limit(n)); },
     async feed(n = 12) { return ok(await sb.from("completions").select("player_name,quest_id,points,photo_url,created_at").order("created_at", { ascending: false }).limit(n)); },
     async photos(n = 6) { return ok(await sb.from("completions").select("player_name,quest_id,photo_url,created_at").not("photo_url", "is", null).order("created_at", { ascending: false }).limit(n)); },
     async getScore(id, kind) { return ok(await sb.from("scores").select("*").eq("player_id", id).eq("kind", kind).maybeSingle()); },
@@ -765,9 +861,24 @@ const S = {
   board: [],
   view: "home",
   questCat: "konnyu",
-  busy: false
+  busy: false,
+  pyrPts: 0,                          // kvízpiramis legjobb eredménye pontban (beleszámít az összesbe)
+  homePhoto: Math.floor(Math.random() * 99)
 };
-const myPoints = () => [...S.done.values()].reduce((s, c) => s + Number(c.points), 0);
+const myPoints = () => [...S.done.values()].reduce((s, c) => s + Number(c.points), 0) + Number(S.pyrPts || 0);
+async function refreshPyr() {
+  if (!S.me) return;
+  try { const b = await store.getScore(S.me.id, "pyramid"); S.pyrPts = b ? Number(b.score) / 2 : 0; } catch (e) { console.warn(e); }
+}
+// Ranglista: side questek + bónuszok (leaderboard nézet) + a kvízpiramis legjobb eredménye
+async function getBoard(n = 50) {
+  const [rows, pyr] = await Promise.all([store.leaderboard(1000), store.scoreBoard("pyramid", 1000).catch(() => [])]);
+  const pm = new Map((pyr || []).map(s => [s.player_id, Number(s.score) / 2]));
+  return rows.map(r => ({ ...r, points: Number(r.points || 0) + (pm.get(r.player_id) || 0) }))
+    .filter(r => r.points > 0)
+    .sort((a, b) => b.points - a.points || Number(b.quests || 0) - Number(a.quests || 0) || String(a.name).localeCompare(String(b.name), "hu"))
+    .slice(0, n);
+}
 function myRank() { const i = S.board.findIndex(r => r.player_id === S.me?.id); return i >= 0 ? i + 1 : null; }
 
 async function refreshMine() {
@@ -780,9 +891,10 @@ async function refreshDrinks() {
 }
 const drinkN = k => S.drinks.filter(d => d.kind === k).length;
 async function refreshBoard() {
-  const [b, ad] = await Promise.all([store.leaderboard(50).catch(e => { console.warn(e); return null; }), adamStats().catch(() => null)]);
+  const [b, ad] = await Promise.all([getBoard(50).catch(e => { console.warn(e); return null; }), adamStats().catch(() => null), refreshPyr()]);
   if (b) S.board = b;
   if (ad) S.adamAll = ad.perfect.length;
+  patchHome();
 }
 
 /* ---------- router ---------- */
@@ -790,15 +902,17 @@ function go(view, opts = {}) { S.view = view; Object.assign(S, opts); render(); 
 
 function header(back = true) {
   return `<header class="top">
-    ${back ? `<button class="back" data-go="home" aria-label="Vissza a főoldalra">← Főoldal</button>` : `<div class="brand">ÁDÁM <small>NOV 7 · PACSI</small></div>`}
-    <div style="display:flex;gap:8px;align-items:center">${LIVE ? "" : `<span class="demo-flag" title="Nincs bekötve a közös adatbázis">Demó</span>`}<span class="pill-pts">${fmtPts(myPoints())} pont</span></div>
+    ${back ? `<button class="backbtn" data-go="home" aria-label="Vissza a főoldalra"><span class="ar">←</span> Vissza</button>` : `<div class="brand">ÁDÁM <small>NOV 7 · PACSI</small></div>`}
+    <div style="display:flex;gap:8px;align-items:center">${LIVE ? "" : `<span class="demo-flag" title="Nincs bekötve a közös adatbázis">Demó</span>`}<span class="pill-pts" id="ptspill">${fmtPts(myPoints())} pont</span></div>
   </header>`;
 }
 
 
 /* lebegő matricák a nyitóképen (img/stk/stk-1..17.webp) */
+let FLOAT_HTML = null;
 function floatBoxHTML(pre) {
-  const N = 27, rnd = (a, b) => a + Math.random() * (b - a);
+  if (FLOAT_HTML) return FLOAT_HTML;
+  const N = Math.min(STK.length, 30), rnd = (a, b) => a + Math.random() * (b - a);
   // 5×4 rács, mindenki a saját cellájában lebeg, így mind látszik; a 3 üres cella véletlenszerű
   const cells = [...Array(30).keys()].sort(() => Math.random() - .5).slice(0, N);
   let h = "";
@@ -808,9 +922,9 @@ function floatBoxHTML(pre) {
     const v = `--w:${w.toFixed(1)}%;--x:${x.toFixed(1)}%;--y:${y.toFixed(1)}%;--r0:${rnd(-16, 16).toFixed(1)}deg;--r1:${rnd(-18, 18).toFixed(1)}deg;--r2:${rnd(-18, 18).toFixed(1)}deg;` +
       `--x1:${rnd(-45, 45).toFixed(0)}%;--y1:${rnd(-35, 35).toFixed(0)}%;--x2:${rnd(-45, 45).toFixed(0)}%;--y2:${rnd(-35, 35).toFixed(0)}%;--x3:${rnd(-45, 45).toFixed(0)}%;--y3:${rnd(-35, 35).toFixed(0)}%;` +
       `--dur:${rnd(5, 9).toFixed(1)}s;--delay:-${rnd(0, 9).toFixed(1)}s;z-index:${Math.round(rnd(1, 9))}`;
-    h += `<img class="stk" src="${pre}stk/stk-${k + 1}.webp" alt="" loading="lazy" style="${v}" onerror="this.remove()">`;
+    h += `<img class="stk" src="${pre}stk/stk-${STK[k]}.webp" alt="" loading="lazy" style="${v}" onerror="this.remove()">`;
   });
-  return `<div class="float-box">${h}</div>`;
+  return (FLOAT_HTML = `<div class="float-box">${h}</div>`);
 }
 
 function render() {
@@ -827,6 +941,7 @@ function render() {
 /* ---------- belépés ---------- */
 let joinMode = "new";
 function renderJoin(err = "") {
+  const keep = { nm: document.getElementById("nm")?.value || "", pin: document.getElementById("pin")?.value || "" };
   const urlCode = new URLSearchParams(location.search).get("kod") || "";
   const needCode = !!C.PARTY_CODE && urlCode.toUpperCase() !== C.PARTY_CODE.toUpperCase();
   const resume = joinMode === "resume";
@@ -838,8 +953,8 @@ function renderJoin(err = "") {
       ${resume ? `<p style="color:var(--ink-dim)">Írd be ugyanazt a nevet, amivel beléptél, és a 4 jegyű belépőkódodat. A pontjaid ott várnak.</p>`
                : `<div class="meta-row"><span>2026. nov. 7.</span><span>Pacsi, alsó szint</span><span>19:00-tól</span></div>`}
       <form id="join" class="hero" style="gap:14px" autocomplete="off">
-        <div class="field"><label for="nm">${resume ? "A neved" : "Hogy hívnak?"}</label><input id="nm" name="nm" maxlength="24" placeholder="Pl. Kovács Márk" required></div>
-        ${resume ? `<div class="field"><label for="pin">Belépőkód</label><input id="pin" name="pin" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="4 számjegy" required></div>` : ""}
+        <div class="field"><label for="nm">${resume ? "A neved" : "Hogy hívnak?"}</label><input id="nm" name="nm" maxlength="24" placeholder="Pl. Kovács Márk" value="${esc(keep.nm)}" autocapitalize="words" enterkeyhint="go" required></div>
+        ${resume ? `<div class="field"><label for="pin">Belépőkód</label><input id="pin" name="pin" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="4 számjegy" value="${esc(keep.pin)}" required></div>` : ""}
         ${needCode && !resume ? `<div class="field"><label for="code">Buli-kód</label><input id="code" name="code" maxlength="20" placeholder="A meghívóban vagy a falon"></div>` : ""}
         ${err ? `<p class="err">${esc(err)}</p>` : ""}
         <button class="btn block" type="submit" id="joinbtn">${resume ? "Folytatom" : "Beszállok"}</button>
@@ -888,12 +1003,25 @@ function showCode(first) {
 }
 
 /* ---------- főoldal ---------- */
-function renderHome() {
-  const rank = myRank(), pts = myPoints();
+function homeBoardHTML() {
   const top = S.board.slice(0, 5);
   const meIn = top.some(r => r.player_id === S.me.id);
   const mine = S.board.find(r => r.player_id === S.me.id);
-  const doneQ = K.quests.filter(q => S.done.has(q.id)).length;
+  return top.length ? `<div class="board">${top.map((r, i) => boardRow(r, i)).join("")}${!meIn && mine && Number(mine.points) > 0 ? boardRow(mine, S.board.indexOf(mine)) : ""}</div>` : `<div class="empty">Még senkinek nincs pontja. Legyél te az első.</div>`;
+}
+function mainBigHTML() { const rank = myRank(); return `${fmtPts(myPoints())}<small>pont${rank ? " · " + rank + ". hely" : ""}</small>`; }
+function mainKText() { const doneQ = K.quests.filter(q => S.done.has(q.id)).length; return doneQ ? doneQ + " kész / " + K.quests.length : "Kezdd itt"; }
+function adamKText() { return `${K.adamQuiz.length} kérdés a szülinaposról${S.adamAll != null ? ` · ${S.adamAll} vendég mindent tud` : ""}`; }
+// Csak a változó részeket frissíti, így a főoldal nem ugrik és a görgetés is megmarad
+function setHTML(id, html) { const el = document.getElementById(id); if (el && el.innerHTML !== html) el.innerHTML = html; }
+function patchHome() {
+  if (!S.me) return;
+  setHTML("ptspill", `${fmtPts(myPoints())} pont`);
+  if (S.view !== "home" || !document.getElementById("homeboard")) return;
+  setHTML("mainbig", mainBigHTML()); setHTML("maink", esc(mainKText())); setHTML("adamk", esc(adamKText()));
+  setHTML("homeboard", homeBoardHTML());
+}
+function renderHome() {
   $app.innerHTML = `${header(false)}
     <section class="hello">
       <h1>Szia, ${esc(firstName(S.me.name))}!</h1>
@@ -901,8 +1029,8 @@ function renderHome() {
     </section>
     <nav class="menu">
       <button class="tile main" data-go="quests">
-        <div style="display:grid;gap:8px"><span class="k">${doneQ ? doneQ + " kész / " + K.quests.length : "Kezdd itt"}</span><h2>Side questek</h2><p>Könnyű, közepes, nehéz vagy ismerkedős. Te választasz.</p></div>
-        <div class="big">${fmtPts(pts)}<small>pont${rank ? " · " + rank + ". hely" : ""}</small></div>
+        <div style="display:grid;gap:8px"><span class="k" id="maink">${esc(mainKText())}</span><h2>Side questek</h2><p>Könnyű, közepes, nehéz vagy ismerkedős. Te választasz.</p></div>
+        <div class="big" id="mainbig">${mainBigHTML()}</div>
       </button>
       ${piaHTML()}
       <button class="tile" data-go="pyramid"><span class="k">${K.pyramid.length + 1} szint</span><div style="display:grid;gap:6px"><h2>Kvíz&shy;piramis</h2><p>Egyre nehezebb. Egy hiba, és lezuhansz.</p></div></button>
@@ -910,14 +1038,14 @@ function renderHome() {
     </nav>
     <section class="section">
       <h3>Ranglista</h3>
-      ${top.length ? `<div class="board">${top.map((r, i) => boardRow(r, i)).join("")}${!meIn && mine && Number(mine.points) > 0 ? boardRow(mine, S.board.indexOf(mine)) : ""}</div>` : `<div class="empty">Még senkinek nincs pontja. Legyél te az első.</div>`}
+      <div id="homeboard">${homeBoardHTML()}</div>
     </section>
     <nav class="menu" style="margin-top:26px">
-      <button class="tile" data-go="adamquiz" style="grid-column:1/-1;min-height:0"><span class="k">${K.adamQuiz.length} kérdés a szülinaposról${S.adamAll != null ? ` · ${S.adamAll} vendég mindent tud` : ""}</span><div style="display:grid;gap:6px"><h2>Ki ez az Ádám?</h2><p>Mennyire ismered? Képekkel és pár sztorival.</p></div></button>
+      <button class="tile" data-go="adamquiz" style="grid-column:1/-1;min-height:0"><span class="k" id="adamk">${esc(adamKText())}</span><div style="display:grid;gap:6px"><h2>Ki ez az Ádám?</h2><p>Mennyire ismered? Képekkel és pár sztorival.</p></div></button>
     </nav>
     <section class="section">
       <h3>A szülinapos, véletlenszerűen</h3>
-      ${photoHTML(Math.floor(Math.random() * 99), "tall")}
+      <div id="homephoto">${photoHTML(S.homePhoto, "tall")}</div>
       <div class="btn-row" style="margin-top:12px"><button class="btn ghost" data-act="rephoto">Másikat!</button><button class="btn" data-act="gallery">Összes matrica</button></div>
     </section>
     <p style="margin-top:28px;text-align:center;font-size:13px;color:var(--ink-faint)">${esc(S.me.name)} néven vagy bent.${S.me.code ? ` <button class="back" data-act="showcode" style="display:inline;padding:0;font:700 13px var(--font-body);text-decoration:underline">Belépőkód: ${esc(S.me.code)}</button> ·` : ""} <button class="back" data-act="logout" style="display:inline;padding:0;font:700 13px var(--font-body);text-decoration:underline">Nem te vagy?</button></p>`;
@@ -966,9 +1094,10 @@ function ticketHTML(q, L) {
 
 function openSheet(html, onMount) {
   $layer.innerHTML = `<div class="scrim" data-act="close-scrim"><div class="sheet" role="dialog" aria-modal="true">${html}</div></div>`;
+  document.body.classList.add("lock");
   onMount && onMount($layer.querySelector(".sheet"));
 }
-function closeSheet() { $layer.innerHTML = ""; }
+function closeSheet() { $layer.innerHTML = ""; if (!LB.el) document.body.classList.remove("lock"); }
 
 function confirmQuest(q) {
   let blob = null;
@@ -1024,8 +1153,9 @@ function piaHTML() {
   </section>`;
 }
 function refreshPia(flashKind) {
-  if (S.view !== "home" || !document.getElementById("pia")) return;
-  renderHome();
+  const el = document.getElementById("pia");
+  if (S.view !== "home" || !el) return;
+  el.outerHTML = piaHTML(); patchHome();
   if (flashKind) { const r = document.querySelector(`[data-row="${flashKind}"]`); if (r) r.classList.add("flash"); }
 }
 async function addDrink(kind) {
@@ -1079,10 +1209,12 @@ function adamClubHTML(st) {
     ${names.length ? `<details class="club"><summary>Mindent tudók klubja (${names.length})</summary><ol>${names.map(n => `<li>${esc(n)}</li>`).join("")}</ol></details>` : ""}`;
 }
 async function renderAdamQuiz() {
+  if (S.view !== "adamquiz") return;
   if (!aq) {
     $app.innerHTML = `${header()}<p class="empty">Betöltés…</p>`;
     const prev = await store.getScore(S.me.id, "adam").catch(() => null);
-    aq = { i: 0, score: 0, answered: null, marks: [], prev };
+    if (S.view !== "adamquiz") return;
+    aq = aq || { i: 0, score: 0, answered: null, marks: [], prev };
   }
   const st = aq, Q = K.adamQuiz;
   if (st.i >= Q.length) {
@@ -1105,7 +1237,7 @@ async function renderAdamQuiz() {
   const item = Q[st.i], ans = st.answered;
   $app.innerHTML = `${header()}<section class="quiz">
     <div class="qhead"><span>Ki ez az Ádám? · ${st.i + 1}/${Q.length}</span><span class="dots">${Q.map((_, k) => `<i class="${st.marks[k] === true ? "ok" : st.marks[k] === false ? "bad" : k === st.i ? "cur" : ""}"></i>`).join("")}</span></div>
-    ${photoHTML(item.photo ?? st.i, "wide")}
+    ${photoHTML(st.i, "wide", item.photo)}
     <h2>${esc(item.q)}</h2>
     <div class="choices">${item.a.map((t, k) => {
       const cls = ans === null ? "" : k === item.c ? "right" : k === ans ? "wrong" : "";
@@ -1170,11 +1302,13 @@ async function ageStats() {
   return { total: rows.length, right: tips.filter(a => a === right).length, older: tips.filter(a => a > right).length, younger: tips.filter(a => a < right).length };
 }
 async function renderPyramid() {
+  if (S.view !== "pyramid") return;
   if (!P) {
     $app.innerHTML = `${header()}<p class="empty">Betöltés…</p>`;
     const [best, tries, age, board] = await Promise.all([
       store.getScore(S.me.id, "pyramid").catch(() => null), store.getScore(S.me.id, "pyr_tries").catch(() => null),
       store.getScore(S.me.id, "age").catch(() => null), store.scoreBoard("pyramid", 20).catch(() => [])]);
+    if (S.view !== "pyramid" || P) return;
     const t = tries ? Number(tries.score) : (best ? 1 : 0);
     P = { phase: t ? "done" : "intro", best, tries: t, age, board, lvl: 0, qs: null, start: 0, qStart: 0, ans: null, timer: null, last: null, stats: null };
   }
@@ -1245,31 +1379,36 @@ async function startPyramid() {
 }
 async function pAnswer(k) {
   if (!P || P.phase !== "play" || P.ans !== null) return;
+  const G = P;                         // ez a játék; ha közben kilépett, nem írunk rá más nézetre
   clearInterval(P.timer);
   const q = P.qs[P.lvl];
   P.ans = k;
   const right = k === q.c;
   if (k === -1) toast("Lejárt az idő!");
   let wait = right ? 900 : 1800;
-  if (P.lvl === 0) {
-    if (!P.age) { P.age = { score: k >= 0 ? Number(q.a[k]) : 0 }; await store.saveScore(S.me, "age", P.age.score, 0).catch(console.warn); }
-    P.stats = await ageStats(); wait = 2600;
+  if (G.lvl === 0) {
+    if (!G.age) { G.age = { score: k >= 0 ? Number(q.a[k]) : 0 }; await store.saveScore(S.me, "age", G.age.score, 0).catch(console.warn); }
+    G.stats = await ageStats(); wait = 2600;
+    if (P !== G) return;
   }
   renderPyramid();
-  const elapsed = Date.now() - P.start;
-  const reached = right ? P.lvl + 1 : P.lvl;
-  const factor = P.tries > 1 ? (K.pyramidRetryFactor ?? 0.5) : 1;
+  const elapsed = Date.now() - G.start;
+  const reached = right ? G.lvl + 1 : G.lvl;
+  const factor = G.tries > 1 ? (K.pyramidRetryFactor ?? 0.5) : 1;
   const half = Math.round(reached * factor * 2);
-  const prev = P.best ? Number(P.best.score) : -1;
+  const prev = G.best ? Number(G.best.score) : -1;
   if (half > prev || (half === prev && P.best && elapsed < Number(P.best.time_ms))) {
-    P.best = { score: half, time_ms: elapsed };
+    G.best = { score: half, time_ms: elapsed };
+    S.pyrPts = half / 2; setHTML("ptspill", `${fmtPts(myPoints())} pont`);
     await store.saveScore(S.me, "pyramid", half, elapsed).catch(console.warn);
   }
   setTimeout(async () => {
-    if (right && P.lvl + 1 < pLevels()) { P.lvl++; P.ans = null; renderPyramid(); return; }
-    P.last = { reached, time_ms: elapsed, pts: reached * factor };
-    P.board = await store.scoreBoard("pyramid", 20).catch(() => P.board);
-    P.phase = "done"; renderPyramid();
+    if (P !== G) return;
+    if (right && G.lvl + 1 < pLevels()) { G.lvl++; G.ans = null; renderPyramid(); return; }
+    G.last = { reached, time_ms: elapsed, pts: reached * factor };
+    G.board = await store.scoreBoard("pyramid", 20).catch(() => G.board);
+    if (P !== G) return;
+    G.phase = "done"; renderPyramid(); refreshBoard();
   }, wait);
 }
 
@@ -1300,20 +1439,28 @@ document.addEventListener("click", async ev => {
   if (el.dataset.go) {
     const v = el.dataset.go;
     if (v === "adamquiz") aq = null;
-    if (v === "pyramid") { if (P && P.timer) clearInterval(P.timer); P = null; }
-    if (v === "home") { refreshBoard().then(() => { if (S.view === "home") renderHome(); }); }
-    go(v); return;
+    if (P && P.timer) clearInterval(P.timer);
+    if (v === "pyramid" || S.view === "pyramid") P = null;
+    closeSheet();
+    go(v);
+    if (v === "home") refreshBoard();
+    return;
   }
   const a = el.dataset.act;
   if (a === "close") return closeSheet();
   if (a === "joinmode") { joinMode = joinMode === "resume" ? "new" : "resume"; renderJoin(); return; }
   if (a === "showcode") { showCode(false); return; }
-  if (a === "rephoto") { const ph = el.closest("section").querySelector(".photo"); if (ph) ph.outerHTML = photoHTML(Math.floor(Math.random() * 99), "tall"); return; }
+  if (a === "rephoto") { let n; do { n = Math.floor(Math.random() * 99); } while (STK.length > 1 && stkAt(n) === stkAt(S.homePhoto)); S.homePhoto = n; setHTML("homephoto", photoHTML(n, "tall")); return; }
+  if (a === "zoom") { const img = el.querySelector("img"); if (img) openLightbox(img.getAttribute("src")); return; }
+  if (a === "lb-close") { closeLightbox(); return; }
+  if (a === "lb-prev") { lbStep(-1); return; }
+  if (a === "lb-next") { lbStep(1); return; }
+  if (a === "lb-dl") { downloadCurrent(); return; }
   if (a === "gallery") {
-    const heads = ["fej-1-szomoru", "fej-2-semleges", "fej-3-vidam", "fej-4-csillogo", "fej-5-szivarvany", "fej-i1-kacsint", "fej-i2-nyelv", "fej-i3-asit", "fej-i4-meglepett", "fej-i5-napszemuveg", "fej-i6-alszik", "fej-i7-puszi", "fej-i8-morcos"];
-    openSheet(`<h2>Ádám, matricában</h2><p>${(C.PHOTOS || []).length} matrica + ${heads.length} fej a kivetítőről. Görgess.</p>
-      <div class="stk-grid">${(C.PHOTOS || []).map((_, i) => photoHTML(i)).join("")}</div>
-      <div class="stk-grid">${heads.map(h => `<div class="photo sq"><img src="../img/${h}.png" alt="Ádám feje" loading="lazy" onerror="this.parentNode.remove()"></div>`).join("")}</div>
+    openSheet(`<div class="sheet-top"><button class="backbtn" data-act="close"><span class="ar">←</span> Vissza</button><b>${STK.length} matrica</b></div>
+      <h2>Ádám, matricában</h2><p>${STK.length} matrica + ${HEADS.length} fej a kivetítőről. Koppints egyre: nagyban látod, és le is töltheted.</p>
+      <div class="stk-grid">${STK.map(n => photoHTML(0, "", n)).join("")}</div>
+      <div class="stk-grid">${HEADS.map(h => `<div class="photo sq zoomable" data-act="zoom" role="button" aria-label="Kép nagyban"><img src="../img/${h}.png" alt="Ádám feje" loading="lazy" onerror="this.parentNode.remove()"></div>`).join("")}</div>
       <button class="btn block" data-act="close">Bezár</button>`);
     return;
   }
@@ -1324,7 +1471,7 @@ document.addEventListener("click", async ev => {
       <div class="row-btns"><button class="btn ghost" data-act="close">Maradok</button><button class="btn" data-act="logout-yes">Kilépek</button></div>`);
     return;
   }
-  if (a === "logout-yes") { closeSheet(); ls.del("bp_me"); S.me = null; S.done = new Map(); S.drinks = []; joinMode = "new"; render(); return; }
+  if (a === "logout-yes") { closeSheet(); ls.del("bp_me"); S.me = null; S.done = new Map(); S.drinks = []; S.pyrPts = 0; S.board = []; joinMode = "new"; render(); return; }
   if (a === "cattab") { S.questCat = el.dataset.c; renderQuests(); return; }
   if (a === "done") { const q = questById(el.dataset.q); if (q) confirmQuest(q); return; }
   if (a === "undo") {
@@ -1366,7 +1513,7 @@ async function renderTV() {
   try { if (window.QRCode) new QRCode(document.getElementById("qr"), { text: C.APP_URL || (location.origin + location.pathname), width: 220, height: 220, colorDark: "#0f0d0a", colorLight: "#fffbe8" }); } catch (e) {}
   const tick = async () => {
     try {
-      const [board, pyr, feed, pics, qn, dn] = await Promise.all([store.leaderboard(10), store.scoreBoard("pyramid", 5), store.feed(6), store.photos(4), store.questCount().catch(() => null), store.drinkCount().catch(() => null)]);
+      const [board, pyr, feed, pics, qn, dn] = await Promise.all([getBoard(10), store.scoreBoard("pyramid", 5), store.feed(6), store.photos(4), store.questCount().catch(() => null), store.drinkCount().catch(() => null)]);
       if (qn !== null) document.getElementById("tvq").textContent = qn + " kész quest";
       if (dn !== null) document.getElementById("tvd").textContent = dn + " ital";
       const as = await ageStats(); if (as.total) document.getElementById("tva").textContent = `${as.older} idősebbnek · ${as.younger} fiatalabbnak gondolja`;
@@ -1393,7 +1540,9 @@ async function boot() {
   }
   try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {}
   render();
-  setInterval(() => { if (S.me && S.view === "home" && !$layer.innerHTML) refreshBoard().then(() => { if (S.view === "home" && !$layer.innerHTML) renderHome(); }); }, 20000);
+  // ranglista + pontok frissítése: csak a változó részeket írja át (nem ugrik az oldal)
+  setInterval(() => { if (S.me && !document.hidden) refreshBoard(); }, 15000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && S.me) { refreshMine().then(refreshBoard); } });
 }
 window.addEventListener("hashchange", () => location.reload());
 boot();
