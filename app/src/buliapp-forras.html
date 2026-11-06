@@ -308,6 +308,18 @@ p { margin: 0; }
   background-color: var(--c-lemon); background-image: radial-gradient(rgba(15,13,10,.16) 2px, transparent 2.2px); background-size: 12px 12px; }
 .photo.wide { aspect-ratio: 16 / 9; }
 .photo.montage { aspect-ratio: 3 / 2; transform: rotate(-1.5deg); margin: 6px 4px 0; }
+/* lebegő matricák a nyitóképen */
+.float-box { position: relative; aspect-ratio: 3 / 2; margin: 6px 4px 0; overflow: hidden; border: 4px solid var(--c-black); border-radius: 4px; box-shadow: var(--sh); transform: rotate(-1.5deg);
+  background-color: #15111d; background-image: radial-gradient(circle at 15% 20%, rgba(198,244,50,.28), transparent 45%), radial-gradient(circle at 85% 85%, rgba(255,77,109,.28), transparent 45%), radial-gradient(#2a2238 1.6px, transparent 2px); background-size: 100% 100%, 100% 100%, 16px 16px; }
+.float-box .stk { position: absolute; width: var(--w); left: var(--x); top: var(--y); filter: drop-shadow(5px 7px 0 rgba(0,0,0,.45)); will-change: transform;
+  animation: stk-drift var(--dur) ease-in-out var(--delay) infinite alternate; transform: translate(0,0) rotate(var(--r0)); }
+@keyframes stk-drift {
+  0%   { transform: translate(0, 0) rotate(var(--r0)); }
+  33%  { transform: translate(var(--x1), var(--y1)) rotate(var(--r1)); }
+  66%  { transform: translate(var(--x2), var(--y2)) rotate(var(--r2)); }
+  100% { transform: translate(var(--x3), var(--y3)) rotate(var(--r0)); }
+}
+@media (prefers-reduced-motion: reduce) { .float-box .stk { animation: none; } }
 .strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .strip .photo { aspect-ratio: 3 / 4; transform: rotate(-3deg); }
 .strip .photo:nth-child(2) { transform: rotate(2deg) translateY(8px); }
@@ -772,6 +784,22 @@ function header(back = true) {
   </header>`;
 }
 
+
+/* lebegő matricák a nyitóképen (img/stk/stk-1..17.webp) */
+function floatBoxHTML(pre) {
+  const N = 17, rnd = (a, b) => a + Math.random() * (b - a);
+  let h = "";
+  for (let i = 1; i <= N; i++) {
+    const col = (i - 1) % 6, row = Math.floor((i - 1) / 6);
+    const x = col * 15 + rnd(-3, 5), y = row * 31 + rnd(-5, 7), w = rnd(20, 28);
+    const v = `--w:${w.toFixed(1)}%;--x:${x.toFixed(1)}%;--y:${y.toFixed(1)}%;--r0:${rnd(-14, 14).toFixed(1)}deg;--r1:${rnd(-14, 14).toFixed(1)}deg;--r2:${rnd(-14, 14).toFixed(1)}deg;` +
+      `--x1:${rnd(-28, 28).toFixed(0)}px;--y1:${rnd(-22, 22).toFixed(0)}px;--x2:${rnd(-28, 28).toFixed(0)}px;--y2:${rnd(-22, 22).toFixed(0)}px;--x3:${rnd(-28, 28).toFixed(0)}px;--y3:${rnd(-22, 22).toFixed(0)}px;` +
+      `--dur:${rnd(9, 16).toFixed(1)}s;--delay:-${rnd(0, 12).toFixed(1)}s;z-index:${Math.round(rnd(1, 9))}`;
+    h += `<img class="stk" src="${pre}stk/stk-${i}.webp" alt="" loading="lazy" style="${v}" onerror="this.remove()">`;
+  }
+  return `<div class="float-box">${h}</div>`;
+}
+
 function render() {
   if (!S.me) return renderJoin();
   const v = S.view;
@@ -792,7 +820,7 @@ function renderJoin(err = "") {
   $app.innerHTML = `
     <header class="top"><div class="brand">ÁDÁM <small>NOV 7 · PACSI</small></div>${LIVE ? "" : `<span class="demo-flag">Demó</span>`}</header>
     <section class="hero">
-      <div class="photo montage"><div class="ph">Ide jön egy kép Ádámról</div><img src="img/montazs.jpg" alt="Ádám matricák" onerror="this.remove()"></div>
+      ${floatBoxHTML("img/")}
       <h1>${resume ? "Vissza&shy;lépés" : `Szülinapi<span>side questek</span>`}</h1>
       ${resume ? `<p style="color:var(--ink-dim)">Írd be ugyanazt a nevet, amivel beléptél, és a 4 jegyű belépőkódodat. A pontjaid ott várnak.</p>`
                : `<div class="meta-row"><span>2026. nov. 7.</span><span>Pacsi, alsó szint</span><span>19:00-tól</span></div>`}
