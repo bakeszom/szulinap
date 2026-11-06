@@ -238,8 +238,8 @@ Aki a törlés előtt már belépett (pl. teszteléskor), annak az app automatik
 ## 10. Nyitott teendők (nov. 5. állapot)
 
 - [x] **SQL lefuttatása** Supabase-en (belépőkód, piaszámláló tábla, italos ranglista) – kész, nov. 6.
-- [ ] **Side questek** végleges listája a Google táblázatban, kategóriákkal.
-- [ ] **Ki ez az Ádám?** 5 saját kérdése (most mintakérdések vannak benne).
-- [ ] **8 kép** Ádámról (`adam-1.jpg` … `adam-8.jpg`).
+- [x] **Side questek** végleges listája – bent, nov. 6.
+- [x] **Ki ez az Ádám?** 6 saját kérdése – bent, nov. 6.
+- [x] Matricák: 22 db (a `STICKERS` lista vezérli az `index.html` elején).
 - [x] Az új verzió élesítése és élő teszt – kész, nov. 6. (az új tartalom és a képek után még egyszer frissítjük)
 - [ ] Buli előtti takarítás (8. pont).
