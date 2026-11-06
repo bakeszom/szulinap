@@ -153,6 +153,20 @@ body {
   animation: breathe 3.2s ease-in-out infinite;
 }
 @keyframes breathe { 0%, 100% { transform: rotate(-1.5deg) scale(1); } 50% { transform: rotate(-.8deg) scale(1.025); } }
+.totalrow { display: flex; align-items: center; gap: 26px; min-width: 0; }
+.totalrow .total { flex: none; }
+.total.long b { font-size: 92px; }
+.howto {
+  flex: 1 1 0; min-width: 0; max-width: 270px; position: relative;
+  background: var(--pop); color: var(--paper); border: 4px solid var(--ink); border-radius: 6px; box-shadow: 6px 6px 0 var(--ink);
+  padding: 9px 12px 10px; transform: rotate(2deg);
+  animation: howto 3.6s ease-in-out infinite;
+}
+@keyframes howto { 0%, 100% { transform: rotate(2deg) scale(1); } 50% { transform: rotate(1deg) scale(1.03); } }
+.howto::before { content: ""; position: absolute; left: -16px; top: 50%; margin-top: -10px; border: 10px solid transparent; border-right: 12px solid var(--ink); border-left: 0; }
+.howto .h { font: 400 25px/1 var(--font-display); letter-spacing: .04em; color: var(--lemon); }
+.howto .b { font: 800 14px/1.25 var(--font-body); margin-top: 4px; }
+.howto .f { font: 700 11px/1.25 var(--font-body); margin-top: 6px; padding-top: 5px; border-top: 2px dashed rgba(255,251,232,.45); opacity: .92; }
 .total b { font: 400 112px/1 var(--font-display); letter-spacing: .02em; font-variant-numeric: tabular-nums; }
 .total span { font: 400 44px/1 var(--font-display); }
 .total.bump { animation: bump .6s cubic-bezier(.3,1.8,.5,1); }
@@ -280,7 +294,7 @@ body {
 .demo .tag { align-self: center; font: 700 11px/1 var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--paper); opacity: .6; }
 
 @media (prefers-reduced-motion: reduce) {
-  .qr, .dots, .glow, .panel, .total, .metric, .metric .plus, .stripes-move, .ticker .track, .miles li.next, .board li:nth-child(1) .pos, .live i { animation: none !important; }
+  .howto, .qr, .dots, .glow, .panel, .total, .metric, .metric .plus, .stripes-move, .ticker .track, .miles li.next, .board li:nth-child(1) .pos, .live i { animation: none !important; }
 }
 </style>
 
@@ -305,7 +319,14 @@ body {
 
       <div class="center">
         <div class="raised">Eddig Ádámnak gyűjtött:</div>
-        <div class="total" id="total" aria-live="polite"><b id="totalNum">0</b><span>Ft</span></div>
+        <div class="totalrow">
+          <div class="total" id="total" aria-live="polite"><b id="totalNum">0</b><span>Ft</span></div>
+          <div class="howto">
+            <div class="h">Te is beszállnál?</div>
+            <div class="b">A szelfigép melletti terminálnál. Az összeget te választod.</div>
+            <div class="f">Ez egy vicces szülinapi gyűjtés, teljesen önkéntes. Minden forint Ádám esküvőjére megy.</div>
+          </div>
+        </div>
         <div class="metrics">
           <div class="metric" id="mtCount">
             <span class="ic"><svg viewBox="0 0 26 26" aria-hidden="true"><ellipse cx="13" cy="19" rx="9" ry="3.5" fill="#fff04a" stroke="#0f0d0a" stroke-width="1.5"/><ellipse cx="13" cy="14.5" rx="9" ry="3.5" fill="#fff04a" stroke="#0f0d0a" stroke-width="1.5"/><ellipse cx="13" cy="10" rx="9" ry="3.5" fill="#fff04a" stroke="#0f0d0a" stroke-width="1.5"/><text x="13" y="12.4" text-anchor="middle" font-size="6" font-family="Bangers, Impact, sans-serif" fill="#0f0d0a">FT</text></svg></span>
@@ -429,6 +450,8 @@ const MILESTONES = [
 const SHOUTS = ["Gyerünk!", "Még egy kicsit!", "Szelfigép, most!", "Csináljatok side questet!", "Ki jön táncolni?", "Esküvő, jövök!", "Hajrá, hajrá!", "Ez az este a tiétek!"];
 // alapszövegek a hírszalagon, amíg nincs elég élő esemény
 const TICKER_FILLER = [
+  "Beszállnál? A szelfigép melletti terminálnál, az összeget te választod",
+  "Vicces szülinapi gyűjtés: teljesen önkéntes, minden forint az esküvőre megy",
   "Olvasd be a QR-kódot és szedd a side questeket",
   "Minden forint előre lök a pályán",
   "A szelfigép ingyen van, használd",
@@ -1007,6 +1030,7 @@ function frame(now) {
     const d = S.total - S.shown;
     S.shown = Math.abs(d) < 1 ? S.total : S.shown + d * Math.min(1, dt * 6);
     $("totalNum").textContent = fmt(S.shown);
+    $("total").classList.toggle("long", S.shown >= 100000);
   }
   stepConfetti();
   requestAnimationFrame(frame);
