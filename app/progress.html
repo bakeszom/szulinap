@@ -1054,6 +1054,13 @@ function tickClock() {
 $("miles").innerHTML = MILESTONES.slice(1).map(m => `<li class="${m.kind || ""}"><b>${m.a >= 1000000 ? "1 M" : fmt(m.a)}</b><span><span class="nm"></span> <span class="tx"></span></span></li>`).join("");
 [...$("miles").children].forEach((li, i) => { const m = MILESTONES[i + 1]; li.querySelector(".nm").textContent = m.n; li.querySelector(".tx").textContent = "· " + (m.short || m.t); });
 
+// ?reset a címben: a gép emlékezetéből törli a gyűjtés állását (összeg, befizetések, fotók, becenév), és visszaáll nullára
+if (params.has("reset")) {
+  try { Object.keys(localStorage).filter(k => k.startsWith("adamfut:")).forEach(k => localStorage.removeItem(k)); } catch (e) {}
+  params.delete("reset");
+  const q = params.toString();
+  location.replace(location.pathname + (q ? "?" + q.replace(/=(&|$)/g, "$1") : "") + location.hash);
+}
 S.seen = new Set(load("seen", []));
 S.nick = load("nick", "");
 S.count = load("count", LIVE ? 0 : 9);
