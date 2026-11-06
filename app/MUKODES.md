@@ -211,7 +211,7 @@ A vendégek a következő megnyitáskor vagy frissítéskor már az új verziót
 2. **Tesztadatok törlése:** Supabase → SQL Editor:
 
    ```sql
-   truncate public.drinks, public.completions, public.scores, public.players restart identity cascade;
+   truncate public.photos, public.drinks, public.completions, public.scores, public.players restart identity cascade;
    ```
 
 3. **Fotók törlése:** Supabase → Storage → `proofs` → Empty bucket.

@@ -682,6 +682,16 @@ img { -webkit-user-drag: none; }
 .act-item.bonus { background: var(--c-lemon); }
 .qcount { font: 800 11px/1 var(--font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--c-muted); }
 
+/* buli fotók */
+.pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pgrid figure { margin: 0; position: relative; aspect-ratio: 1; border: 3px solid var(--c-black); border-radius: 4px; overflow: hidden; background: #221b2e; box-shadow: 4px 4px 0 var(--c-black); }
+.pgrid img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: zoom-in; }
+.pgrid figcaption { position: absolute; inset: auto 0 0; padding: 5px 7px 3px; font: 15px/1 var(--font-display); letter-spacing: .03em; background: var(--c-lemon); color: var(--c-black); border-top: 2px solid var(--c-black); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pgrid .del { position: absolute; top: 6px; right: 6px; width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--c-black); background: var(--c-paper); color: var(--c-black); font: 900 18px/1 var(--font-body); display: grid; place-items: center; }
+.upbig { display: grid; place-items: center; gap: 4px; text-align: center; padding: 18px; border: 4px dashed var(--c-paper); border-radius: var(--r); color: var(--c-paper); font: 26px/1 var(--font-display); letter-spacing: .03em; cursor: pointer; margin-bottom: 16px; }
+.upbig small { font: 700 13px/1.3 var(--font-body); letter-spacing: 0; color: var(--ink-dim); }
+.upbig input { display: none; }
+
 /* nagyító (lightbox) */
 .lb { position: fixed; inset: 0; z-index: 90; background: rgba(15, 13, 10, .96); display: grid; grid-template-rows: auto 1fr auto; overscroll-behavior: contain; touch-action: pan-y; animation: fadein .15s ease-out; }
 .lb-top, .lb-bot { display: flex; align-items: center; justify-content: space-between; gap: 10px;
@@ -862,6 +872,9 @@ const DemoStore = (() => {
       db.drinks.forEach(d => { const r = m.get(d.player_id); if (r && DRINK_COLS[d.kind]) r[DRINK_COLS[d.kind]]++; });
       return later([...m.values()].slice(0, n));
     },
+    async addPartyPhoto(me, blob) { const url = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(blob); }); const ph = { id: Date.now() + Math.random(), player_id: me.id, player_name: me.name, url, created_at: new Date().toISOString() }; (db.photos = db.photos || []).push(ph); save(); return later(ph); },
+    async partyPhotos(n = 200) { return later((db.photos || []).slice().sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, n)); },
+    async deletePartyPhoto(id) { db.photos = (db.photos || []).filter(x => x.id !== id); save(); return later(true); },
     async activity(n = 60) { return later(db.completions.slice().sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, n)); },
     async questCounts() { return later(db.completions.map(c => ({ quest_id: c.quest_id }))); },
     async feed(n = 12) { return later(db.completions.slice().sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, n)); },
@@ -905,6 +918,14 @@ const SupaStore = (() => {
     },
     async uncomplete(me, qid) { ok(await sb.from("completions").delete().eq("player_id", me.id).eq("quest_id", qid)); return true; },
     async leaderboard(n = 1000) { return ok(await sb.from("leaderboard").select("*").limit(n)); },
+    async addPartyPhoto(me, blob) {
+      const path = `party/${me.id}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}.jpg`;
+      ok(await sb.storage.from("proofs").upload(path, blob, { contentType: "image/jpeg", upsert: false }));
+      const url = sb.storage.from("proofs").getPublicUrl(path).data.publicUrl;
+      return ok(await sb.from("photos").insert({ player_id: me.id, player_name: me.name, url }).select().single());
+    },
+    async partyPhotos(n = 200) { return ok(await sb.from("photos").select("id,player_id,player_name,url,created_at").order("created_at", { ascending: false }).limit(n)); },
+    async deletePartyPhoto(id) { ok(await sb.from("photos").delete().eq("id", id)); return true; },
     async activity(n = 60) { return ok(await sb.from("completions").select("player_name,quest_id,points,photo_url,created_at").order("created_at", { ascending: false }).limit(n)); },
     async questCounts() { return ok(await sb.from("completions").select("quest_id").like("quest_id", "q%").limit(5000)); },
     async feed(n = 12) { return ok(await sb.from("completions").select("player_name,quest_id,points,photo_url,created_at").order("created_at", { ascending: false }).limit(n)); },
@@ -1001,6 +1022,7 @@ function render() {
   if (v === "topics") return renderTopics();
   if (v === "pyramid") return renderPyramid();
   if (v === "activity") return renderActivity();
+  if (v === "photos") return renderPhotos();
   if (v === "wedding") return renderWedding();
   renderHome();
 }
@@ -1102,6 +1124,7 @@ function renderHome() {
       ${piaHTML()}
       <button class="tile" data-go="pyramid"><span class="k">${K.pyramid.length + 1} szint</span><div style="display:grid;gap:6px"><h2>Kvíz&shy;piramis</h2><p>Egyre nehezebb. Egy hiba, és lezuhansz.</p></div></button>
       <button class="tile" data-go="topics"><span class="k">Jégtörők · viták</span><div style="display:grid;gap:6px"><h2>Téma&shy;dobó</h2><p>Nem tudod, mit kérdezz? Húzz egy kérdést.</p></div></button>
+      <button class="tile" data-go="photos" style="grid-column:1/-1;min-height:0;background:var(--c-lime)"><span class="k">Töltsd fel, amit lőttél</span><div style="display:grid;gap:6px"><h2>Buli fotók</h2><p>Közös album: a képeidet mindenki látja, és a kivetítőn is körbemennek.</p></div></button>
       <button class="tile" data-go="activity" style="grid-column:1/-1;min-height:0;background:#dff6ff"><span class="k">Élőben, fotókkal</span><div style="display:grid;gap:6px"><h2>Ki mit csinált?</h2><p>Itt látod, ki melyik side questet teljesítette, és a bizonyítékfotókat is.</p></div></button>
       <button class="tile" data-go="wedding" style="grid-column:1/-1;min-height:0;background:var(--c-pop)"><span class="k" style="color:var(--c-black)">Mire megy a pénz a terminálnál?</span><div style="display:grid;gap:6px"><h2>Gyűjtés az esküvőre</h2><p style="color:var(--c-black)">Önkéntes, vicces gyűjtés. Mérföldkövenként Ádámnak élőben teljesítenie kell valamit.</p></div></button>
     </nav>
@@ -1239,6 +1262,41 @@ async function renderActivity() {
   ACT_PICS = pics;
 }
 let ACT_PICS = [];
+
+/* ---------- Buli fotók ---------- */
+let PH = null, PH_ERR = false, PH_UP = null;
+async function loadPhotos() {
+  try { PH = await store.partyPhotos(300); PH_ERR = false; } catch (e) { console.warn(e); if (!PH) PH_ERR = true; }
+}
+async function renderPhotos(fetch = true) {
+  if (S.view !== "photos") return;
+  if (!PH && !PH_ERR) $app.innerHTML = `${header()}<p class="empty">Betöltés…</p>`;
+  if (fetch) await loadPhotos();
+  if (S.view !== "photos") return;
+  const list = PH || [];
+  $app.innerHTML = `${header()}
+    <section class="lv-head" style="--c:var(--lv1)"><h2>Buli fotók</h2><p>Egyszerre többet is kiválaszthatsz. A saját képeidet az × gombbal törölheted.</p></section>
+    ${PH_ERR ? `<div class="empty">A fotóalbum még nincs bekapcsolva. Szólj Ádámnak.</div>` : `
+    <label class="upbig">${PH_UP ? esc(PH_UP) : "+ Képek feltöltése"}<small>${PH_UP ? "Ne zárd be az appot, amíg kész nincs." : "Fotózz, vagy válassz a galériádból"}</small>
+      <input type="file" id="pfiles" accept="image/*" multiple ${PH_UP ? "disabled" : ""}></label>
+    ${list.length ? `<div class="pgrid">${list.map(ph => `<figure><img src="${esc(ph.url)}" alt="Buli fotó" loading="lazy" data-act="zoomparty">${ph.player_id === S.me.id ? `<button class="del" data-act="delphoto" data-id="${ph.id}" aria-label="Képem törlése">×</button>` : ""}<figcaption>${esc(ph.player_name)} · ${ago(ph.created_at)}</figcaption></figure>`).join("")}</div>`
+      : `<div class="empty">Még nincs kép. Legyél te az első.</div>`}`}`;
+  const inp = document.getElementById("pfiles");
+  if (inp) inp.addEventListener("change", () => uploadParty([...inp.files]));
+}
+async function uploadParty(files) {
+  if (!files.length || PH_UP) return;
+  let ok = 0, bad = 0;
+  for (let i = 0; i < files.length; i++) {
+    PH_UP = `Feltöltés: ${i + 1} / ${files.length}`; if (S.view === "photos") renderPhotos(false);
+    try { const blob = await compressImage(files[i], 1600, 0.8); const ph = await store.addPartyPhoto(S.me, blob); (PH = PH || []).unshift(ph); ok++; }
+    catch (e) { console.warn(e); bad++; }
+  }
+  PH_UP = null;
+  toast(bad ? `${ok} kép fent, ${bad} nem sikerült` : `${ok} kép feltöltve!`);
+  if (S.view === "photos") renderPhotos(false);
+}
+const partyItems = () => (PH || []).map(ph => ({ src: ph.url, name: `buli-${String(ph.player_name).replace(/\W+/g, "-")}-${ph.id}.jpg` }));
 
 /* ---------- Gyűjtés az esküvőre ---------- */
 function renderWedding() {
@@ -1575,6 +1633,17 @@ document.addEventListener("click", async ev => {
   if (a === "rephoto") { let n; do { n = Math.floor(Math.random() * 99); } while (STK.length > 1 && stkAt(n) === stkAt(S.homePhoto)); S.homePhoto = n; setHTML("homephoto", photoHTML(n, "tall")); return; }
   if (a === "zoom") { const img = el.querySelector("img"); if (img) openLightbox(img.getAttribute("src")); return; }
   if (a === "lb-close") { closeLightbox(); return; }
+  if (a === "zoomparty") { openLightbox(el.getAttribute("src"), partyItems()); return; }
+  if (a === "delphoto") {
+    openSheet(`<h2>Törlöd a képet?</h2><p>Eltűnik az albumból és a kivetítőről is.</p><div class="row-btns"><button class="btn ghost" data-act="close">Mégse</button><button class="btn" data-act="delphoto-yes" data-id="${esc(el.dataset.id)}">Törlöm</button></div>`);
+    return;
+  }
+  if (a === "delphoto-yes") {
+    const id = el.dataset.id;
+    try { await store.deletePartyPhoto(isNaN(id) ? id : Number(id)); PH = (PH || []).filter(x => String(x.id) !== String(id)); closeSheet(); toast("Törölve."); renderPhotos(false); }
+    catch (e) { toast("Nem sikerült. Próbáld újra."); }
+    return;
+  }
   if (a === "zoomproof") { openLightbox(el.getAttribute("src"), ACT_PICS); return; }
   if (a === "lb-prev") { lbStep(-1); return; }
   if (a === "lb-next") { lbStep(1); return; }
@@ -1631,7 +1700,7 @@ async function renderTV() {
     <div class="tvtitle"><h1>ÁDÁM <span>SIDE QUESTEK</span></h1><div class="meta-row"><span>2026. nov. 7.</span><span>Pacsi</span><span id="tvq">– quest</span><span id="tvd">– ital</span><span id="tva">– kor-tipp</span><span id="tvall">– mindent tud</span>${LIVE ? "" : "<span>Demó</span>"}</div></div>
     <div class="tvcol"><h3>Ranglista</h3><div class="board" id="tvboard"></div></div>
     <div class="tvcol"><h3>Kvízpiramis csúcsai</h3><div class="board" id="tvpyr"></div><h3 style="margin-top:10px">Most történt</h3><div class="feed" id="tvfeed"></div></div>
-    <div class="tvcol"><div class="qrbox"><b>Szállj be te is</b><div id="qr"></div></div><h3>Bizonyítékok</h3><div class="wall" id="tvwall"></div></div>
+    <div class="tvcol"><div class="qrbox"><b>Szállj be te is</b><div id="qr"></div></div><h3>Buli fotók</h3><div class="wall" id="tvwall"></div></div>
   </div>`;
   try { if (window.QRCode) new QRCode(document.getElementById("qr"), { text: C.APP_URL || (location.origin + location.pathname), width: 220, height: 220, colorDark: "#0f0d0a", colorLight: "#fffbe8" }); } catch (e) {}
   const tick = async () => {
@@ -1644,7 +1713,10 @@ async function renderTV() {
       document.getElementById("tvboard").innerHTML = board.length ? board.map((r, i) => boardRow(r, i)).join("") : `<div class="empty">Még üres. Olvasd be a QR-kódot!</div>`;
       document.getElementById("tvpyr").innerHTML = pyr.filter(r => Number(r.score) > 0).length ? pyr.filter(r => Number(r.score) > 0).map((r, i) => boardRow({ ...r, name: r.player_name }, i, `${fmtPts(Number(r.score) / 2)} p`, true)).join("") : `<div class="empty">Még senki nem mászott.</div>`;
       document.getElementById("tvfeed").innerHTML = feed.map(c => { const q = questById(c.quest_id); return `<div><b>${esc(c.player_name)}</b> +${c.points} p · ${esc(q ? (q.name ? q.name + " (titkos bónusz)" : q.t) : "")}<small>${ago(c.created_at)}</small></div>`; }).join("") || `<div class="empty">Itt jelennek meg a teljesített questek.</div>`;
-      document.getElementById("tvwall").innerHTML = pics.map(c => `<figure><img src="${esc(c.photo_url)}" alt=""><figcaption>${esc(c.player_name)}</figcaption></figure>`).join("") || `<div class="empty" style="grid-column:1/-1">A nehéz questek fotói ide kerülnek.</div>`;
+      const party = await store.partyPhotos(4).catch(() => []);
+      const wall = pics.map(c => ({ url: c.photo_url, name: c.player_name, at: c.created_at })).concat(party.map(p => ({ url: p.url, name: p.player_name, at: p.created_at })))
+        .sort((x, y) => String(y.at).localeCompare(String(x.at))).slice(0, 4);
+      document.getElementById("tvwall").innerHTML = wall.map(c => `<figure><img src="${esc(c.url)}" alt=""><figcaption>${esc(c.name)}</figcaption></figure>`).join("") || `<div class="empty" style="grid-column:1/-1">A buli fotói és a nehéz questek képei ide kerülnek.</div>`;
     } catch (e) { console.warn(e); }
   };
   await tick(); setInterval(tick, 8000);
@@ -1664,7 +1736,7 @@ async function boot() {
   try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {}
   render();
   // ranglista + pontok frissítése: csak a változó részeket írja át (nem ugrik az oldal)
-  setInterval(() => { if (S.me && !document.hidden) { refreshBoard(); if (S.view === "activity" && !LB.el) { const y = scrollY; renderActivity().then(() => scrollTo(0, y)); } if (S.view === "quests") refreshQuestCounts(); } }, 15000);
+  setInterval(() => { if (S.me && !document.hidden) { refreshBoard(); if (S.view === "activity" && !LB.el) { const y = scrollY; renderActivity().then(() => scrollTo(0, y)); } if (S.view === "quests") refreshQuestCounts(); if (S.view === "photos" && !PH_UP && !LB.el && !$layer.innerHTML) { const y = scrollY; renderPhotos().then(() => scrollTo(0, y)); } } }, 15000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden && S.me) { refreshMine().then(refreshBoard); } });
 }
 window.addEventListener("hashchange", () => location.reload());

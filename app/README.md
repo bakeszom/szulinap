@@ -23,7 +23,7 @@ Jó, ha kicsik (max ~1500 px, 300–500 KB). Ha valamelyik hiányzik, helykitöl
 Supabase → SQL Editor:
 
 ```sql
-truncate public.completions, public.scores, public.players restart identity cascade;
+truncate public.photos, public.drinks, public.completions, public.scores, public.players restart identity cascade;
 ```
 
 Utána Supabase → Storage → `proofs` bucket → **Empty bucket**.
