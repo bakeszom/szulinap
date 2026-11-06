@@ -35,6 +35,7 @@
   `longdrinks` és `shots` oszlop, a nevek mellett automatikusan megjelenik a koktél- és a feles-szám is.
   Saját fej: img/fej-1-szomoru.png … fej-5-szivarvany.png (átlátszó, 640×640) – a gyűjtés arányával vált: szomorú → semleges → vidám → csillogó szem;
   mérföldkőnél és a csillogó fokozatban időnként szivárványt hány. Tartalék: img/adam-fej.png.
+  Idle-fejek (img/fej-i1…i8): egy helyben állva 5–11 mp-enként random grimasz; befizetésnél/fotónál reakció. API: progress.face("nyelv"), progress.rainbow().
 -->
 
 <style>
@@ -580,13 +581,24 @@ const probe = new Image();
 probe.onload = () => { photo.style.display = ""; drawn.style.display = "none"; };
 probe.src = HEAD_FALLBACK;
 const probe2 = new Image();
-probe2.onload = () => { headsOk = true; photo.style.display = ""; drawn.style.display = "none"; HEADS.forEach(h => { const i = new Image(); i.src = h; }); };
+probe2.onload = () => { headsOk = true; photo.style.display = ""; drawn.style.display = "none"; HEADS.concat(Object.values(IDLE)).forEach(h => { const i = new Image(); i.src = h; }); };
 probe2.src = HEADS[2];
 // csillogás a fej körül (loop) – csak a vidám fokozatoktól
 const sparkles = el("g", { opacity: 0 }, head);
 const SPARK = [[-70, -168, 10, "#fff04a"], [66, -150, 8, "#ff4d6d"], [-58, -96, 7, "#c6f432"], [74, -104, 11, "#fff04a"], [0, -196, 7, "#fffbe8"], [-78, -130, 6, "#ff4d6d"]];
 const sparkEls = SPARK.map(([x, y, r, c]) => el("path", { d: `M ${x} ${y - r} Q ${x} ${y} ${x + r} ${y} Q ${x} ${y} ${x} ${y + r} Q ${x} ${y} ${x - r} ${y} Q ${x} ${y} ${x} ${y - r} Z`, fill: c, stroke: "#0f0d0a", "stroke-width": 1.5 }, sparkles));
+// Idle-fejek: egy helyben állva időnként ezekre vált, aztán vissza a hangulatára
+const IDLE = { kacsint: "img/fej-i1-kacsint.png", nyelv: "img/fej-i2-nyelv.png", asit: "img/fej-i3-asit.png", meglepett: "img/fej-i4-meglepett.png",
+  napszemuveg: "img/fej-i5-napszemuveg.png", alszik: "img/fej-i6-alszik.png", puszi: "img/fej-i7-puszi.png", morcos: "img/fej-i8-morcos.png" };
+const IDLE_LOW = ["asit", "alszik", "morcos", "meglepett", "asit", "alszik"];
+const IDLE_HIGH = ["kacsint", "nyelv", "napszemuveg", "puszi", "meglepett", "kacsint"];
 let mood = -1, moodPopAt = 0, rainbowUntil = 0, nextRainbow = performance.now() + 20000;
+let faceUntil = 0, nextIdle = performance.now() + 6000, lastFace = "";
+function face(name, ms = 2200) {
+  if (!headsOk || !IDLE[name]) return;
+  faceUntil = performance.now() + ms; lastFace = name; moodPopAt = performance.now();
+  photo.setAttribute("href", IDLE[name]);
+}
 function moodFor(pos) { return pos < .12 ? 0 : pos < .3 ? 1 : pos < .55 ? 2 : 3; }
 function setHead(m) {
   if (!headsOk || m === mood) return;
@@ -762,6 +774,7 @@ function setTotal(n, opts = {}) {
     if (typeof opts.count !== "number") { S.count++; hit("mtCount", "+1"); if (diff > S.max) { S.max = diff; hit("mtMax", "REKORD"); } }
     say("+" + fmt(diff) + " Ft" + (opts.name ? " · " + opts.name : ""));
     cheerUntil = performance.now() + 2500;
+    face(diff >= 10000 ? "meglepett" : rnd(["kacsint", "puszi", "napszemuveg"]), 1600);
     const p = ptAt(S.pos);
     spawn(40, p.x, 512 + p.y - 120, true);
     pushTicker(`<b>+${fmt(diff)} Ft</b> ${opts.name ? esc(opts.name) + " beszállt" : "új befizetés"}`);
@@ -773,7 +786,7 @@ function setPhotos(n, fromAdd) {
   n = Math.max(0, Math.round(Number(n) || 0));
   if (n > S.photos) {
     const d = n - S.photos;
-    hit("mtPhotos", "+" + d);
+    hit("mtPhotos", "+" + d); face("napszemuveg", 1800);
     if (fromAdd || d === 1) pushTicker(`<b>SZELFI</b> újabb kép a gépből, már ${fmt(n)} darab`);
     if (n % 25 === 0) say(fmt(n) + ". szelfi!", 3000);
   }
@@ -786,6 +799,8 @@ const progress = {
   setNickname: s => { S.nick = String(s || "").slice(0, 28); saveAll(); renderHud(); if (S.nick) { say("Mostantól: " + S.nick, 4000); pushTicker(`<b>BECENÉV</b> Ádám mostantól: ${esc(S.nick)}`); } },
   setPhotos: n => setPhotos(n),
   addPhoto: () => setPhotos(S.photos + 1, true),
+  face: (name, ms) => face(name, ms),   // pl. progress.face("nyelv", 2000) – kacsint, nyelv, asit, meglepett, napszemuveg, alszik, puszi, morcos
+  rainbow: () => rainbow(2600),
   get total() { return S.total; }
 };
 window.progress = progress;
@@ -957,8 +972,16 @@ function frame(now) {
   if (now < rainbowUntil) { /* marad a szivárvány */ }
   else if (cheering && m >= 2 && headsOk && now > nextRainbow - 15000) { rainbow(2600); nextRainbow = now + 22000 + Math.random() * 20000; }
   else if (m >= 3 && now > nextRainbow) { rainbow(2600); nextRainbow = now + 22000 + Math.random() * 20000; }
+  else if (now < faceUntil) { /* idle-fej megy */ }
+  else if (!walking && !cheering && now > nextIdle && headsOk && !reduced) {
+    const pool = m <= 1 ? IDLE_LOW : IDLE_HIGH;
+    let pick; do { pick = rnd(pool); } while (pick === lastFace && pool.length > 1);
+    face(pick, pick === "alszik" ? 4500 : 1800 + Math.random() * 1400);
+    nextIdle = now + 5000 + Math.random() * 6000;
+  }
   else setHead(m);
-  if (now >= rainbowUntil && mood >= 0 && photo.getAttribute("href") === HEADS[4]) { mood = -1; setHead(m); }
+  if (now >= rainbowUntil && now >= faceUntil && mood >= 0 && photo.getAttribute("href") !== HEADS[mood]) { mood = -1; setHead(m); }
+  if (walking) nextIdle = Math.max(nextIdle, now + 2500);
   const pop = Math.max(0, 1 - (now - moodPopAt) / 320);
   const headScale = 1 + pop * .22 * Math.sin(pop * Math.PI);
   const bounce = m >= 2 && !reduced ? Math.sin(t * 6) * (m >= 3 ? 3 : 1.5) : 0;
