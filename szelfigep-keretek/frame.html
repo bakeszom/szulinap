@@ -10,10 +10,12 @@ html,body{margin:0;background:transparent}
 /* alsó sáv */
 .band{z-index:1;position:absolute;left:0;right:0;bottom:0;height:var(--BH);background:var(--navy);
  background-image:radial-gradient(circle at 10% 30%,rgba(198,244,50,.25),transparent 40%),radial-gradient(circle at 90% 80%,rgba(255,77,109,.3),transparent 45%),radial-gradient(#2a2238 2.4px,transparent 3px);background-size:100% 100%,100% 100%,24px 24px;border-top:14px solid var(--ink)}
+.mont{position:absolute;inset:0;overflow:hidden;opacity:.12;filter:saturate(.6)}
+.mont img{position:absolute}
 .band:before{content:"";position:absolute;left:0;right:0;top:-32px;height:18px;background:var(--lemon);border-top:7px solid var(--ink);border-bottom:7px solid var(--ink)}
 .name{z-index:5;position:absolute;left:50%;transform:translateX(-50%) rotate(-2deg);bottom:var(--NB);font:var(--NS)/.9 Bangers;letter-spacing:.04em;color:var(--pop);-webkit-text-stroke:5px var(--ink);paint-order:stroke fill;text-shadow:10px 10px 0 var(--ink);white-space:nowrap}
 .sub{z-index:5;position:absolute;left:50%;transform:translateX(-50%);bottom:var(--SB);font:800 var(--SS) Figtree;letter-spacing:.22em;text-transform:uppercase;color:var(--paper);background:var(--ink);padding:10px 22px;border:5px solid var(--paper);box-shadow:8px 8px 0 var(--lime);white-space:nowrap}
-.n29{z-index:5;position:absolute;top:var(--NT);left:var(--NL);transform:rotate(-8deg);font:var(--N29)/.85 Bangers;color:var(--lemon);-webkit-text-stroke:6px var(--ink);paint-order:stroke fill;text-shadow:12px 12px 0 var(--ink)}
+.n29{z-index:5;position:absolute;top:var(--NT);left:var(--NL);transform:rotate(-6deg);font:var(--N29)/.85 Bangers;color:var(--lemon);-webkit-text-stroke:5px var(--ink);paint-order:stroke fill;text-shadow:8px 8px 0 var(--ink)}
 .n29 small{display:block;font:800 var(--N29S) Figtree;letter-spacing:.2em;color:var(--ink);background:var(--pop);padding:6px 16px;border:5px solid var(--ink);box-shadow:6px 6px 0 var(--ink);-webkit-text-stroke:0;text-shadow:none;transform:rotate(3deg);width:max-content;margin-top:8px}
 .stk{z-index:2;position:absolute;filter:drop-shadow(7px 9px 0 rgba(0,0,0,.5))}
 .hd{z-index:2;position:absolute;filter:drop-shadow(6px 8px 0 rgba(0,0,0,.5))}
@@ -23,18 +25,20 @@ const q=new URLSearchParams(location.search), W=+q.get("w"), H=+q.get("h"), P=W<
 const r=document.documentElement.style; r.setProperty("--W",W+"px"); r.setProperty("--H",H+"px");
 r.setProperty("--BH",(P?330:260)+"px"); r.setProperty("--NS",(P?150:128)+"px"); r.setProperty("--NB",(P?118:92)+"px");
 r.setProperty("--SS",(P?30:26)+"px"); r.setProperty("--SB",(P?50:36)+"px");
-r.setProperty("--N29",(P?300:240)+"px"); r.setProperty("--N29S",(P?28:24)+"px"); r.setProperty("--NT",(P?42:34)+"px"); r.setProperty("--NL",(P?54:48)+"px");
+r.setProperty("--N29",(P?190:160)+"px"); r.setProperty("--N29S",(P?22:20)+"px"); r.setProperty("--NT",(P?48:40)+"px"); r.setProperty("--NL",(P?60:52)+"px");
 const f=document.getElementById("f");
-f.innerHTML=`<div class="edge"></div><div class="band"></div>
-<div class="name">BAKESZOM</div><div class="sub">2026 · NOV 7 · PACSI</div>
+f.innerHTML=`<div class="edge"></div><div class="band"><div class="mont" id="mont"></div></div>
+<div class="name">BAKESZOM</div><div class="sub">2026 · NOVEMBER</div>
 <div class="n29">29<small>SZÜLINAP</small></div>`;
 function stk(i,x,y,w,rot){const e=document.createElement("img");e.className="stk";e.src=`stk/stk-${i}.webp`;Object.assign(e.style,{left:x+"px",top:y+"px",width:w+"px",transform:`rotate(${rot}deg)`});f.appendChild(e)}
 function hd(n,x,y,w,rot){const e=document.createElement("img");e.className="hd";e.src=`${n}.png`;Object.assign(e.style,{left:x+"px",top:y+"px",width:w+"px",transform:`rotate(${rot}deg)`});f.appendChild(e)}
-if(P){ // 1200x1800
-  stk(1,-30,H-470,240,-10); stk(2,150,H-400,220,7); stk(4,840,H-420,230,-6); stk(3,1000,H-480,230,9);
-  stk(5,W-290,40,260,9); hd("fej-4-csillogo",W-240,H-980,180,10); hd("fej-i2-nyelv",-30,H-900,170,-12); hd("fej-5-szivarvany",W-200,H-740,190,-6);
+// halvány montázs az alsó sávban: mind a 17 matrica
+const m=document.getElementById("mont"), BH=P?330:260, cols=P?6:8, cw=W/cols;
+for(let i=0;i<17;i++){const e=document.createElement("img");e.src=`stk/stk-${i+1}.webp`;const col=i%cols,row=Math.floor(i/cols);
+  Object.assign(e.style,{left:(col*cw-cw*.15+((row%2)?cw*.5:0))+"px",top:(row*(BH*.55)-BH*.2)+"px",width:(cw*1.3)+"px",transform:`rotate(${(i*37%24)-12}deg)`});m.appendChild(e)}
+if(P){ // 1200x1800 – két erős matrica a sarkokban
+  stk(1,-30,H-470,230,-10); stk(4,W-220,H-470,230,8); stk(5,W-280,40,250,9);
 }else{ // 1800x1200
-  stk(1,-30,H-410,230,-9); stk(2,170,H-350,210,5); stk(6,360,H-380,200,-6); stk(3,1260,H-390,200,7); stk(4,1440,H-350,220,-8); stk(5,1620,H-420,220,10);
-  hd("fej-4-csillogo",W-230,60,180,10); hd("fej-i2-nyelv",-20,H-720,160,-12); hd("fej-i1-kacsint",W-190,H-680,170,-6);
+  stk(1,-30,H-400,220,-9); stk(4,W-210,H-400,220,8); stk(5,W-260,40,230,10);
 }
 </script></body></html>

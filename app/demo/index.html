@@ -26,7 +26,7 @@ window.CONFIG = {
   APP_URL: "",
 
   // Képek a szülinaposról az img/ mappából. Ha egy fájl nincs meg, helykitöltő jelenik meg.
-  PHOTOS: ["../img/adam-1.jpg","../img/adam-2.jpg","../img/adam-3.jpg","../img/adam-4.jpg","../img/adam-5.jpg","../img/adam-6.jpg","../img/adam-7.jpg","../img/adam-8.jpg","../img/adam-9.jpg","../img/adam-10.jpg","../img/adam-11.jpg","../img/adam-12.jpg","../img/adam-13.jpg","../img/adam-14.jpg","../img/adam-15.jpg","../img/adam-16.jpg","../img/adam-17.jpg"],
+  PHOTOS: ["../img/adam-1.jpg","../img/adam-2.jpg","../img/adam-3.jpg","../img/adam-4.jpg","../img/adam-5.jpg","../img/adam-6.jpg","../img/adam-7.jpg","../img/adam-8.jpg","../img/adam-9.jpg","../img/adam-10.jpg","../img/adam-11.jpg","../img/adam-12.jpg","../img/adam-13.jpg","../img/adam-14.jpg","../img/adam-15.jpg","../img/adam-16.jpg","../img/adam-17.jpg","../img/adam-18.jpg","../img/adam-19.jpg","../img/adam-20.jpg","../img/adam-21.jpg","../img/adam-22.jpg","../img/adam-23.jpg","../img/adam-24.jpg","../img/adam-25.jpg","../img/adam-26.jpg","../img/adam-27.jpg"],
 
   // Felugró ablakok: legalább ennyi percenként egy (véletlenszerűen ±)
   POPUP_MINUTES: 4
@@ -798,13 +798,13 @@ function header(back = true) {
 
 /* lebegő matricák a nyitóképen (img/stk/stk-1..17.webp) */
 function floatBoxHTML(pre) {
-  const N = 17, rnd = (a, b) => a + Math.random() * (b - a);
+  const N = 27, rnd = (a, b) => a + Math.random() * (b - a);
   // 5×4 rács, mindenki a saját cellájában lebeg, így mind látszik; a 3 üres cella véletlenszerű
-  const cells = [...Array(20).keys()].sort(() => Math.random() - .5).slice(0, N);
+  const cells = [...Array(30).keys()].sort(() => Math.random() - .5).slice(0, N);
   let h = "";
   cells.forEach((c, k) => {
-    const col = c % 5, row = Math.floor(c / 5);
-    const x = col * 20 + rnd(-2, 3), y = row * 25 + rnd(-2, 4), w = rnd(20, 24);
+    const col = c % 6, row = Math.floor(c / 6);
+    const x = col * 16.6 + rnd(-2, 3), y = row * 20 + rnd(-2, 3), w = rnd(17, 20);
     const v = `--w:${w.toFixed(1)}%;--x:${x.toFixed(1)}%;--y:${y.toFixed(1)}%;--r0:${rnd(-16, 16).toFixed(1)}deg;--r1:${rnd(-18, 18).toFixed(1)}deg;--r2:${rnd(-18, 18).toFixed(1)}deg;` +
       `--x1:${rnd(-45, 45).toFixed(0)}%;--y1:${rnd(-35, 35).toFixed(0)}%;--x2:${rnd(-45, 45).toFixed(0)}%;--y2:${rnd(-35, 35).toFixed(0)}%;--x3:${rnd(-45, 45).toFixed(0)}%;--y3:${rnd(-35, 35).toFixed(0)}%;` +
       `--dur:${rnd(5, 9).toFixed(1)}s;--delay:-${rnd(0, 9).toFixed(1)}s;z-index:${Math.round(rnd(1, 9))}`;
