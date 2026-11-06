@@ -207,8 +207,9 @@ body {
 /* mérföldkövek */
 .miles { animation-delay: -5s; padding-top: 10px; }
 .miles h3 { margin: 3px 0 6px; font-size: 26px; }
-.miles ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
-.miles li { display: grid; grid-template-columns: 66px 1fr; gap: 9px; align-items: center; font-size: 13px; line-height: 1.1; padding: 2px 5px; border-radius: 3px; white-space: nowrap; }
+.miles .win { height: 352px; overflow: hidden; margin: 0 -6px; padding: 3px 6px; }
+.miles ol { list-style: none; margin: 0; padding: 0; display: grid; grid-auto-rows: 22px; transition: transform .8s cubic-bezier(.3,1.3,.5,1); }
+.miles li { display: grid; grid-template-columns: 66px 1fr; gap: 9px; align-items: center; font-size: 13px; line-height: 1.1; padding: 0 5px; border-radius: 3px; white-space: nowrap; }
 .miles li > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .miles li b { font: 400 15px/1 var(--font-display); letter-spacing: .03em; font-variant-numeric: tabular-nums; background: var(--ink); color: var(--lemon); padding: 3px 6px 1px; border-radius: 3px; text-align: right; }
 .miles li .nm { font-weight: 900; }
@@ -341,7 +342,7 @@ body {
       <div class="panel miles">
         <div class="kicker">Mi történik, ha összejön</div>
         <h3>Mérföldkövek</h3>
-        <ol id="miles"></ol>
+        <div class="win"><ol id="miles"></ol></div>
       </div>
     </section>
 
@@ -395,22 +396,31 @@ body {
 /* ================== TARTALOM — itt szerkeszthető ================== */
 // kind: "task" = Ádámnak teljesítenie kell · "trophy" = poén-mérföldkő · short: a jobb oldali listába
 const MILESTONES = [
-  { a: 0,       n: "Rajt",             t: "Elindult a futás. Minden forint előre lök." },
-  { a: 5000,    n: "Insta-poszt",      short: "azonnal kiposztolja a bulit",           t: "Ádám most azonnal kiposztolja a bulit Instára.", kind: "task" },
-  { a: 10000,   n: "Húzóra",           short: "lehúz egy korsó sört",                  t: "Ádám lehúz egy korsó sört, mindenki szurkol.", kind: "task" },
-  { a: 15000,   n: "Parkett-bajnok",   short: "ti választotok számot, végigtáncolja",  t: "Ti választotok számot, Ádám végigtáncolja a parkett közepén.", kind: "task" },
-  { a: 20000,   n: "Vízhiány",         short: "3 feles víz helyett, egymás után",      t: "Három feles, víz helyett. Egymás után.", kind: "task" },
-  { a: 25000,   n: "Side quest csere", short: "ti választotok questet, ő teljesíti",   t: "Ti választotok egy side questet, Ádám teljesíti.", kind: "task" },
-  { a: 30000,   n: "GTA 6",            short: "ennyiből már GTA 6 lenne",              t: "Ennyibe kerül a GTA 6. De ez most az esküvőre megy.", kind: "trophy" },
-  { a: 40000,   n: "Élő adás",         short: "10 perces Insta live a buliról",        t: "10 perces Instagram live: Ádám elmeséli, mi folyik itt.", kind: "task" },
-  { a: 50000,   n: "Parkett-poéta",    short: "verset szaval a parkett közepén",       t: "Ádám elszaval egy verset a táncparkett közepén.", kind: "task" },
-  { a: 60000,   n: "Szkander-király",  short: "aki legyőzi, kap tőle egy felest",      t: "Ádám kiáll mindenki ellen. Aki legyőzi, kap tőle egy felest.", kind: "task" },
-  { a: 75000,   n: "Nagy finálé",      short: "karaoke a parkett közepén",             t: "Ti választotok dalt, Ádám karaokézik a parkett közepén.", kind: "task" },
-  { a: 100000,  n: "Hat számjegy",     short: "ti választjátok a profilképét 1 hétre", t: "Egy hétig a vendégek választják Ádám Insta-profilképét.", kind: "task" },
-  { a: 150000,  n: "Bio-csere",        short: "ti írjátok az Insta-bióját 1 hónapig",  t: "Egy hónapig ti írjátok Ádám Insta-bióját.", kind: "task" },
-  { a: 200000,  n: "PS5",              short: "ennyiből már PS5 lenne",                t: "Ennyiből már PS5 lenne. Nem lesz. Esküvő lesz.", kind: "trophy" },
-  { a: 500000,  n: "Lagzi-zenekar",    short: "ennyiből megvan a lagzi zenekara",      t: "A zenekar ki van fizetve. Ti húzzátok majd a talpalávalót.", kind: "trophy" },
-  { a: 1000000, n: "Milliomos",        short: "mindenki meghívót kap az esküvőre",     t: "Egymillió. Itt mindenki meghívót kap az esküvőre.", kind: "trophy" }
+  { a: 0, n: "Rajt", t: "Elindult a futás. Minden forint előre lök." },
+  { a: 3000, n: "Csoportkép", short: "közös kép mindenkivel", t: "Ádám közös képet csinál mindenkivel.", kind: "task" },
+  { a: 5000, n: "Insta-poszt", short: "azonnal kiposztolja a bulit", t: "Ádám most azonnal kiposztolja a bulit Instára.", kind: "task" },
+  { a: 7500, n: "Stand-up", short: "elmond egy viccet a mikrofonba", t: "Ádám elmond egy viccet a mikrofonba. Nevetni kötelező.", kind: "task" },
+  { a: 10000, n: "Feleskör", short: "egy feles, aki akar, csatlakozhat", t: "Ádám lehúz egy felest. Aki akar, csatlakozhat.", kind: "task" },
+  { a: 12500, n: "Kutyaüzemmód", short: "fél percig kutyát imitál", t: "Ádám fél percig kutyát imitál. Simogatni szabad.", kind: "task" },
+  { a: 15000, n: "Parkett-bajnok", short: "ti választotok számot, végigtáncolja", t: "Ti választotok számot, Ádám végigtáncolja a parkett közepén.", kind: "task" },
+  { a: 20000, n: "Vízhiány", short: "2 feles víz helyett, egymás után", t: "Két feles, víz helyett. Egymás után.", kind: "task" },
+  { a: 25000, n: "Quest-ajándék", short: "aki behozza, választ neki egy side questet", t: "Aki ezt a mérföldkövet behozta, választhat Ádámnak egy side questet.", kind: "task" },
+  { a: 29000, n: "Utolsó 29", short: "az utolsó mérföldkő 29 évesen", t: "Ez az utolsó mérföldkő, amit Ádám még 29 évesen ér el.", kind: "trophy" },
+  { a: 30000, n: "GTA 6", short: "kijönne a GTA 6, de ne törjön meg a lendület", t: "Ennyiből kijönne a GTA 6. De ne törjön meg a lendület.", kind: "trophy" },
+  { a: 35000, n: "Beugratós", short: "átver valakit egy találós kérdéssel", t: "Ádám átver valakit egy találós kérdéssel.", kind: "task" },
+  { a: 40000, n: "Élő adás", short: "10 perces Insta live a buliról", t: "10 perces Instagram live: Ádám elmeséli, mi folyik itt.", kind: "task" },
+  { a: 45000, n: "Köszönöm, anya", short: "felhívja anyukáját és megköszöni", t: "Ádám felhívja az anyukáját, és megköszöni neki, hogy világra hozta.", kind: "task" },
+  { a: 50000, n: "Még egy kör", short: "újabb feleskör, de csak egy", t: "Újabb feleskör. De csak egy.", kind: "task" },
+  { a: 55000, n: "Ádám fizet", short: "meghív pár embert egy italra", t: "Ádám meghív pár embert egy italra.", kind: "task" },
+  { a: 60000, n: "Szkander-király", short: "max. 3 kihívó, a győztes felest kap", t: "Ádám kiáll legfeljebb három kihívó ellen. Aki legyőzi, kap tőle egy felest.", kind: "task" },
+  { a: 70000, n: "Sörpárbaj", short: "sörivó verseny Ádám ellen", t: "Sörivó verseny Ádám ellen. Ki bírja?", kind: "task" },
+  { a: 75000, n: "Bio-csere", short: "ti írjátok az Insta-bióját 1 hónapig", t: "Egy hónapig ti írjátok Ádám Insta-bióját.", kind: "task" },
+  { a: 100000, n: "Hat számjegy", short: "ti választjátok a profilképét 1 hétre", t: "Egy hétig a vendégek választják Ádám Insta-profilképét.", kind: "task" },
+  { a: 150000, n: "Szólótánc", short: "egyedül kezdi a táncot, aztán mindenki", t: "Ádám egyedül kezdi a táncot, aztán jön mindenki.", kind: "task" },
+  { a: 200000, n: "PS5", short: "ennyiből már PS5 lenne", t: "Ennyiből már PS5 lenne. Nem lesz. Esküvő lesz.", kind: "trophy" },
+  { a: 300000, n: "Harmincas csomag", short: "térdvédő, hátkrém és egy jó fotel", t: "Ennyiből telik térdvédőre, hátkrémre és egy jó fotelre. Jön a 30.", kind: "trophy" },
+  { a: 500000, n: "Lagzi-zenekar", short: "ennyiből megvan a lagzi zenekara", t: "Ennyiből megvan a lagzi zenekara. Ti húzzátok majd a talpalávalót.", kind: "trophy" },
+  { a: 1000000, n: "Milliomos", short: "aki jelen van, meghívót kap az esküvőre", t: "Egymillió. Aki most itt van, meghívót kap az esküvőre.", kind: "trophy" }
 ];
 
 // Ádám időnként bekiabál
@@ -508,12 +518,12 @@ function drawSigns() {
     const post = el("line", { x1: p.x, y1: p.y, x2: p.x, y2: p.y, stroke: "#0f0d0a", "stroke-width": 5 }, g);
     const dot = el("circle", { cx: p.x, cy: p.y, r: 10, fill: "#fffbe8", stroke: "#0f0d0a", "stroke-width": 4 }, g);
     const t1 = el("text", { class: "amt", x: p.x, "text-anchor": "middle", fill: "#0f0d0a" }, g);
-    t1.textContent = m.a >= 1000000 ? "1 MILLIÓ" : (m.a === 0 ? "RAJT" : fmt(m.a));
+    t1.textContent = m.a >= 1000000 ? "1M" : (m.a === 0 ? "RAJT" : m.a < 10000 ? fmt(m.a) : String(m.a / 1000).replace(".", ",") + "K");
     const t2 = el("text", { class: "nm", x: p.x, "text-anchor": "middle", fill: "#0f0d0a" }, g);
-    t2.textContent = m.a === 0 ? "0 FT" : m.n.toUpperCase();
-    const h = 42, w = Math.max(t1.getComputedTextLength(), t2.getComputedTextLength(), 50) + 20;
+    t2.textContent = "";
+    const h = 30, w = Math.max(t1.getComputedTextLength(), 34) + 16;
     // hely keresése: fent / lent, egyre messzebb, amíg nem ütközik egy korábbi táblával
-    const cands = i % 2 === 0 ? [-38, 34, -86, 82, -134] : [34, -38, 82, -86, 130];
+    const cands = i % 2 === 0 ? [-30, 30, -66, 66, -102, 102] : [30, -30, 66, -66, 102, -102];
     let postEnd = p.y + cands[0], top = 0;
     for (const off of cands) {
       postEnd = p.y + off; top = off < 0 ? postEnd - h : postEnd;
@@ -524,7 +534,7 @@ function drawSigns() {
     post.setAttribute("y2", postEnd);
     const rect = el("rect", { x: p.x - w / 2, y: top, width: w, height: h, rx: 4, fill: "#fff04a", stroke: "#0f0d0a", "stroke-width": 4 });
     g.insertBefore(rect, t1);
-    t1.setAttribute("y", top + 20); t2.setAttribute("y", top + 35);
+    t1.setAttribute("y", top + 22);
     if (m.kind === "task") {
       const bx = p.x + w / 2 - 2, by = top - 2;
       el("circle", { cx: bx, cy: by, r: 10, fill: "#ff4d6d", stroke: "#0f0d0a", "stroke-width": 3 }, g);
@@ -665,6 +675,10 @@ function renderHud() {
     $("nextTask").textContent = "Egymillió felett. Ez már legenda.";
     $("nextAmt").textContent = fmt(S.total) + " Ft"; $("nextKind").hidden = true; $("nextLeft").textContent = "";
   }
+  // a lista úgy görög, hogy a következő mérföldkő mindig a 4. sor körül legyen
+  const ROWS = 16, total = MILESTONES.length - 1;
+  const off = Math.max(0, Math.min((i < N ? i : N) - 4, total - ROWS));
+  $("miles").style.transform = `translateY(${-off * 22}px)`;
   [...$("miles").children].forEach((li, j) => {
     li.classList.toggle("done", MILESTONES[j + 1].a <= S.total);
     li.classList.toggle("next", j + 1 === i);
