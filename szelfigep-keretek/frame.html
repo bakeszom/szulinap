@@ -17,6 +17,9 @@ html,body{margin:0;background:transparent}
 .sub{z-index:5;position:absolute;left:50%;transform:translateX(-50%);bottom:var(--SB);font:800 var(--SS) Figtree;letter-spacing:.22em;text-transform:uppercase;color:var(--paper);background:var(--ink);padding:10px 22px;border:5px solid var(--paper);box-shadow:8px 8px 0 var(--lime);white-space:nowrap}
 .n29{z-index:5;position:absolute;top:var(--NT);left:var(--NL);transform:rotate(-6deg);font:var(--N29)/.85 Bangers;color:var(--lemon);-webkit-text-stroke:5px var(--ink);paint-order:stroke fill;text-shadow:8px 8px 0 var(--ink)}
 .n29 small{display:block;font:800 var(--N29S) Figtree;letter-spacing:.2em;color:var(--ink);background:var(--pop);padding:6px 16px;border:5px solid var(--ink);box-shadow:6px 6px 0 var(--ink);-webkit-text-stroke:0;text-shadow:none;transform:rotate(3deg);width:max-content;margin-top:8px}
+.qr{z-index:5;position:absolute;left:var(--QL);bottom:var(--QB);background:var(--paper);border:5px solid var(--ink);box-shadow:7px 7px 0 var(--lime);padding:var(--QP);display:flex;flex-direction:column;align-items:center;gap:8px}
+.qr img{width:var(--QS);height:var(--QS);display:block}
+.qr span{font:800 var(--QT) Figtree;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);line-height:1}
 .stk{z-index:2;position:absolute;filter:drop-shadow(7px 9px 0 rgba(0,0,0,.5))}
 .hd{z-index:2;position:absolute;filter:drop-shadow(6px 8px 0 rgba(0,0,0,.5))}
 </style></head><body><div class="f" id="f"></div>
@@ -25,10 +28,12 @@ const q=new URLSearchParams(location.search), W=+q.get("w"), H=+q.get("h"), P=W<
 const r=document.documentElement.style; r.setProperty("--W",W+"px"); r.setProperty("--H",H+"px");
 r.setProperty("--BH",(P?330:260)+"px"); r.setProperty("--NS",(P?150:128)+"px"); r.setProperty("--NB",(P?118:92)+"px");
 r.setProperty("--SS",(P?30:26)+"px"); r.setProperty("--SB",(P?50:36)+"px");
+r.setProperty("--QS",(P?150:128)+"px"); r.setProperty("--QP",(P?12:10)+"px"); r.setProperty("--QT",(P?16:14)+"px"); r.setProperty("--QL",(P?60:56)+"px"); r.setProperty("--QB",(P?62:44)+"px");
 r.setProperty("--N29",(P?190:160)+"px"); r.setProperty("--N29S",(P?22:20)+"px"); r.setProperty("--NT",(P?48:40)+"px"); r.setProperty("--NL",(P?60:52)+"px");
 const f=document.getElementById("f");
 f.innerHTML=`<div class="edge"></div><div class="band"><div class="mont" id="mont"></div></div>
 <div class="name">BAKESZOM</div><div class="sub">2026 · NOVEMBER</div>
+<div class="qr"><img src="qr.svg" alt=""><span>Játék</span></div>
 <div class="n29">29<small>SZÜLINAP</small></div>`;
 function stk(i,x,y,w,rot){const e=document.createElement("img");e.className="stk";e.src=`stk/stk-${i}.webp`;Object.assign(e.style,{left:x+"px",top:y+"px",width:w+"px",transform:`rotate(${rot}deg)`});f.appendChild(e)}
 function hd(n,x,y,w,rot){const e=document.createElement("img");e.className="hd";e.src=`${n}.png`;Object.assign(e.style,{left:x+"px",top:y+"px",width:w+"px",transform:`rotate(${rot}deg)`});f.appendChild(e)}
