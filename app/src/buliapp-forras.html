@@ -1011,6 +1011,8 @@ const DemoStore = (() => {
     },
     async scoreBoard(kind, n = 20) { return later(db.scores.filter(s => s.kind === kind).sort((a, b) => b.score - a.score || a.time_ms - b.time_ms).slice(0, n)); },
     async allScores(kind) { return later(db.scores.filter(s => s.kind === kind).map(s => ({ score: s.score }))); },
+    async pyramidScores() { return later(db.scores.filter(s => s.kind === "pyramid").map(s => ({ player_id: s.player_id, score: s.score }))); },
+    async readersCount() { return later(db.scores.filter(s => s.kind === "adam" && Number(s.time_ms) > 0 && Number(s.score) >= Number(s.time_ms)).length); },
     reset() { ls.del("bp_demo_db"); }
   };
 })();
@@ -1057,7 +1059,9 @@ const SupaStore = (() => {
     async getScore(id, kind) { return ok(await sb.from("scores").select("*").eq("player_id", id).eq("kind", kind).maybeSingle()); },
     async saveScore(me, kind, score, time_ms) { ok(await sb.from("scores").upsert({ player_id: me.id, player_name: me.name, kind, score, time_ms }, { onConflict: "player_id,kind" })); return true; },
     async scoreBoard(kind, n = 20) { return ok(await sb.from("scores").select("*").eq("kind", kind).order("score", { ascending: false }).order("time_ms", { ascending: true }).limit(n)); },
-    async allScores(kind) { return ok(await sb.from("scores").select("score").eq("kind", kind).limit(2000)); }
+    async allScores(kind) { return ok(await sb.from("scores").select("score").eq("kind", kind).limit(2000)); },
+    async pyramidScores() { return ok(await sb.from("scores").select("player_id,score").eq("kind", "pyramid").limit(2000)); },
+    async readersCount() { const { count, error } = await sb.from("scores").select("player_id", { count: "exact", head: true }).eq("kind", "adam"); if (error) throw error; return count || 0; }
   };
 })();
 
@@ -1082,8 +1086,9 @@ async function refreshPyr() {
 }
 // Ranglista: side questek + bónuszok (leaderboard nézet) + a kvízpiramis legjobb eredménye
 async function getBoard(n = 50) {
-  const [rows, pyr] = await Promise.all([store.leaderboard(1000), store.scoreBoard("pyramid", 1000).catch(() => [])]);
+  const [rows, pyr] = await Promise.all([store.leaderboard(1000), store.pyramidScores().catch(() => null)]);
   const pm = new Map((pyr || []).map(s => [s.player_id, Number(s.score) / 2]));
+  if (pyr && S.me) S.pyrPts = pm.get(S.me.id) || 0;
   return rows.map(r => ({ ...r, points: Number(r.points || 0) + (pm.get(r.player_id) || 0) }))
     .filter(r => r.points > 0)
     .sort((a, b) => b.points - a.points || Number(b.quests || 0) - Number(a.quests || 0) || String(a.name).localeCompare(String(b.name), "hu"))
@@ -1101,9 +1106,9 @@ async function refreshDrinks() {
 }
 const drinkN = k => S.drinks.filter(d => d.kind === k).length;
 async function refreshBoard() {
-  const [b, ad] = await Promise.all([getBoard(50).catch(e => { console.warn(e); return null; }), adamStats().catch(() => null), refreshPyr()]);
+  const [b, ac] = await Promise.all([getBoard(50).catch(e => { console.warn(e); return null; }), store.readersCount().catch(() => null)]);
   if (b) S.board = b;
-  if (ad) S.adamAll = ad.perfect.length;
+  if (ac != null) S.adamAll = ac;
   patchHome();
 }
 
@@ -1201,7 +1206,7 @@ function renderJoin(err = "") {
       const pin = newCode();
       const p = await store.createPlayer(name, pin);
       S.me = { id: p.id, name: p.name, level: null, code: pin }; ls.set("bp_me", S.me);
-      await refreshBoard(); go("home"); showCode(true); schedulePopup();
+      go("home"); showCode(true); schedulePopup(); refreshBoard();
     } catch (e) { console.error(e); renderJoin("Nem sikerült csatlakozni. Ellenőrizd a netet, és próbáld újra."); }
   });
 }
