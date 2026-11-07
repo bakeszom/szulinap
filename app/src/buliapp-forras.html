@@ -1061,7 +1061,7 @@ const SupaStore = (() => {
     async scoreBoard(kind, n = 20) { return ok(await sb.from("scores").select("*").eq("kind", kind).order("score", { ascending: false }).order("time_ms", { ascending: true }).limit(n)); },
     async allScores(kind) { return ok(await sb.from("scores").select("score").eq("kind", kind).limit(2000)); },
     async pyramidScores() { return ok(await sb.from("scores").select("player_id,score").eq("kind", "pyramid").limit(2000)); },
-    async readersCount() { const { count, error } = await sb.from("scores").select("player_id", { count: "exact", head: true }).eq("kind", "adam"); if (error) throw error; return count || 0; }
+    async readersCount() { const { count, error } = await sb.from("scores").select("player_id", { count: "exact" }).eq("kind", "adam").limit(1); if (error) throw error; return count || 0; }
   };
 })();
 
