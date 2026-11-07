@@ -26,7 +26,10 @@
        { type: "photos", count: 128 }   vagy   { type: "photo" }
        { type: "nickname", nickname: "Kapitány" }
 
-  3) JSON-feed (?feed=URL, 3 mp-enként):
+  0) Élesben (progress.html?live): a buliapp Supabase-ének progress_feed() függvényéből, 3 mp-enként.
+     Oda az adomany/ gyűjtőszolgáltatás írja a kártyás (SumUp) befizetéseket és a szelfigép nyomatszámát.
+
+  3) JSON-feed (?feed=URL, 3 mp-enként; felülírja a Supabase-t):
        { "total": 47500, "count": 12, "max": 10000, "photos": 128, "nickname": "Kapitány",
          "last": { "id": "tx-123", "amount": 3000, "name": "Peti" } }
 
@@ -323,7 +326,7 @@ body {
           <div class="total" id="total" aria-live="polite"><b id="totalNum">0</b><span>Ft</span></div>
           <div class="howto">
             <div class="h">Te is beszállnál?</div>
-            <div class="b">A szelfigép melletti terminálnál. Az összeget te választod.</div>
+            <div class="b">A buliappban vagy a szelfigép melletti terminálnál. Az összeget te választod.</div>
             <div class="f">Ez egy vicces szülinapi gyűjtés, teljesen önkéntes. Minden forint Ádám esküvőjére megy.</div>
           </div>
         </div>
@@ -449,7 +452,7 @@ const MILESTONES = [
 const SHOUTS = ["Gyerünk!", "Még egy kicsit!", "Szelfigép, most!", "Csináljatok side questet!", "Ki jön táncolni?", "Esküvő, jövök!", "Hajrá, hajrá!", "Ez az este a tiétek!"];
 // alapszövegek a hírszalagon, amíg nincs elég élő esemény
 const TICKER_FILLER = [
-  "Beszállnál? A szelfigép melletti terminálnál, az összeget te választod",
+  "Beszállnál? Buliapp → Gyűjtés az esküvőre, és érintsd a kártyád a szelfigép melletti terminálhoz",
   "Vicces szülinapi gyűjtés: teljesen önkéntes, minden forint az esküvőre megy",
   "Olvasd be a QR-kódot és szedd a side questeket",
   "Minden forint előre lök a pályán",
@@ -837,20 +840,34 @@ addEventListener("message", e => {
 });
 
 /* ---------- JSON feed (Dávid) ---------- */
+// ?feed=URL: külső JSON. Élő módban (?live) enélkül a buliapp Supabase-éből jön (progress_feed függvény):
+// a kártyás befizetéseket és a szelfigép nyomatszámát az adomany/ gyűjtőszolgáltatás írja oda.
 const FEED = params.get("feed");
-let lastTx = null;
+let lastTx = null, firstFeed = true;
+async function fetchFeed() {
+  if (FEED) { const r = await fetch(FEED, { cache: "no-store" }); return r.json(); }
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/progress_feed`, {
+    method: "POST", headers: Object.assign({ "Content-Type": "application/json" }, SB_HEADERS), body: "{}", cache: "no-store"
+  });
+  if (!r.ok) throw new Error("progress_feed " + r.status);
+  return r.json();
+}
 async function poll() {
   try {
-    const r = await fetch(FEED, { cache: "no-store" });
-    const j = await r.json();
+    const j = await fetchFeed();
     if (j.nickname && j.nickname !== S.nick) progress.setNickname(j.nickname);
-    if (typeof j.photos === "number" && j.photos !== S.photos) setPhotos(j.photos);
+    if (typeof j.photos === "number" && j.photos !== S.photos) {
+      // az első válasz csendben áll be (újratöltéskor ne ünnepeljen régi képeket)
+      if (firstFeed) { S.photos = j.photos; saveAll(); renderHud(); } else setPhotos(j.photos);
+    }
     const tx = j.last && (j.last.id || (j.last.amount + "|" + j.last.name));
     if (typeof j.total === "number" && j.total !== S.total) {
       const isNew = tx && tx !== lastTx;
-      setTotal(j.total, Object.assign(isNew ? { name: j.last.name } : {}, typeof j.count === "number" ? { count: j.count, max: j.max } : {}));
+      // első válasz: csendben (újratöltéskor ne pörögjön végig az összes elért mérföldkő-felugró)
+      setTotal(j.total, Object.assign(firstFeed ? { silent: true } : isNew ? { name: j.last.name } : {}, typeof j.count === "number" ? { count: j.count, max: j.max } : {}));
     }
     lastTx = tx || lastTx;
+    firstFeed = false;
   } catch (e) { console.warn("feed:", e); }
   setTimeout(poll, 3000);
 }
@@ -1073,7 +1090,7 @@ if (!LIVE) tickerItems = ["<b>+5 000 Ft</b> Zsófi beszállt", "<b>Bence +6 p</b
 renderHud(); renderTicker(); renderBoard(LIVE ? [] : DEMO_BOARD, LIVE ? "Kapcsolódás…" : "Példa adatok");
 tickClock(); setInterval(tickClock, 1000);
 requestAnimationFrame(frame);
-if (FEED) poll();
+if (FEED || LIVE) poll();
 pollBoard(); pollCompletions(); pollAge();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { drawSigns(); renderHud(); });
 

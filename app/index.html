@@ -33,6 +33,9 @@ window.CONFIG = {
   // Az app nyilvános címe a kivetítős QR-kódhoz. Ha üres, az oldal saját címét használja.
   APP_URL: "",
 
+  // A mozgó szelfigép vendégoldala (snapify esemény). Ha üres, a főoldali csempe nem jelenik meg.
+  SELFIE_URL: "https://snapify.hu/foto/bach-adam-29",
+
   // MATRICÁK: melyik sorszámú matrica legyen benne az appban (img/adam-N.jpg + img/stk/stk-N.webp).
   // Ha egy matrica ne szerepeljen, töröld ki a számát ebből a listából. Ez vezérli a galériát, a lebegő matricákat és a véletlen képeket is.
   STICKERS: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 26, 27],
@@ -293,7 +296,8 @@ window.CONTENT = {
   wedding: {
     title: "Gyűjtés az esküvőre",
     lead: "Ez egy vicces szülinapi gyűjtés, teljesen önkéntes. Minden forint Ádám esküvőjére megy.",
-    how: "A szelfigép melletti terminálnál tudsz beszállni. Az összeget te választod.",
+    how: "Itt választod ki az összeget, a fizetés a szelfigép melletti terminálon megy: érintsd hozzá a kártyádat vagy a telefonodat.",
+    amounts: [1000, 2000, 3000, 5000, 10000, 20000],
     more: "A kivetítőn egy pályán fut az összeg. Minden mérföldkőnél Ádámnak teljesítenie kell valamit, élőben.",
     milestones: [
       [3000, "Csoportkép", "Ádám közös képet csinál mindenkivel."],
@@ -794,6 +798,26 @@ img { -webkit-user-drag: none; }
 .wed li { display: grid; grid-template-columns: 76px 1fr; gap: 8px; font-size: 13px; font-weight: 600; line-height: 1.3; }
 .wed li b { font: 17px/1.1 var(--font-display); letter-spacing: .02em; background: var(--c-lemon); border: 2px solid var(--c-black); border-radius: 3px; text-align: center; padding: 3px 2px 1px; align-self: start; }
 .wed li strong { font-weight: 900; }
+/* beszállás kártyával */
+.don { background: var(--c-paper); border: 3px solid var(--c-black); border-radius: 4px; padding: 10px 12px 12px; display: grid; gap: 10px; transform: rotate(.4deg); }
+.don-total { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; border-bottom: 2px dashed rgba(15,13,10,.25); padding-bottom: 8px; }
+.don-total span { font: 800 12px/1 var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--c-muted); }
+.don-total b { font: 34px/1 var(--font-display); letter-spacing: .03em; }
+.don-total small { font-weight: 700; color: var(--c-muted); }
+.don .k { font: 800 12px/1 var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--c-black); }
+.don-amts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.don-amts button { font: 22px/1 var(--font-display); letter-spacing: .03em; padding: 11px 4px 8px; border: 3px solid var(--c-black); border-radius: 6px; background: var(--c-lemon); color: var(--c-black); box-shadow: 3px 3px 0 var(--c-black); touch-action: manipulation; }
+.don-amts button[aria-pressed="true"] { background: var(--c-lime); transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--c-black); }
+.don input[type="text"] { font: 700 18px/1.2 var(--font-body); padding: 10px 12px; border: 3px solid var(--c-black); border-radius: 6px; width: 100%; min-width: 0; background: #fff; color: var(--c-black); }
+.don label { display: flex; gap: 8px; align-items: center; font-weight: 700; font-size: 14px; }
+.don label input { width: 20px; height: 20px; flex: none; accent-color: var(--c-pop); }
+.don .note { font-size: 13px; font-weight: 600; color: #3d3846; }
+.don-live { background: var(--c-black); color: var(--c-paper); border-radius: 4px; padding: 10px 12px; font-weight: 800; display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+.don-live button { font: 18px/1 var(--font-display); letter-spacing: .03em; padding: 8px 10px 6px; border: 2px solid var(--c-paper); border-radius: 4px; background: var(--c-lemon); color: var(--c-black); flex: none; }
+.don-big { font: 54px/1 var(--font-display); letter-spacing: .03em; text-align: center; }
+.don-tap { text-align: center; font: 900 20px/1.25 var(--font-body); background: var(--c-lime); border: 3px solid var(--c-black); border-radius: 6px; padding: 12px; animation: donPulse 1.2s ease-in-out infinite; }
+@keyframes donPulse { 50% { transform: scale(1.03); } }
+@media (prefers-reduced-motion: reduce) { .don-tap { animation: none; } }
 /* mi történik (feed) */
 .act-list { display: grid; gap: 12px; }
 .act-item { background: var(--c-paper); color: var(--c-black); border: var(--bd); border-radius: var(--r); box-shadow: 5px 5px 0 var(--c-black); padding: 12px 14px; display: grid; gap: 6px; }
@@ -1013,6 +1037,14 @@ const DemoStore = (() => {
     async allScores(kind) { return later(db.scores.filter(s => s.kind === kind).map(s => ({ score: s.score }))); },
     async pyramidScores() { return later(db.scores.filter(s => s.kind === "pyramid").map(s => ({ player_id: s.player_id, score: s.score }))); },
     async readersCount() { return later(db.scores.filter(s => s.kind === "adam" && Number(s.time_ms) > 0 && Number(s.score) >= Number(s.time_ms)).length); },
+    // gyűjtés: a demóban a "terminál" 3 mp után felvillan, 8 mp után fizetve
+    async donFeed() { const paid = (db.don || []).filter(d => d.status === "paid"); return later({ total: paid.reduce((s, d) => s + d.amount, 0), count: paid.length, max: Math.max(0, ...paid.map(d => d.amount)), photos: null, queue: 0, last: null }); },
+    async donate(me, amount, anon) { const d = { id: Date.now(), player_id: me.id, name: anon ? "Valaki" : me.name, amount, status: "pending", info: null, created_at: new Date().toISOString(), t0: Date.now() }; (db.don = db.don || []).push(d); save(); return later(d); },
+    async donation(id) { const d = (db.don || []).find(x => x.id === id); if (d && d.status === "pending" && Date.now() - d.t0 > 3000) { d.status = "sent"; d.info = "Érintsd a kártyádat a terminálhoz"; } if (d && d.status === "sent" && Date.now() - d.t0 > 8000) { d.status = "paid"; d.info = "Sikeres fizetés"; } save(); return later(d || null); },
+    async myOpenDonation(pid) { return later((db.don || []).filter(d => d.player_id === pid && (d.status === "pending" || d.status === "sent")).pop() || null); },
+    async cancelDonation(id) { const d = (db.don || []).find(x => x.id === id); if (d && (d.status === "pending" || d.status === "sent")) { d.status = "cancelled"; d.info = "Visszavonva"; } save(); return later(d ? d.status : null); },
+    async donAhead() { return later(0); },
+    async myPaid(pid) { return later((db.don || []).filter(d => d.player_id === pid && d.status === "paid").reduce((s, d) => s + d.amount, 0)); },
     reset() { ls.del("bp_demo_db"); }
   };
 })();
@@ -1061,7 +1093,15 @@ const SupaStore = (() => {
     async scoreBoard(kind, n = 20) { return ok(await sb.from("scores").select("*").eq("kind", kind).order("score", { ascending: false }).order("time_ms", { ascending: true }).limit(n)); },
     async allScores(kind) { return ok(await sb.from("scores").select("score").eq("kind", kind).limit(2000)); },
     async pyramidScores() { return ok(await sb.from("scores").select("player_id,score").eq("kind", "pyramid").limit(2000)); },
-    async readersCount() { const { count, error } = await sb.from("scores").select("player_id", { count: "exact" }).eq("kind", "adam").limit(1); if (error) throw error; return count || 0; }
+    async readersCount() { const { count, error } = await sb.from("scores").select("player_id", { count: "exact" }).eq("kind", "adam").limit(1); if (error) throw error; return count || 0; },
+    // gyűjtés az esküvőre: a kérést az adomany/ szolgáltatás küldi a SumUp terminálra (supabase-v4-adomany.sql)
+    async donFeed() { return ok(await sb.rpc("progress_feed")); },
+    async donate(me, amount, anon) { return ok(await sb.from("donation_requests").insert({ player_id: me.id, name: anon ? "Valaki" : me.name, amount, source: "app" }).select().single()); },
+    async donation(id) { return ok(await sb.from("donation_requests").select("*").eq("id", id).maybeSingle()); },
+    async myOpenDonation(pid) { return ok(await sb.from("donation_requests").select("*").eq("player_id", pid).in("status", ["pending", "sent"]).order("id", { ascending: false }).limit(1).maybeSingle()); },
+    async cancelDonation(id) { return ok(await sb.rpc("cancel_donation_request", { p_id: id })); },
+    async donAhead(id) { const { count, error } = await sb.from("donation_requests").select("id", { count: "exact", head: true }).in("status", ["pending", "sent"]).lt("id", id); if (error) throw error; return count || 0; },
+    async myPaid(pid) { const rows = ok(await sb.from("donation_requests").select("amount").eq("player_id", pid).eq("status", "paid")); return rows.reduce((s, r) => s + Number(r.amount), 0); }
   };
 })();
 
@@ -1254,8 +1294,9 @@ function renderHome() {
       <button class="tile" data-go="pyramid"><span class="k">${K.pyramid.length + 1} szint</span><div style="display:grid;gap:6px"><h2>Kvíz&shy;piramis</h2><p>Egyre nehezebb. Egy hiba, és lezuhansz.</p></div></button>
       <button class="tile" data-go="topics"><span class="k">Jégtörők · viták</span><div style="display:grid;gap:6px"><h2>Téma&shy;dobó</h2><p>Nem tudod, mit kérdezz? Húzz egy kérdést.</p></div></button>
       <button class="tile" data-go="photos" style="grid-column:1/-1;min-height:0;background:var(--c-lime)"><span class="k">Töltsd fel, amit lőttél</span><div style="display:grid;gap:6px"><h2>Buli fotók</h2><p>Közös album: a képeidet mindenki látja, és a kivetítőn is körbemennek.</p></div></button>
+      ${C.SELFIE_URL ? `<a class="tile" href="${esc(C.SELFIE_URL)}" target="_blank" rel="noopener" style="grid-column:1/-1;min-height:0;background:var(--c-lemon);text-decoration:none"><span class="k">Fotózz a telefonoddal, a gép kinyomtatja</span><div style="display:grid;gap:6px"><h2>Szelfigép</h2><p>Csinálj egy képet, válaszd ki a keretet, és vedd el a nyomatot a szelfigép asztalánál.</p></div></a>` : ""}
       <button class="tile" data-go="activity" style="grid-column:1/-1;min-height:0;background:#dff6ff"><span class="k">Élőben, fotókkal</span><div style="display:grid;gap:6px"><h2>Ki mit csinált?</h2><p>Itt látod, ki melyik side questet teljesítette, és a bizonyítékfotókat is.</p></div></button>
-      <button class="tile" data-go="wedding" style="grid-column:1/-1;min-height:0;background:var(--c-pop)"><span class="k" style="color:var(--c-black)">Mire megy a pénz a terminálnál?</span><div style="display:grid;gap:6px"><h2>Gyűjtés az esküvőre</h2><p style="color:var(--c-black)">Önkéntes, vicces gyűjtés. Mérföldkövenként Ádámnak élőben teljesítenie kell valamit.</p></div></button>
+      <button class="tile" data-go="wedding" style="grid-column:1/-1;min-height:0;background:var(--c-pop)"><span class="k" style="color:var(--c-black)">Beszállnál kártyával?</span><div style="display:grid;gap:6px"><h2>Gyűjtés az esküvőre</h2><p style="color:var(--c-black)">Itt választasz összeget, a szelfigép melletti terminálnál fizetsz. Mérföldkövenként Ádámnak élőben teljesítenie kell valamit.</p></div></button>
     </nav>
     <section class="section">
       <h3>Ranglista</h3>
@@ -1434,18 +1475,147 @@ async function uploadParty(files) {
 const partyItems = () => (PH || []).map(ph => ({ src: ph.url, name: `buli-${String(ph.player_name).replace(/\W+/g, "-")}-${ph.id}.jpg` }));
 
 /* ---------- Gyűjtés az esküvőre ---------- */
+// A vendég összeget választ → donation_requests sor → az adomany/ szolgáltatás a SumUp terminálra küldi
+// → a vendég odaérinti a kártyáját → 'paid', és a kivetítőn (progress.html) megjelenik a neve.
+const DON = { req: null, timer: null, amt: 0, anon: false, feed: null, mine: 0, ahead: 0, busy: false };
+const huf = n => Math.round(Number(n) || 0).toLocaleString("hu-HU").replace(/\s/g, " ") + " Ft";
+const donOpen = s => s === "pending" || s === "sent";
+
+function donLiveHTML() {
+  const r = DON.req;
+  if (!r || !donOpen(r.status)) return "";
+  return `<div class="don-live"><span>${r.status === "sent" ? "A terminál vár rád" : "Sorban vagy"}: ${huf(r.amount)}</span><button type="button" data-act="don-open">Mutasd</button></div>`;
+}
+
+function donSheetHTML() {
+  const r = DON.req;
+  if (!r) return "";
+  const st = r.status;
+  let body;
+  if (st === "pending") {
+    body = `<span class="step">Sorban vagy</span><div class="don-big">${huf(r.amount)}</div>
+      <p>${DON.ahead ? `Előtted még ${DON.ahead} befizetés van a terminálnál.` : "Te jössz, a terminál mindjárt felvillan."} Menj oda a szelfigép melletti terminálhoz.</p>
+      <div class="row-btns"><button class="btn ghost" data-act="don-cancel">Mégse</button><button class="btn" data-act="close">Rendben</button></div>`;
+  } else if (st === "sent") {
+    body = `<span class="step">A terminál vár</span><div class="don-big">${huf(r.amount)}</div>
+      <div class="don-tap">Érintsd a kártyádat vagy a telefonodat a szelfigép melletti terminálhoz!</div>
+      <div class="row-btns"><button class="btn ghost" data-act="don-cancel">Mégse</button><button class="btn" data-act="close">Bezár</button></div>`;
+  } else if (st === "paid") {
+    body = `<span class="step">Köszi!</span><h2>+${huf(r.amount)} az esküvőre</h2>
+      <p>${r.name === "Valaki" ? "Névtelenül szálltál be, a kivetítőn „Valaki” néven fut." : `${esc(r.name)}, a neved most fut be a kivetítőn.`} Nézd, hol tart a pálya!</p>
+      <button class="btn block gold" data-act="close">Szuper!</button>`;
+  } else {
+    const title = st === "failed" ? "Nem ment át" : st === "expired" ? "Lejárt" : "Visszavonva";
+    body = `<span class="step">${title}</span><h2>${huf(r.amount)}</h2><p>${esc(r.info || "")}</p>
+      <div class="row-btns"><button class="btn ghost" data-act="close">Bezár</button><button class="btn" data-act="don-retry">Újra</button></div>`;
+  }
+  return `<div id="donSheet" style="display:grid;gap:14px;text-align:center">${body}</div>`;
+}
+function showDonSheet() { openSheet(donSheetHTML()); }
+function updateDonUI() {
+  const sh = document.getElementById("donSheet");
+  if (sh) sh.outerHTML = donSheetHTML();
+  const w = document.getElementById("donLiveWrap");
+  if (w) w.innerHTML = donLiveHTML();
+}
+
+async function refreshDonFeed() {
+  try {
+    const [f, mine] = await Promise.all([store.donFeed(), S.me ? store.myPaid(S.me.id).catch(() => 0) : 0]);
+    DON.feed = f; DON.mine = mine;
+    const t = document.getElementById("donTotal"); if (t) t.textContent = huf(f.total);
+    const c = document.getElementById("donCount"); if (c) c.textContent = `${f.count} befizetés` + (mine ? ` · tőled ${huf(mine)}` : "");
+  } catch (e) { console.warn("donFeed", e); }
+}
+
+async function donPoll() {
+  clearTimeout(DON.timer);
+  if (!DON.req) return;
+  try {
+    const prev = DON.req.status;
+    const r = await store.donation(DON.req.id);
+    if (r) DON.req = r;
+    if (DON.req.status === "pending") DON.ahead = await store.donAhead(DON.req.id).catch(() => DON.ahead);
+    const st = DON.req.status;
+    if (st !== prev) {
+      const sheetOpen = !!document.getElementById("donSheet"), otherOpen = !!$layer.innerHTML && !sheetOpen;
+      if (navigator.vibrate && (st === "sent" || st === "paid")) navigator.vibrate(st === "paid" ? 250 : [150, 80, 150]);
+      if (st === "paid") refreshDonFeed();
+      if (!sheetOpen && !otherOpen && st !== "pending") showDonSheet();
+      else if (!sheetOpen && st === "paid") toast(`Köszi! +${huf(DON.req.amount)} az esküvőre`);
+    }
+    updateDonUI();
+  } catch (e) { console.warn("donPoll", e); }
+  if (DON.req && donOpen(DON.req.status)) DON.timer = setTimeout(donPoll, 2000);
+}
+
+async function donSend() {
+  if (DON.busy || !S.me) return;
+  if (DON.req && donOpen(DON.req.status)) { showDonSheet(); return; }
+  const custom = Number((document.getElementById("donCustom")?.value || "").replace(/[^\d]/g, ""));
+  const amount = DON.amt || custom;
+  if (!(amount >= 500 && amount <= 500000)) { toast("Válassz összeget (500 és 500 000 Ft között)"); return; }
+  DON.busy = true;
+  try {
+    DON.anon = !!document.getElementById("donAnon")?.checked;
+    DON.req = await store.donate(S.me, amount, DON.anon);
+    DON.ahead = await store.donAhead(DON.req.id).catch(() => 0);
+    showDonSheet(); updateDonUI(); donPoll();
+  } catch (e) {
+    console.warn(e);
+    if (String(e.code) === "23505") {
+      // már van egy nyitott kérése (pl. másik fülön): azt mutatjuk
+      const r = await store.myOpenDonation(S.me.id).catch(() => null);
+      if (r) { DON.req = r; showDonSheet(); donPoll(); return; }
+    }
+    toast(["PGRST202", "PGRST205", "42P01"].includes(String(e.code)) ? "A kártyás gyűjtés még nincs bekapcsolva" : "Nem sikerült elküldeni. Próbáld újra.");
+  } finally { DON.busy = false; }
+}
+
+async function donCancel() {
+  if (!DON.req) return closeSheet();
+  try {
+    const st = await store.cancelDonation(DON.req.id);
+    if (st === "cancelled") { DON.req.status = "cancelled"; DON.req.info = "Visszavonva"; updateDonUI(); }
+    else if (st === "sent") toast("Megszakítás a terminálon…");
+    donPoll();
+  } catch (e) { console.warn(e); toast("Nem sikerült visszavonni. Próbáld újra."); }
+}
+
+// belépéskor: ha maradt nyitott kérése (újratöltés, másik fül), folytatjuk a figyelését
+async function resumeDonation() {
+  if (!S.me) return;
+  try { const r = await store.myOpenDonation(S.me.id); if (r) { DON.req = r; donPoll(); } } catch (e) { /* még nincs bekapcsolva */ }
+}
+
 function renderWedding() {
   const W = K.wedding;
+  const f = DON.feed;
   $app.innerHTML = `${header()}
     <section class="wed">
       <h2>${esc(W.title)}</h2>
       <p>${esc(W.lead)}</p>
+      <div class="don">
+        <div class="don-total"><span>Eddig összegyűlt</span><b id="donTotal">${f ? huf(f.total) : "…"}</b><small id="donCount">${f ? `${f.count} befizetés` + (DON.mine ? ` · tőled ${huf(DON.mine)}` : "") : ""}</small></div>
+        <div id="donLiveWrap">${donLiveHTML()}</div>
+        <span class="k">Mennyivel szállsz be?</span>
+        <div class="don-amts" id="donAmts">${(W.amounts || []).map(a => `<button type="button" data-act="don-amt" data-a="${a}" aria-pressed="${DON.amt === a}">${a.toLocaleString("hu-HU")}</button>`).join("")}</div>
+        <input type="text" id="donCustom" inputmode="numeric" autocomplete="off" placeholder="Más összeg (Ft)" aria-label="Más összeg forintban">
+        <label><input type="checkbox" id="donAnon" ${DON.anon ? "checked" : ""}> Név nélkül (a kivetítőn: „Valaki”)</label>
+        <button class="btn block" data-act="don-send">Küldöm a terminálra</button>
+        <p class="note">A szelfigép melletti terminál felvillan az összeggel, ott érintsd hozzá a kártyádat vagy a telefonodat. Ha 2 percen belül nem érsz oda, a kérés lejár, és újra elküldheted.</p>
+      </div>
       <p class="how">${esc(W.how)}</p>
       <p>${esc(W.more)}</p>
       <details open><summary>Mérföldkövek (${W.milestones.length})</summary>
         <ol>${W.milestones.map(([a, n, t]) => `<li><b>${a >= 1000000 ? "1 M" : a.toLocaleString("hu-HU")}</b><span><strong>${esc(n)}</strong> · ${esc(t)}</span></li>`).join("")}</ol>
       </details>
     </section>`;
+  document.getElementById("donCustom").addEventListener("input", () => {
+    DON.amt = 0;
+    document.querySelectorAll("#donAmts button").forEach(b => b.setAttribute("aria-pressed", "false"));
+  });
+  refreshDonFeed();
 }
 
 /* ---------- Pia-számláló (főoldalon) ---------- */
@@ -1838,6 +2008,16 @@ document.addEventListener("click", async ev => {
   }
   const a = el.dataset.act;
   if (a === "close") return closeSheet();
+  if (a === "don-amt") {
+    DON.amt = Number(el.dataset.a);
+    const c = document.getElementById("donCustom"); if (c) c.value = "";
+    document.querySelectorAll("#donAmts button").forEach(b => b.setAttribute("aria-pressed", b === el ? "true" : "false"));
+    return;
+  }
+  if (a === "don-send") return donSend();
+  if (a === "don-open") return showDonSheet();
+  if (a === "don-cancel") return donCancel();
+  if (a === "don-retry") { DON.amt = DON.req ? DON.req.amount : DON.amt; DON.req = null; closeSheet(); if (S.view !== "wedding") go("wedding"); else renderWedding(); return; }
   if (a === "joinmode") { joinMode = joinMode === "resume" ? "new" : "resume"; renderJoin(); return; }
   if (a === "showcode") { showCode(false); return; }
   if (a === "rephoto") { let n; do { n = Math.floor(Math.random() * 99); } while (STK.length > 1 && stkAt(n) === stkAt(S.homePhoto)); S.homePhoto = n; setHTML("homephoto", photoHTML(n, "tall")); return; }
@@ -1941,11 +2121,12 @@ async function boot() {
     try { exists = await store.playerExists(S.me.id); } catch (e) { console.warn(e); }
     if (!exists) { ls.del("bp_me"); S.me = null; return renderJoin("A korábbi belépésed már nem él (lenulláztuk a játékot). Lépj be újra."); }
     await Promise.all([refreshMine(), refreshDrinks(), refreshBoard()]); schedulePopup();
+    resumeDonation();
   }
   try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {}
   render();
   // ranglista + pontok frissítése: csak a változó részeket írja át (nem ugrik az oldal)
-  setInterval(() => { if (S.me && !document.hidden) { refreshBoard(); if (S.view === "activity" && !LB.el) { const y = scrollY; renderActivity().then(() => scrollTo(0, y)); } if (S.view === "quests") refreshQuestCounts(); if (S.view === "photos" && !PH_UP && !LB.el && !$layer.innerHTML) { const y = scrollY; renderPhotos().then(() => scrollTo(0, y)); } } }, 15000);
+  setInterval(() => { if (S.me && !document.hidden) { refreshBoard(); if (S.view === "activity" && !LB.el) { const y = scrollY; renderActivity().then(() => scrollTo(0, y)); } if (S.view === "quests") refreshQuestCounts(); if (S.view === "wedding") refreshDonFeed(); if (S.view === "photos" && !PH_UP && !LB.el && !$layer.innerHTML) { const y = scrollY; renderPhotos().then(() => scrollTo(0, y)); } } }, 15000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden && S.me) { refreshMine().then(refreshBoard); } });
 }
 window.addEventListener("hashchange", () => location.reload());

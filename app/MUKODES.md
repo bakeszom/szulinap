@@ -169,7 +169,16 @@ app/
 ### 5.8 Progress bar kijelző (`progress.html`)
 
 - Külön kijelző: az **esküvőre gyűjtés** „futása” egy pályán, mérföldkövekkel (pl. 10 000 Ft-nál Ádám lehúz egy korsó sört). A mérföldkövek a fájl elején, a `MILESTONES` listában szerkeszthetők.
-- A **befizetéseket és a szelfigépes képek számát** Dávid oldala küldi (JSON-feed `?feed=URL` paraméterrel, `postMessage`, vagy JS API). A részletek a fájl tetején, a kommentben vannak.
+- A **befizetéseket és a szelfigépes képek számát** élő módban (`progress.html?live`) a Supabase `progress_feed()` függvényéből olvassa, 3 másodpercenként. Oda a gyűjtőszolgáltatás (`adomany/`) írja őket (lásd 5.9). Betöltéskor csendben áll be, nem pörgeti végig a már elért mérföldköveket. Kézi felülírás: `?feed=URL`, `postMessage` vagy JS API (a fájl tetején, a kommentben).
+
+### 5.9 Kártyás gyűjtés és szelfigép-számláló
+
+- A buliapp **Gyűjtés az esküvőre** oldalán a vendég összeget választ (1 000 … 20 000 Ft, vagy saját, 500 és 500 000 Ft között), és megnyomja a **Küldöm a terminálra** gombot. A neve automatikusan megy a kivetítőre, de kérheti, hogy névtelenül („Valaki”) jelenjen meg.
+- A kérés sorba áll (`donation_requests`). A laptopon futó **gyűjtőszolgáltatás** (`adomany/`, részletek: [../adomany/README.md](../adomany/README.md)) egyesével elküldi a SumUp terminálra. A vendég telefonján közben ez látszik: „Sorban vagy” → „A terminál vár” → „Köszi!”. A terminál 2 percig vár a kártyára, és a vendég vissza is vonhatja a kérést.
+- A SumUp-részt a snapify-pay kódja adja, ugyanazzal a **sandbox-fiókkal** (tesztpénz).
+- A laptopon van egy **kezelőoldal** (http://127.0.0.1:8788): ott beírható annak az összege, aki nem használja az appot, rögzíthető a készpénz, és látszik a sor.
+- **Szelfigép:** a mozgó szelfigép eseménye a snapify-on `bach-adam-29` (vendégoldal: https://snapify.hu/foto/bach-adam-29, a buliapp főoldalán a **Szelfigép** csempe ide visz). Nyomatkeret: 400 lap, telefononként 10, fotónként legfeljebb 2 példány. A gyűjtőszolgáltatás 10 mp-enként lekérdezi a kinyomtatott lapok számát, és ez megy a kivetítő „Szelfi fotó” mezőjébe.
+- Adatbázis: `app/supabase-v4-adomany.sql` (lefuttatva nov. 7-én). Írni csak a szolgáltatás tud, egy titokkal, amelynek a hash-e van az SQL-ben.
 - A **side quest ranglistát és a hírszalagot** ugyanabból a Supabase-ből olvassa, mint az app, a long drink és feles számokkal együtt. A „Kész quest” számláló csak a valódi side questeket számolja, a pia-bónuszokat nem.
 - **„Hány éves Ádám?” rubrika** a következő mérföldkő mellett, 10 másodpercenként frissül: hányan gondolják **idősebbnek**, hányan **fiatalabbnak**, és hányan **tudnak mindent** Ádámról. A valódi kor a fájlban az `ADAM_AGE` értéke (29).
 
@@ -216,8 +225,9 @@ A vendégek a következő megnyitáskor vagy frissítéskor már az új verziót
 
 3. **Fotók törlése:** Supabase → Storage → `proofs` → Empty bucket.
 4. Telefonon **olvasd be a kinyomtatott QR-t**, lépj be, pipálj ki egy questet, nyomj egy italt. Utána nézd meg a kivetítőn, hogy megjelent-e.
-5. A saját tesztjátékosodat töröld újra a 2. ponttal, vagy maradhat, ha így is jó.
-6. Kivetítőn megnyitni: `…/app/#tv` és/vagy `…/app/progress.html`, teljes képernyőn.
+5. A saját tesztjátékosodat töröld újra a 2. ponttal, vagy maradhat, ha így is jó. A `truncate … players … cascade` a gyűjtés kéréseit és befizetéseit is törli. Csak a gyűjtést nullázza: `adomany` mappában `npm run reset -- --igen`.
+6. Kivetítőn megnyitni: `…/app/#tv` és/vagy `…/app/progress.html?live`, teljes képernyőn. A tesztek után egyszer `…/app/progress.html?live&reset`, ez a kivetítő gépének emlékezetéből is törli a gyűjtés állását.
+7. **Gyűjtés:** terminál feltöltve és bekapcsolva → laptopon `adomany` mappában `npm start` → a kezelőoldalon „Terminál: online”, „Szelfigép: … nyomat” → egy próba-befizetés a buliappból → `npm run reset -- --igen`.
 
 Aki a törlés előtt már belépett (pl. teszteléskor), annak az app automatikusan szól, hogy lépjen be újra.
 
@@ -232,6 +242,7 @@ Aki a törlés előtt már belépett (pl. teszteléskor), annak az app automatik
 | Senkinél nem megy semmi | Supabase → nézd meg, nincs-e leállítva (Paused). Ha igen: Restore. |
 | A kivetítő nem frissül | Frissítsd a böngészőt a kivetítős gépen. |
 | Valaki csal a pontokkal | Supabase → `completions` vagy `drinks` táblában törölhetők a sorai. |
+| A gyűjtés nem megy / a terminál nem villan fel | A laptopon a kezelőoldal (http://127.0.0.1:8788) kiírja, mi a baj (terminál offline, Supabase, SumUp). A teendők: [../adomany/README.md](../adomany/README.md). |
 
 ---
 

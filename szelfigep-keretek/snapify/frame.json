@@ -1,0 +1,6 @@
+{
+  "name": "Bakeszom 29",
+  "landscape": { "size": [1844, 1240], "backplate": "backplate.png", "overlay": "overlay.png", "window": { "x": 30, "y": 38, "w": 1785, "h": 900 } },
+  "portrait": { "size": [1240, 1844], "backplate": "backplate-p.png", "overlay": "overlay-p.png", "window": { "x": 38, "y": 30, "w": 1165, "h": 1448 } },
+  "note": "A ../keret-1800x1200.png és ../keret-1200x1800.png egyenletesen nagyítva (1,033×) és középre vágva a snapify 1844×1240-es méretére; a fotóablak a teljesen átlátszó terület."
+}

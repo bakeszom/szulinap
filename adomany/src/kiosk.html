@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gyűjtőgép</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Figtree:wght@500;700;900&display=swap">
+<style>
+:root {
+  --night: #15111d; --paper: #fffbe8; --ink: #0f0d0a; --lime: #c6f432; --lemon: #fff04a; --pop: #ff4d6d; --muted: #6b6474;
+  --display: "Bangers", "Impact", "Arial Black", sans-serif;
+  --body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0; min-height: 100vh; background: var(--night); color: var(--paper); font: 16px/1.4 var(--body);
+  background-image: radial-gradient(#2a2238 1.8px, transparent 2px); background-size: 16px 16px;
+}
+.wrap { max-width: 1180px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; }
+header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+h1 { margin: 0; font: 400 40px/1 var(--display); letter-spacing: .04em; color: var(--lemon); text-shadow: 3px 3px 0 var(--ink); }
+.chip { font: 700 12px/1 var(--body); letter-spacing: .12em; text-transform: uppercase; padding: 6px 10px; border: 3px solid var(--ink); border-radius: 4px; box-shadow: 3px 3px 0 var(--ink); background: var(--paper); color: var(--ink); }
+.chip.ok { background: var(--lime); } .chip.bad { background: var(--pop); color: var(--paper); } .chip.warn { background: var(--lemon); }
+.grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+.panel { background: var(--paper); color: var(--ink); border: 4px solid var(--ink); border-radius: 6px; box-shadow: 7px 7px 0 var(--ink); padding: 16px; min-width: 0; }
+.panel.dark { background: var(--ink); color: var(--paper); box-shadow: 7px 7px 0 var(--lime); outline: 3px solid var(--paper); outline-offset: -8px; }
+.kicker { font: 700 12px/1 var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.dark .kicker { color: var(--lime); }
+h2 { margin: 4px 0 12px; font: 400 30px/1 var(--display); letter-spacing: .04em; }
+.amounts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.amounts button, .btn {
+  font: 400 30px/1 var(--display); letter-spacing: .04em; padding: 16px 8px 12px; border: 4px solid var(--ink); border-radius: 6px;
+  background: var(--lemon); color: var(--ink); box-shadow: 4px 4px 0 var(--ink); cursor: pointer; touch-action: manipulation;
+}
+.amounts button[aria-pressed="true"] { background: var(--lime); transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--ink); }
+.btn { width: 100%; font-size: 34px; background: var(--pop); color: var(--paper); text-shadow: 2px 2px 0 var(--ink); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn.small { width: auto; font-size: 20px; padding: 10px 16px 8px; background: var(--paper); color: var(--ink); text-shadow: none; }
+label { display: grid; gap: 6px; font: 700 14px/1.2 var(--body); margin-top: 12px; }
+input { font: 700 22px/1.2 var(--body); padding: 12px; border: 3px solid var(--ink); border-radius: 6px; background: #fff; color: var(--ink); width: 100%; min-width: 0; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.msg { margin-top: 10px; font-weight: 700; min-height: 1.4em; }
+.msg.err { color: #c8102e; }
+.now { text-align: center; padding: 10px 0 4px; }
+.now .amt { font: 400 72px/1 var(--display); color: var(--lemon); text-shadow: 4px 4px 0 #000; letter-spacing: .03em; }
+.now .who { font: 900 24px/1.2 var(--body); margin-top: 6px; }
+.now .what { margin-top: 10px; font: 700 18px/1.3 var(--body); color: var(--lime); }
+.now .timer { margin-top: 8px; font: 400 26px/1 var(--display); color: var(--paper); opacity: .8; }
+.idle { text-align: center; padding: 26px 0; font: 700 18px/1.4 var(--body); opacity: .75; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.stat { border: 3px solid var(--ink); border-radius: 6px; padding: 10px; background: #fff; }
+.stat b { display: block; font: 400 32px/1 var(--display); letter-spacing: .03em; }
+.stat span { font: 700 11px/1.2 var(--body); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+li { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 6px 8px; border: 2px solid var(--ink); border-radius: 4px; background: #fff; font-weight: 700; }
+li .st { font: 700 11px/1 var(--body); letter-spacing: .08em; text-transform: uppercase; padding: 4px 6px; border-radius: 3px; background: var(--paper); border: 2px solid var(--ink); }
+li .st.paid { background: var(--lime); } li .st.failed, li .st.expired, li .st.cancelled { background: #ffd2da; } li .st.sent { background: var(--lemon); }
+li small { display: block; font-weight: 500; color: var(--muted); }
+details { margin-top: 12px; }
+summary { cursor: pointer; font: 700 15px/1.2 var(--body); }
+.warnbox { background: var(--pop); color: var(--paper); border: 4px solid var(--ink); border-radius: 6px; padding: 10px 14px; font-weight: 700; box-shadow: 4px 4px 0 var(--ink); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Gyűjtőgép · Ádám esküvőjére</h1>
+    <span class="chip" id="mode">…</span>
+    <span class="chip" id="readerChip">Terminál: …</span>
+    <span class="chip" id="counterChip">Szelfigép: …</span>
+  </header>
+  <div class="warnbox" id="warn" hidden></div>
+
+  <div class="grid">
+    <section class="panel">
+      <span class="kicker">Új befizetés a terminálra</span>
+      <h2>Mennyivel szállsz be?</h2>
+      <div class="amounts" id="amounts">
+        <button type="button" data-a="1000">1 000</button>
+        <button type="button" data-a="2000">2 000</button>
+        <button type="button" data-a="3000">3 000</button>
+        <button type="button" data-a="5000">5 000</button>
+        <button type="button" data-a="10000">10 000</button>
+        <button type="button" data-a="20000">20 000</button>
+      </div>
+      <div class="row">
+        <label>Más összeg (Ft)<input id="custom" inputmode="numeric" placeholder="pl. 4 000" autocomplete="off"></label>
+        <label>Név a kivetítőre<input id="name" maxlength="40" placeholder="Valaki" autocomplete="off"></label>
+      </div>
+      <div style="margin-top:14px"><button class="btn" id="send" type="button">Küldés a terminálra</button></div>
+      <div class="msg" id="msg" role="status"></div>
+      <details>
+        <summary>Készpénz rögzítése (kézzel)</summary>
+        <div class="row">
+          <label>Összeg (Ft)<input id="cashAmt" inputmode="numeric" placeholder="pl. 5 000" autocomplete="off"></label>
+          <label>Név<input id="cashName" maxlength="40" placeholder="Valaki" autocomplete="off"></label>
+        </div>
+        <div style="margin-top:10px"><button class="btn small" id="cash" type="button">Készpénz hozzáadása</button></div>
+      </details>
+    </section>
+
+    <section class="panel dark">
+      <span class="kicker">Most a terminálon</span>
+      <div id="now"></div>
+    </section>
+  </div>
+
+  <div class="grid">
+    <section class="panel">
+      <span class="kicker">Gyűjtés állása</span>
+      <h2 id="total">– Ft</h2>
+      <div class="stats">
+        <div class="stat"><b id="count">–</b><span>befizetés</span></div>
+        <div class="stat"><b id="max">–</b><span>legnagyobb</span></div>
+        <div class="stat"><b id="photos">–</b><span>szelfi nyomat</span></div>
+      </div>
+    </section>
+    <section class="panel">
+      <span class="kicker">Sor és legutóbbiak</span>
+      <h2>Sor: <span id="qlen">0</span></h2>
+      <ul id="list"></ul>
+    </section>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const fmt = n => Math.round(n).toLocaleString("hu-HU").replace(/\s/g, " ");
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const ST = { pending: "sorban", sent: "terminálon", paid: "fizetve", failed: "elutasítva", cancelled: "visszavonva", expired: "lejárt" };
+let chosen = 0, busy = false, last = null;
+
+$("amounts").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  chosen = Number(b.dataset.a); $("custom").value = "";
+  [...$("amounts").children].forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+});
+$("custom").addEventListener("input", () => {
+  chosen = 0; [...$("amounts").children].forEach(x => x.setAttribute("aria-pressed", "false"));
+});
+const amountNow = () => chosen || Number($("custom").value.replace(/[^\d]/g, ""));
+
+async function post(path, body) {
+  const r = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const j = await r.json().catch(() => ({ ok: false, error: "Hibás válasz" }));
+  if (!j.ok) throw new Error(j.error || "Hiba");
+  return j;
+}
+function say(text, err) { $("msg").textContent = text; $("msg").className = "msg" + (err ? " err" : ""); }
+
+$("send").addEventListener("click", async () => {
+  const amount = amountNow();
+  if (!(amount >= 500 && amount <= 500000)) return say("Válassz összeget (500 és 500 000 Ft között).", true);
+  if (busy) return; busy = true; $("send").disabled = true;
+  try {
+    const j = await post("/api/request", { amount, name: $("name").value });
+    say(`Sorba téve: ${fmt(j.request.amount)} Ft · ${j.request.name}. A terminál mindjárt felvillan.`);
+    $("name").value = ""; $("custom").value = ""; chosen = 0;
+    [...$("amounts").children].forEach(x => x.setAttribute("aria-pressed", "false"));
+  } catch (e) { say(e.message, true); }
+  finally { busy = false; $("send").disabled = false; }
+});
+$("cash").addEventListener("click", async () => {
+  const amount = Number($("cashAmt").value.replace(/[^\d]/g, ""));
+  if (!(amount > 0)) return say("Add meg a készpénz összegét.", true);
+  try { await post("/api/cash", { amount, name: $("cashName").value }); say(`Készpénz rögzítve: ${fmt(amount)} Ft.`); $("cashAmt").value = ""; $("cashName").value = ""; }
+  catch (e) { say(e.message, true); }
+});
+$("now").addEventListener("click", async e => {
+  const b = e.target.closest("[data-cancel]"); if (!b) return;
+  try { await post("/api/cancel", { id: Number(b.dataset.cancel) }); } catch (err) { say(err.message, true); }
+});
+
+function render(s) {
+  last = s;
+  $("mode").textContent = s.sandbox === true ? "SANDBOX · tesztpénz" : s.sandbox === false ? "ÉLES fiók" : "fiók: ?";
+  $("mode").className = "chip " + (s.sandbox === false ? "ok" : "warn");
+  const rd = s.reader;
+  $("readerChip").textContent = s.readerError ? "Terminál: hiba" : rd ? `Terminál: ${rd.online ? "online" : "OFFLINE"}${rd.batteryLevel != null ? " · " + Math.round(rd.batteryLevel) + "%" : ""}` : "Terminál: …";
+  $("readerChip").className = "chip " + (s.readerError || (rd && !rd.online) ? "bad" : rd ? "ok" : "");
+  const c = s.counter || {};
+  $("counterChip").textContent = !c.enabled ? "Szelfigép: nincs bekötve" : c.lastError ? "Szelfigép: hiba" : `Szelfigép: ${c.photos ?? "–"} nyomat`;
+  $("counterChip").className = "chip " + (!c.enabled ? "warn" : c.lastError ? "bad" : "ok");
+
+  const warns = [];
+  if (s.supabaseError) warns.push("Supabase: " + s.supabaseError);
+  if (s.unsynced) warns.push(`${s.unsynced} befizetés még nincs a Supabase-ben (újrapróbálom; a data/befizetesek.jsonl-ben megvan).`);
+  if (s.lastError && Date.now() - Date.parse(s.lastError.at) < 120000) warns.push(s.lastError.text);
+  if (c.enabled && c.lastError) warns.push("Szelfigép-számláló: " + c.lastError);
+  $("warn").hidden = !warns.length; $("warn").innerHTML = warns.map(esc).join("<br>");
+
+  const cur = s.current;
+  if (cur) {
+    const left = Math.max(0, s.maxWaitS - cur.elapsedS);
+    $("now").innerHTML = `<div class="now"><div class="amt">${fmt(cur.amount)} Ft</div><div class="who">${esc(cur.name)}${cur.source === "app" ? " · buliappból" : ""}</div>
+      <div class="what">${cur.phase === "waiting_card" ? "Érintsd a kártyát / telefont a terminálhoz!" : esc(cur.info)}</div>
+      ${cur.phase === "waiting_card" ? `<div class="timer">${left} mp</div>` : ""}
+      <div style="margin-top:12px"><button class="btn small" type="button" data-cancel="${cur.id}">Mégse</button></div></div>`;
+  } else {
+    $("now").innerHTML = `<div class="idle">A terminál szabad. Válassz összeget, vagy szállj be a buliappból (Gyűjtés az esküvőre).</div>`;
+  }
+
+  const f = s.feed;
+  $("total").textContent = f ? fmt(f.total) + " Ft" : "– Ft";
+  $("count").textContent = f ? fmt(f.count) : "–";
+  $("max").textContent = f && f.max ? fmt(f.max) : "–";
+  $("photos").textContent = f && f.photos != null ? fmt(f.photos) : "–";
+  const open = s.open || [];
+  $("qlen").textContent = open.length;
+  const openIds = new Set(open.map(r => r.id));
+  const rows = [...open, ...(s.recent || []).filter(r => !openIds.has(r.id))].slice(0, 12);
+  $("list").innerHTML = rows.map(r => `<li><span class="st ${r.status}">${ST[r.status] || r.status}</span>
+    <span>${esc(r.name)}<small>${esc(r.info || "")}</small></span><span>${fmt(r.amount)} Ft</span></li>`).join("") || `<li><span></span><span>Még nincs kérés.</span><span></span></li>`;
+}
+
+async function tick() {
+  try { const r = await fetch("/api/state", { cache: "no-store" }); render(await r.json()); }
+  catch (e) { $("warn").hidden = false; $("warn").textContent = "A gyűjtőszolgáltatás nem fut (npm start)."; }
+  setTimeout(tick, 1000);
+}
+tick();
+</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "name": "szulinap-adomany",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Kártyás gyűjtés Ádám esküvőjére (SumUp Solo, a snapify-pay SumUp-kódjával) + szelfigép-számláló a kivetítőnek",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "pair": "tsx src/index.ts pair",
+    "readers": "tsx src/index.ts readers",
+    "status": "tsx src/index.ts status",
+    "terminate": "tsx src/index.ts terminate",
+    "reset": "tsx src/index.ts reset",
+    "typecheck": "tsc -p tsconfig.json",
+    "snapify-esemeny": "tsx tools/snapify-esemeny.ts",
+    "uj-titok": "tsx tools/uj-titok.ts"
+  },
+  "dependencies": {
+    "@sumup/sdk": "0.2.0",
+    "dotenv": "18.0.8",
+    "tsx": "4.23.15"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "typescript": "7.0.2"
+  }
+}
