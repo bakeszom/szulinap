@@ -92,16 +92,36 @@ window.CONTENT = {
   ],
 
   // Beugratós kérdések a q104-hez (a régi feladatlistádból)
+  // Találós / beugratós kérdések. q = kérdés, a = megoldás (a megoldás nélküli sima szöveg is működik)
   riddles: [
-    "Ha a trolibuszon minden piros, milyen színű a kipufogója?",
-    "Egy repülőgép lezuhan a magyar–lengyel határon. Hova temetik a túlélőket?",
-    "Egy villanymozdony északra tart, a szél északkelet felé fúj. Merre viszi a füstjét?",
-    "Ha egy éjjeliőr reggel hal meg, kaphat-e nyugdíjat?",
-    "Hány állatot vitt magával Mózes a bárkára?",
-    "Hány hónapban van 28 nap?",
-    "Hány ujjad van két kézen? És hány ujjad van 10 kézen?",
-    "Mondd tízszer gyorsan, hogy fehér. Mit iszik a tehén?"
+    { q: "Ha a trolibuszon minden piros, milyen színű a kipufogója?", a: "A trolibusznak nincs kipufogója." },
+    { q: "Egy repülőgép lezuhan a magyar–lengyel határon. Hova temetik a túlélőket?", a: "Sehova. A túlélőket nem temetik el." },
+    { q: "Egy villanymozdony északra tart, a szél északkelet felé fúj. Merre viszi a füstjét?", a: "A villanymozdonynak nincs füstje." },
+    { q: "Ha egy éjjeliőr reggel hal meg, kaphat-e nyugdíjat?", a: "Nem. Meghalt." },
+    { q: "Hány állatot vitt magával Mózes a bárkára?", a: "Egyet sem. Noé vitte az állatokat." },
+    { q: "Hány hónapban van 28 nap?", a: "Mind a 12-ben." },
+    { q: "Hány ujjad van két kézen? És hány ujjad van 10 kézen?", a: "10, és 50. Nem 100." },
+    { q: "Mondd tízszer gyorsan, hogy fehér. Mit iszik a tehén?", a: "Vizet." },
+    { q: "Melyik nehezebb: egy kiló vas vagy egy kiló toll?", a: "Egyformák. Mindkettő egy kiló." },
+    { q: "Egy kakas tojik a háztető legtetején. Merre gurul a tojás?", a: "Sehova. A kakas nem tojik." },
+    { q: "Egy futóversenyen megelőzöd a másodikat. Hányadik vagy?", a: "Második." },
+    { q: "Egy futóversenyen megelőzöd az utolsót. Hányadik vagy?", a: "Ez nem lehetséges. Az utolsót nem lehet megelőzni." },
+    { q: "Ha 3 almád van, és elveszel belőle kettőt, hány almád van?", a: "Kettő. Azok, amiket elvettél." },
+    { q: "Mennyi föld van egy 1 × 1 × 1 méteres gödörben?", a: "Semennyi. A gödör üres." },
+    { q: "Ha egy tojás 4 perc alatt fő meg, mennyi idő alatt fő meg 3 tojás egy fazékban?", a: "4 perc. Egyszerre főnek." },
+    { q: "Hogyan lehet egy tojást a betonra ejteni úgy, hogy a beton ne törjön el?", a: "Sehogy se kell vigyázni. A beton nem törik el a tojástól." },
+    { q: "Mi az, ami minél többet veszel el belőle, annál nagyobb lesz?", a: "A gödör." },
+    { q: "Mi az, ami a tiéd, mégis mások használják többet?", a: "A neved." },
+    { q: "Mi az, ami eltörik, ha kimondod a nevét?", a: "A csend." },
+    { q: "Mi az, aminek van nyaka, de nincs feje?", a: "Az üveg." },
+    { q: "Mi az, ami tele van lyukakkal, mégis megtartja a vizet?", a: "A szivacs." },
+    { q: "Mi az, ami mindig előtted van, de sosem látod?", a: "A jövő." },
+    { q: "Mi az, ami csak felfelé megy, és sosem jön le?", a: "Az életkorod. Ádámé ma is ment egyet." },
+    { q: "Hány születésnapja van egy átlagos embernek?", a: "Egy. A többi csak évforduló." },
+    { q: "Ha a Holdon egyszerre ejtesz le egy követ és egy tollat, melyik ér le előbb?", a: "Egyszerre érnek le. Nincs levegő, ami fékezné a tollat." },
+    { q: "Ádám anyukájának három gyereke van: Piros, Kék és…?", a: "Ádám." }
   ],
+  riddleBonus: { id: "b_talalos", pts: 5 },
 
   // --- Szülinapos-kvíz. photo = a matrica sorszáma (lásd STICKERS) ---
   // --- Ki ez az Ádám? Hivatalos adatlap (szándékosan száraz és hosszú) ---
@@ -265,7 +285,8 @@ window.CONTENT = {
     { id: "b_longdrink5", kind: "longdrink", at: 5, pts: 5, name: "Long drink-mester", t: "Titkos bónusz: 5. long drink" },
     { id: "b_feles3",     kind: "feles",     at: 3, pts: 3, name: "Feleshős",          t: "Titkos bónusz: 3. feles" },
     { id: "b_viz3",       kind: "viz",       at: 3, pts: 2, name: "Vízfelelős",        t: "Titkos bónusz: 3 pohár víz" },
-    { id: "b_olvaso",     kind: "olvas",     at: 0, pts: 5, name: "Végigolvasta Ádámot", t: "Végigolvasta Ádám adatlapját" }
+    { id: "b_olvaso",     kind: "olvas",     at: 0, pts: 5, name: "Végigolvasta Ádámot", t: "Végigolvasta Ádám adatlapját" },
+    { id: "b_talalos",    kind: "talalos",   at: 0, pts: 5, name: "Találós meglepi", t: "Végiggörgette a találós kérdéseket" }
   ],
 
   // --- Gyűjtés az esküvőre (ugyanaz, mint a progress.html kijelzőn) ---
@@ -507,6 +528,17 @@ p { margin: 0; }
 .ticket .txt { font-weight: 800; font-size: 16px; line-height: 1.3; }
 .ticket .note { font-size: 13px; color: #3d3846; font-weight: 600; }
 .ticket .riddle { font-size: 14px; background: var(--c-lemon); border: 2px solid var(--c-black); border-radius: 4px; padding: 9px 11px; font-weight: 700; font-style: italic; }
+.rlist { border: 2px solid var(--c-black); border-radius: 4px; background: #f3ecd0; }
+.rlist > summary { cursor: pointer; padding: 9px 11px 7px; font: 19px/1.1 var(--font-display); letter-spacing: .03em; list-style-position: inside; }
+.rlist[open] > summary { border-bottom: 2px solid var(--c-black); background: var(--c-lemon); }
+.rlist ol { margin: 0; padding: 8px 12px 4px 30px; display: grid; gap: 10px; }
+.rlist li { font: 700 14px/1.35 var(--font-body); }
+.rlist li details { margin-top: 3px; }
+.rlist li summary { cursor: pointer; font: 800 11px/1.3 var(--font-body); letter-spacing: .1em; text-transform: uppercase; color: var(--c-muted); }
+.rlist li details p { margin: 3px 0 0; font: 600 14px/1.35 var(--font-body); color: var(--c-black); background: var(--c-paper); border-left: 4px solid var(--c-lime); padding: 5px 8px; }
+.rlist .rbonus { display: grid; justify-items: center; gap: 4px; padding: 12px 10px 14px; border-top: 2px dashed var(--c-black); margin-top: 6px; }
+.rlist .rbonus .btn { font-size: 26px; padding: 10px 18px 7px; }
+.rlist .rbonus small { font: 700 12px/1.3 var(--font-body); color: var(--c-muted); }
 .ticket .tags { display: flex; gap: 6px; flex-wrap: wrap; }
 .tag { font: 800 10px/1 var(--font-body); letter-spacing: .1em; text-transform: uppercase; padding: 5px 7px 4px; border-radius: 3px; border: 2px solid var(--c-black); background: var(--c-paper); }
 .tag.cam { background: var(--c-pop); color: var(--c-paper); }
@@ -1270,7 +1302,13 @@ async function refreshQuestCounts() {
 function ticketHTML(q, L) {
   const d = S.done.get(q.id);
   const qn = QCOUNT.get(q.id) || 0;
-  const riddle = q.riddle ? `<div class="riddle">„${esc(pick(K.riddles))}”</div>` : "";
+  const RQ = r => typeof r === "string" ? { q: r, a: "" } : r;
+  const rb = K.riddleBonus, rbDone = rb && S.done.has(rb.id);
+  const riddle = q.riddle ? `<div class="riddle">„${esc(RQ(pick(K.riddles)).q)}”</div>
+      <details class="rlist"><summary>Az összes találós kérdés (${K.riddles.length})</summary>
+        <ol>${K.riddles.map(RQ).map(r => `<li>${esc(r.q)}${r.a ? `<details><summary>Megoldás</summary><p>${esc(r.a)}</p></details>` : ""}</li>`).join("")}</ol>
+        ${rb ? `<div class="rbonus" id="rbonus">${rbDone ? `<small>Ezt már bezsebelted. ✓</small>` : `<button class="btn gold" data-act="rbonus">+${rb.pts} pont</button><small>Lejöttél idáig. Jár.</small>`}</div>` : ""}
+      </details>` : "";
   return `<article class="ticket ${d ? "done" : ""}" style="--c:var(${L.color})">
     <div class="body">
       <p class="txt">${esc(q.t)}</p>
@@ -1512,6 +1550,22 @@ function updateReadBtn() {
   const left = Math.ceil((K.adamDoc.readMinSeconds * 1000 - (Date.now() - readStart)) / 1000);
   if (left > 0) { btn.disabled = true; w.textContent = `Ilyen gyorsan senki nem olvas. Még ${left} mp.`; }
   else { btn.disabled = false; w.textContent = ""; clearInterval(readTick); }
+}
+async function claimRiddleBonus() {
+  const rb = K.riddleBonus;
+  if (!rb || S.busy || S.done.has(rb.id)) return; S.busy = true;
+  const box = document.getElementById("rbonus");
+  try {
+    const c = await store.complete(S.me, { id: rb.id, pts: rb.pts }, null);
+    S.done.set(rb.id, c);
+    refreshBoard();
+    toast(`+${rb.pts} pont! Kis meglepi.`);
+    if (box) box.innerHTML = `<small>Bezsebelve. ✓</small>`;
+    const pill = document.querySelector(".pill-pts"); if (pill) pill.textContent = fmtPts(myPoints()) + " pont";
+  } catch (e) {
+    if (String(e.message).includes("dup") || e.code === "23505") { if (box) box.innerHTML = `<small>Ezt már bezsebelted. ✓</small>`; }
+    else toast("Nem sikerült menteni. Próbáld újra.");
+  } finally { S.busy = false; }
 }
 async function claimRead() {
   if (S.busy || S.done.has("b_olvaso")) return; S.busy = true;
@@ -1829,6 +1883,7 @@ document.addEventListener("click", async ev => {
     return;
   }
   if (a === "readdone") { claimRead(); return; }
+  if (a === "rbonus") { claimRiddleBonus(); return; }
   if (a === "ttab") { T.tab = el.dataset.t; renderTopics(); return; }
   if (a === "newd") { let n; do { n = pick(K.dilemmas); } while (n === T.d && K.dilemmas.length > 1); T.d = n; T.assign = null; renderTopics(); return; }
   if (a === "newice") { let n; do { n = pick(K.icebreakers); } while (n === T.ice && K.icebreakers.length > 1); T.ice = n; renderTopics(); return; }
