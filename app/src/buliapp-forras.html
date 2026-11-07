@@ -1,10 +1,22 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
 <title>Ádám Szülinapi Buliapp</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#15111d">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Figtree:wght@500;600;700;800;900&display=swap">
+<!-- saját fontok (nem kell hozzá Google, gyorsabb és nem ugrik a szöveg) -->
+<link rel="preload" href="fonts/bangers-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/bangers-latin-ext-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/figtree-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/figtree-latin-ext-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face { font-family: "Bangers"; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/bangers-latin-400-normal.woff2) format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: "Bangers"; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/bangers-latin-ext-400-normal.woff2) format("woff2"); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: "Figtree"; font-style: normal; font-weight: 300 900; font-display: swap; src: url(fonts/figtree-latin-wght-normal.woff2) format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: "Figtree"; font-style: normal; font-weight: 300 900; font-display: swap; src: url(fonts/figtree-latin-ext-wght-normal.woff2) format("woff2"); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+</style>
 
 <script>
 /* ============================================================
@@ -21,8 +33,9 @@ window.CONFIG = {
   // Az app nyilvános címe a kivetítős QR-kódhoz. Ha üres, az oldal saját címét használja.
   APP_URL: "",
 
-  // Képek a szülinaposról az img/ mappából. Ha egy fájl nincs meg, helykitöltő jelenik meg.
-  PHOTOS: ["img/adam-1.jpg","img/adam-2.jpg","img/adam-3.jpg","img/adam-4.jpg","img/adam-5.jpg","img/adam-6.jpg","img/adam-7.jpg","img/adam-8.jpg"],
+  // MATRICÁK: melyik sorszámú matrica legyen benne az appban (img/adam-N.jpg + img/stk/stk-N.webp).
+  // Ha egy matrica ne szerepeljen, töröld ki a számát ebből a listából. Ez vezérli a galériát, a lebegő matricákat és a véletlen képeket is.
+  STICKERS: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 26, 27],
 
   // Felugró ablakok: legalább ennyi percenként egy (véletlenszerűen ±)
   POPUP_MINUTES: 4
@@ -46,35 +59,36 @@ window.CONTENT = {
   // --- Side questek. photo: true = bizonyítékfotó kötelező ---
   quests: [
     // cat: konnyu / kozepes / nehez / ismerkedos
-    { id: "q101", cat: "ismerkedos", pts: 1, t: "Mutatkozz be valakinek, akit még sosem láttál, és derítsd ki, honnan ismeri Ádámot." },
-    { id: "q102", cat: "konnyu", pts: 2, t: "Készíts közös képet egy Márk nevű emberrel.", note: "Ha nincs Márk a buliban, keress egy Dávidot. Az fél siker." },
-    { id: "q103", cat: "ismerkedos", pts: 1, t: "Koccints valakivel, akivel ma este még egy szót sem váltottál." },
-    { id: "q104", cat: "konnyu", pts: 2, t: "Tegyél fel valakinek egy beugratós kérdést, és nézd végig, ahogy belesétál.", riddle: true },
-    { id: "q105", cat: "konnyu", pts: 2, t: "Állj be a szelfigépbe legalább 3 olyan emberrel, akiket ma ismertél meg." },
+    { id: "q101", cat: "ismerkedos", pts: 2, t: "Mutatkozz be valakinek, akit még sosem láttál, és derítsd ki, honnan ismeri Ádámot.", note: "Ha vagány vagy, többször is megcsinálhatod." },
+    { id: "q102", cat: "konnyu", pts: 2, t: "Készíts közös képet egy Márk nevű emberrel.", note: "Ha nincs Márk a buliban, keress egy Dávidot." },
+    { id: "q103", cat: "ismerkedos", pts: 1, t: "Koccints valakivel, akivel ma este még egy szót sem váltottál, és beszélgessetek." },
+    { id: "q104", cat: "konnyu", pts: 2, t: "Tegyél fel valakinek egy találós kérdést.", riddle: true },
+    { id: "q105", cat: "konnyu", pts: 3, t: "Nyomtass ki a szelfigéppel egy képet, amin olyan emberekkel vagy, akiket ma este ismertél meg." },
     { id: "q106", cat: "ismerkedos", pts: 1, t: "Dicsérd meg valakinek a cipőjét, és tudd meg, hol vette." },
     { id: "q107", cat: "ismerkedos", pts: 2, t: "Jegyezz meg 3 új nevet, és egy óra múlva köszönj rájuk név szerint." },
-    { id: "q108", cat: "konnyu", pts: 1, t: "Segíts valakinek: hozz neki inni, fogd a kabátját, vagy kísérd el a mosdóig a sorban." },
+    { id: "q108", cat: "konnyu", pts: 1, t: "Kösd ki a cipődet, és kérj meg valakit, hogy kösse be." },
 
-    { id: "q201", cat: "kozepes", pts: 3, t: "Kérj egy cigit valakitől, és add oda valaki másnak az ő szeme láttára.", note: "Nem dohányzol? Rágóval is ér." },
-    { id: "q202", cat: "kozepes", pts: 4, t: "Mutatkozz be valakinek kitalált néven, és tartsd 10 percig." },
+    { id: "q201", cat: "kozepes", pts: 3, t: "Kérj egy cigit valakitől, és add oda valaki másnak az ő szeme láttára, mint egy ajándékot.", note: "Nem dohányzol? Rágóval is ér." },
+    { id: "q210", cat: "kozepes", pts: 3, t: "Tarts magadról egy teljesen random bemutatkozó beszédet. Legalább 10 perces legyen: akkor nyertél, ha simán végighallgatják." },
+    { id: "q202", cat: "kozepes", pts: 4, t: "Mutatkozz be valakinek kitalált néven, és tartsd, ameddig csak tudod.", note: "Minél költőibb a név, annál nagyobb a siker." },
     { id: "q203", cat: "kozepes", pts: 3, t: "Szerezd meg valakinek az Instáját vagy a számát egy jó indokkal." },
     { id: "q204", cat: "kozepes", pts: 3, t: "Táncoltass meg valakit egy teljes szám erejéig." },
-    { id: "q205", cat: "kozepes", pts: 4, t: "Mesélj valakinek egy kitalált sztorit Ádámról, és hitesd el vele." },
-    { id: "q206", cat: "kozepes", pts: 3, t: "Szkanderezz le valakit.", note: "Ha nyersz, mondd el mindenkinek. Ha kikapsz, akkor is jár a pont." },
-    { id: "q207", cat: "kozepes", pts: 5, t: "Hívasd meg magad egy italra valakivel, akit ma ismertél meg." },
+    { id: "q205", cat: "kozepes", pts: 4, t: "Mesélj valakinek egy kitalált sztorit Ádámról, és hitesd el vele.", note: "Minél nagyobb a kamu, annál jobb. Az a legjobb, ha Ádám is levágja, és belemegy a játékba." },
+    { id: "q206", cat: "kozepes", pts: 3, t: "Szkanderezz le valakit.", note: "Ha nyersz, mondd el mindenkinek. Ha kikapsz, akkor is jár a pont. A vesztes fizet a nyertesnek." },
+    { id: "q207", cat: "kozepes", pts: 3, t: "Hívasd meg magad egy italra valakivel, akit ma ismertél meg." },
     { id: "q208", cat: "kozepes", pts: 4, t: "Mondj tósztot Ádámra legalább 5 ember előtt." },
-    { id: "q209", cat: "kozepes", pts: 4, t: "Játszd el a pultnál, hogy eltévedtél, és kérdezd meg, hogyan jutsz el a Pacsiba." },
+    { id: "q209", cat: "kozepes", pts: 4, t: "Vegyél fel egy szerepet, és játszd fél órán át.", note: "Engedd szabadjára a fantáziádat." },
+    { id: "q211", cat: "ismerkedos", pts: 5, t: "Ismerj meg legalább 4 új embert a társaságból." },
+    { id: "q212", cat: "ismerkedos", pts: 4, t: "Dicsérd meg valakinek a szettjét, szívből." },
 
     { id: "q301", cat: "nehez", pts: 6, photo: true, t: "Kérd meg valakinek a kezét, féltérdre ereszkedve. Gyűrű helyett bármi megteszi." },
     { id: "q302", cat: "nehez", pts: 8, photo: true, t: "Szavalj el egy verset a táncparkett közepén úgy, hogy felfigyeljenek rád." },
-    { id: "q303", cat: "nehez", pts: 6, photo: true, t: "Igyál meg húzóra egy sört (vagy egy üdítőt) úgy, hogy legalább öten szurkoljanak." },
-    { id: "q304", cat: "nehez", pts: 8, photo: true, t: "Hívj meg egy egész asztalt egy körre. Egy kör shot is számít." },
-    { id: "q305", cat: "nehez", pts: 7, photo: true, t: "Szervezz egy legalább 8 fős csoportképet, amin legyen egy ember, aki nem a bulira jött." },
-    { id: "q306", cat: "nehez", pts: 8, photo: true, t: "Vedd rá a DJ-t, hogy mondjon valamit Ádámnak a mikrofonba." },
+    { id: "q303", cat: "nehez", pts: 6, photo: true, t: "Igyál meg húzóra egy sört úgy, hogy legalább öten szurkolnak." },
+    { id: "q304", cat: "nehez", pts: 8, photo: true, t: "Hívj meg egy egész asztalt egy kör shotra." },
+    { id: "q305", cat: "nehez", pts: 7, photo: true, t: "Szervezz egy legalább 8 fős csoportképet." },
+    { id: "q306", cat: "nehez", pts: 8, photo: true, t: "Készíts egy videót, amiben Ádámot köszöntöd, és ő is rajta van. Posztold ki valahova." },
     { id: "q307", cat: "nehez", pts: 6, photo: true, t: "Táncolj Ádámmal egy teljes számot a parkett közepén." },
-    { id: "q308", cat: "nehez", pts: 10, photo: true, t: "Titkos küldetés: vedd rá Ádámot, hogy ő teljesítsen egy side questet helyetted." },
-    { id: "q401", cat: "ismerkedos", pts: 2, t: "Találj valakit, aki ugyanabban a hónapban született, mint te." },
-    { id: "q402", cat: "ismerkedos", pts: 2, t: "Kérdezz meg valakit, akit most ismertél meg, mi volt idén a legnagyobb kalandja. Meséld el valaki harmadiknak." }
+    { id: "q308", cat: "nehez", pts: 10, photo: true, t: "Titkos küldetés: vedd rá Ádámot, hogy ő teljesítsen egy side questet helyetted." }
   ],
 
   // Beugratós kérdések a q104-hez (a régi feladatlistádból)
@@ -85,29 +99,11 @@ window.CONTENT = {
     "Ha egy éjjeliőr reggel hal meg, kaphat-e nyugdíjat?",
     "Hány állatot vitt magával Mózes a bárkára?",
     "Hány hónapban van 28 nap?",
-    "Hány ujj van 10 kézen?",
+    "Hány ujjad van két kézen? És hány ujjad van 10 kézen?",
     "Mondd tízszer gyorsan, hogy fehér. Mit iszik a tehén?"
   ],
 
-  // --- Szülinapos-kvíz (MINTA: cserélendő a te kérdéseidre) ---
-  adamQuiz: [
-    { q: "Mivel tölti Ádám a hétköznapjait?", photo: 0,
-      a: ["Takarítószer-nagykernél IT-zik és folyamatokat rak rendbe", "Hajóskapitány a Balatonon", "Profi pókerjátékos", "Influenszer"], c: 0,
-      info: "A Higiénia és Tisztaság Kft.-nél az IT, az adatok, a folyamatok és a marketing is nála fut össze." },
-    { q: "Mi az a Playspot, amit Ádám társalapítóként csinál?", photo: 1,
-      a: ["Kutyasétáltató app", "Sportpálya-foglaló platform", "Játszótér-értékelő oldal", "Online társasjáték"], c: 1,
-      info: "A playspot.hu-n sportpályákat lehet foglalni. Ha legközelebb focizni mész, már tudod, hol." },
-    { q: "Kié a szelfigép, amibe ma este beállsz?", photo: 2,
-      a: ["Bérelt", "A Pacsié", "Ádám saját vállalkozásáé", "Egy haveré, aki még nem tudja"], c: 2,
-      info: "Snapify néven Ádám esküvőkre és bulikra viszi a szelfigépet. Ma este ingyen próbálhatod." },
-    { q: "Melyik kerületben lakik Ádám?", photo: 3,
-      a: ["V.", "XIII.", "XI.", "VIII."], c: 2,
-      info: "Újbuda. Ha arra jársz, ugorj be. Mondjuk ne hajnali háromkor." },
-    { q: "Mi a közös Ádámban és Johann Sebastian Bachban?", photo: 4,
-      a: ["Mindketten orgonáznak", "A vezetéknév", "Mindkettőjüknek 20 gyereke van", "Semmi"], c: 1,
-      info: "Bach Ádám. A 20 gyereket Johann Sebastian vállalta, Ádám egyelőre a webshopokat sokszorozza." }
-  ],
-
+  // --- Szülinapos-kvíz. photo = a matrica sorszáma (lásd STICKERS) ---
   // --- Ki ez az Ádám? Hivatalos adatlap (szándékosan száraz és hosszú) ---
   adamDoc: {
     title: "Bach Ádám",
@@ -120,6 +116,8 @@ window.CONTENT = {
         ["Születésnap", "November 7. (Ma.)"],
         ["Születési év", "Nem nyilvános. Lásd: Kvízpiramis, 1. szint."],
         ["Lakóhely", "Budapest, XI. kerület (Újbuda)."],
+        ["Testvérek száma", "2"],
+        ["Családi állapot", "Jegyes. Az eljegyzés helyszíne: Róma, 2026 ősze. A gyűjtés állása a kivetítőn követhető."],
         ["Elsődleges kommunikációs nyelv", "Magyar, informális regiszter."],
         ["Elsődleges munkaeszköz", "MacBook (Apple Silicon)."]
       ]},
@@ -153,7 +151,7 @@ window.CONTENT = {
       ]},
       { h: "6. Utazások, 2026", rows: [
         ["Ciprus", "Ayia Napa térsége, július 9–16. Kilencfős baráti társaság. Quad- és buggybérlés."],
-        ["Róma", "Október 19–24. Szállás a Vatikán közelében. 48 órás Vespa-bérlés."]
+        ["Róma", "Október 19–24. Szállás a Vatikán közelében. 48 órás Vespa-bérlés. Az utazás során eljegyzés történt (lásd 1. pont)."]
       ]},
       { h: "7. Rendezvénytörténet", rows: [
         ["Gyakoriság", "Évente egy születésnapi rendezvény, nagy létszámmal."],
@@ -180,7 +178,7 @@ window.CONTENT = {
     ],
     asciiTitle: "Mellékletek: fényképfelvételek ASCII-formátumban",
     asciiNote: "A felvételek a nyomtatási költségek csökkentése érdekében karakterekből készültek.",
-    asciiPhotos: [0, 1, 2],     // a CONFIG.PHOTOS listából ezek az indexek
+    asciiStickers: [1, 2, 9],   // ezekből a matricákból (img/adam-N.jpg) készül ASCII-kép
     countdown: ["Még három képernyő.", "Már csak kettő.", "Egy. Majdnem kész."],
     readPts: 5,
     readMinSeconds: 40,          // ennyi másodperc után nyomható meg az Elolvastam gomb
@@ -191,10 +189,10 @@ window.CONTENT = {
   dilemmas: [
     { q: "Szuperképesség", a: "Tudj repülni", b: "Légy láthatatlan" },
     { q: "Egy életen át", a: "Soha többé kávé", b: "Soha többé alkohol" },
-    { q: "Hol élnél?", a: "Nagy ház vidéken, kerttel", b: "Kis lakás a belváros közepén" },
+    { q: "Hol élnél?", a: "Nagy ház vidéken, kerttel", b: "Közepes lakás a belváros közepén" },
     { q: "Időgép", a: "Lásd a jövőt", b: "Változtass a múltadon" },
     { q: "Pizza", a: "Az ananász a pizzán zseniális", b: "Az ananász a pizzán bűncselekmény" },
-    { q: "Választanod kell", a: "10 évvel fiatalabb leszel", b: "10 millióval gazdagabb leszel" },
+    { q: "Választanod kell", a: "10 évvel fiatalabb leszel", b: "20 millióval gazdagabb leszel" },
     { q: "Pontosság", a: "Mindig 10 percet késel", b: "Mindig 20 perccel korábban érsz oda" },
     { q: "Örök évszak", a: "Csak nyár", b: "Csak tél, karácsonnyal" },
     { q: "Tehetség", a: "Beszélsz minden nyelvet", b: "Játszol minden hangszeren" },
@@ -268,6 +266,40 @@ window.CONTENT = {
     { id: "b_olvaso",     kind: "olvas",     at: 0, pts: 5, name: "Végigolvasta Ádámot", t: "Végigolvasta Ádám adatlapját" }
   ],
 
+  // --- Gyűjtés az esküvőre (ugyanaz, mint a progress.html kijelzőn) ---
+  wedding: {
+    title: "Gyűjtés az esküvőre",
+    lead: "Ez egy vicces szülinapi gyűjtés, teljesen önkéntes. Minden forint Ádám esküvőjére megy.",
+    how: "A szelfigép melletti terminálnál tudsz beszállni. Az összeget te választod.",
+    more: "A kivetítőn egy pályán fut az összeg. Minden mérföldkőnél Ádámnak teljesítenie kell valamit, élőben.",
+    milestones: [
+      [3000, "Csoportkép", "Ádám közös képet csinál mindenkivel."],
+      [5000, "Insta-poszt", "Ádám most azonnal kiposztolja a bulit Instára."],
+      [7500, "Stand-up", "Ádám elmond egy viccet a mikrofonba. Nevetni kötelező."],
+      [10000, "Feleskör", "Ádám lehúz egy felest. Aki akar, csatlakozhat."],
+      [12500, "Kutyaüzemmód", "Ádám fél percig kutyát imitál. Simogatni szabad."],
+      [15000, "Parkett-bajnok", "Ti választotok számot, Ádám végigtáncolja a parkett közepén."],
+      [20000, "Vízhiány", "Két feles, víz helyett. Egymás után."],
+      [25000, "Quest-ajándék", "Aki ezt a mérföldkövet behozta, választhat Ádámnak egy side questet."],
+      [29000, "Utolsó 29", "Ez az utolsó mérföldkő, amit Ádám még 29 évesen ér el."],
+      [30000, "GTA 6", "Ennyiből kijönne a GTA 6. De ne törjön meg a lendület."],
+      [35000, "Beugratós", "Ádám átver valakit egy találós kérdéssel."],
+      [40000, "Élő adás", "10 perces Instagram live: Ádám elmeséli, mi folyik itt."],
+      [45000, "Köszönöm, anya", "Ádám felhívja az anyukáját, és megköszöni neki, hogy világra hozta."],
+      [50000, "Még egy kör", "Újabb feleskör. De csak egy."],
+      [55000, "Ádám fizet", "Ádám meghív pár embert egy italra."],
+      [60000, "Szkander-király", "Ádám kiáll legfeljebb három kihívó ellen. Aki legyőzi, kap tőle egy felest."],
+      [70000, "Sörpárbaj", "Sörivó verseny Ádám ellen. Ki bírja?"],
+      [75000, "Bio-csere", "Egy hónapig ti írjátok Ádám Insta-bióját."],
+      [100000, "Hat számjegy", "Egy hétig a vendégek választják Ádám Insta-profilképét."],
+      [150000, "Szólótánc", "Ádám egyedül kezdi a táncot, aztán jön mindenki."],
+      [200000, "PS5", "Ennyiből már PS5 lenne. Nem lesz. Esküvő lesz."],
+      [300000, "Harmincas csomag", "Ennyiből telik térdvédőre, hátkrémre és egy jó fotelre. Jön a 30."],
+      [500000, "Lagzi-zenekar", "Ennyiből megvan a lagzi zenekara. Ti húzzátok majd a talpalávalót."],
+      [1000000, "Milliomos", "Egymillió. Aki most itt van, meghívót kap az esküvőre."]
+    ]
+  },
+
   // --- Felugró ablakok ---
   popups: [
     "Hívd meg a szülinapost egy shotra. Megérdemli, és te is.",
@@ -275,7 +307,7 @@ window.CONTENT = {
     "Ádám most éppen szomjas. Csak mondjuk.",
     "Mikor koccintottál utoljára? Pótold.",
     "Valaki a közeledben még nem csinált egy side questet sem. Segíts neki.",
-    "Állj be a szelfigépbe. Most. Ne gondolkodj.",
+    "Csinálj egy képet a szelfigéppel. Ne gondolkodj.",
     "Kérdezz meg valakit, honnan ismeri Ádámot. Mindig van egy jó sztori.",
     "Táncparkett. Egy szám. Bírod."
   ]
@@ -383,10 +415,28 @@ p { margin: 0; }
 
 /* fotó-keret */
 .photo { position: relative; border-radius: 4px; overflow: hidden; background: var(--c-paper); aspect-ratio: 4 / 5; max-width: 100%; border: 4px solid var(--c-black); box-shadow: var(--sh); }
-.photo img { width: 100%; height: 100%; object-fit: cover; display: block; position: relative; }
+.photo img { width: 100%; height: 100%; object-fit: contain; background: #15111d; display: block; position: relative; }
 .photo .ph { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 12px; font: 18px/1.05 var(--font-display); color: var(--c-black); letter-spacing: .04em;
   background-color: var(--c-lemon); background-image: radial-gradient(rgba(15,13,10,.16) 2px, transparent 2.2px); background-size: 12px 12px; }
-.photo.wide { aspect-ratio: 16 / 9; }
+.photo.wide { aspect-ratio: 1; }
+.photo.tall { aspect-ratio: 4 / 5; }
+.stk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stk-grid .photo { aspect-ratio: 4 / 5; }
+.stk-grid .photo.sq { aspect-ratio: 1; background: #15111d; }
+.photo.montage { aspect-ratio: 3 / 2; transform: rotate(-1.5deg); margin: 6px 4px 0; }
+/* lebegő matricák a nyitóképen */
+.float-box { position: relative; z-index: 0; aspect-ratio: 1; margin: 6px 0 4px; overflow: hidden; border: 4px solid var(--c-black); border-radius: 4px; box-shadow: var(--sh);
+  background-color: #15111d; background-image: radial-gradient(circle at 15% 20%, rgba(198,244,50,.28), transparent 45%), radial-gradient(circle at 85% 85%, rgba(255,77,109,.28), transparent 45%), radial-gradient(#2a2238 1.6px, transparent 2px); background-size: 100% 100%, 100% 100%, 16px 16px; }
+.float-box .stk { position: absolute; width: var(--w); left: var(--x); top: var(--y); filter: drop-shadow(4px 6px 0 rgba(0,0,0,.45)); will-change: transform;
+  animation: stk-drift var(--dur) ease-in-out var(--delay) infinite alternate; transform: translate(0,0) rotate(var(--r0)); }
+.float-box .stk:hover { z-index: 20; }
+@keyframes stk-drift {
+  0%   { transform: translate(0, 0) rotate(var(--r0)); }
+  33%  { transform: translate(var(--x1), var(--y1)) rotate(var(--r1)); }
+  66%  { transform: translate(var(--x2), var(--y2)) rotate(var(--r2)); }
+  100% { transform: translate(var(--x3), var(--y3)) rotate(var(--r0)); }
+}
+@media (prefers-reduced-motion: reduce) { .float-box .stk { animation: none; } }
 .strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .strip .photo { aspect-ratio: 3 / 4; transform: rotate(-3deg); }
 .strip .photo:nth-child(2) { transform: rotate(2deg) translateY(8px); }
@@ -674,9 +724,81 @@ body.tv .row .pos { font-size: 26px; }
 .qrbox b { font: 32px/1 var(--font-display); letter-spacing: .03em; font-weight: 400; text-align: center; }
 .qrbox #qr img, .qrbox #qr canvas { width: 100% !important; max-width: 230px; height: auto !important; }
 
+/* ===== mobil stabilitás ===== */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; overflow-x: hidden; }
+@supports (overflow: clip) { html, body { overflow-x: clip; } }
+button, a, input, label, .photo, .opt, .tile { touch-action: manipulation; }
+body.lock { overflow: hidden; }
+.scrim { overscroll-behavior: contain; }
+.sheet { max-height: 88dvh; }
+.sheet { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+img { -webkit-user-drag: none; }
+
+/* ragadós fejléc: a vissza gomb mindig bal felül marad */
+.top { position: sticky; top: 0; z-index: 40; min-height: 64px;
+  margin: -12px calc(-1 * max(16px, env(safe-area-inset-left, 0px))) 14px calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+  padding: calc(env(safe-area-inset-top, 0px) + 10px) max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px));
+  background: rgba(21, 17, 29, .94); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border-bottom: 3px solid var(--c-black); }
+.backbtn { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 9px 14px 6px 10px; background: var(--c-paper); color: var(--c-black); border: var(--bd); border-radius: 4px; box-shadow: 3px 3px 0 var(--c-black); font: 22px/1 var(--font-display); letter-spacing: .04em; }
+.backbtn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--c-black); }
+.backbtn .ar { font: 900 20px/1 var(--font-body); margin-top: -3px; }
+.sheet-top { position: sticky; top: -22px; z-index: 2; margin: -22px -20px 0; padding: 12px 14px; background: var(--c-paper); border-bottom: 3px solid var(--c-black); display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.sheet-top b { font: 22px/1 var(--font-display); letter-spacing: .03em; }
+.photo.zoomable { cursor: zoom-in; }
+.photo .zoom-hint { position: absolute; right: 6px; bottom: 6px; z-index: 2; background: var(--c-black); color: var(--c-lemon); font: 800 10px/1 var(--font-body); letter-spacing: .1em; text-transform: uppercase; padding: 5px 6px 4px; border-radius: 3px; pointer-events: none; }
+.stk-grid .photo .zoom-hint { display: none; }
+.stk-grid .photo { padding: 0; }
+
+/* esküvői gyűjtés kártya */
+.wed { background: var(--c-pop); color: var(--c-black); border: 4px solid var(--c-black); border-radius: var(--r); box-shadow: 7px 7px 0 var(--c-black); padding: 14px 16px; display: grid; gap: 8px; transform: rotate(-.4deg); }
+.wed h2 { font: 34px/.95 var(--font-display); letter-spacing: .03em; color: var(--c-paper); -webkit-text-stroke: 1.5px var(--c-black); text-shadow: 3px 3px 0 var(--c-black); paint-order: stroke fill; }
+.wed p { font-weight: 700; font-size: 15px; line-height: 1.35; }
+.wed .how { background: var(--c-paper); border: 3px solid var(--c-black); border-radius: 4px; padding: 8px 10px; font-weight: 800; }
+.wed details { background: var(--c-paper); border: 3px solid var(--c-black); border-radius: 4px; padding: 8px 10px; }
+.wed summary { font: 20px/1.1 var(--font-display); letter-spacing: .03em; cursor: pointer; }
+.wed ol { list-style: none; margin: 8px 0 2px; padding: 0; display: grid; gap: 6px; }
+.wed li { display: grid; grid-template-columns: 76px 1fr; gap: 8px; font-size: 13px; font-weight: 600; line-height: 1.3; }
+.wed li b { font: 17px/1.1 var(--font-display); letter-spacing: .02em; background: var(--c-lemon); border: 2px solid var(--c-black); border-radius: 3px; text-align: center; padding: 3px 2px 1px; align-self: start; }
+.wed li strong { font-weight: 900; }
+/* mi történik (feed) */
+.act-list { display: grid; gap: 12px; }
+.act-item { background: var(--c-paper); color: var(--c-black); border: var(--bd); border-radius: var(--r); box-shadow: 5px 5px 0 var(--c-black); padding: 12px 14px; display: grid; gap: 6px; }
+.act-item .who { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.act-item .who b { font: 22px/1 var(--font-display); letter-spacing: .03em; }
+.act-item .who span { font: 20px/1 var(--font-display); background: var(--c-lime); border: 2px solid var(--c-black); border-radius: 3px; padding: 3px 6px 1px; white-space: nowrap; }
+.act-item .what { font-weight: 700; font-size: 15px; line-height: 1.3; }
+.act-item small { font: 800 11px/1 var(--font-body); letter-spacing: .1em; text-transform: uppercase; color: var(--c-muted); }
+.act-item .pf { width: 100%; max-height: 260px; object-fit: cover; border-radius: 4px; border: 3px solid var(--c-black); cursor: zoom-in; display: block; }
+.act-item.bonus { background: var(--c-lemon); }
+.qcount { font: 800 11px/1 var(--font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--c-muted); }
+
+/* buli fotók */
+.pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pgrid figure { margin: 0; position: relative; aspect-ratio: 1; border: 3px solid var(--c-black); border-radius: 4px; overflow: hidden; background: #221b2e; box-shadow: 4px 4px 0 var(--c-black); }
+.pgrid img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: zoom-in; }
+.pgrid figcaption { position: absolute; inset: auto 0 0; padding: 5px 7px 3px; font: 15px/1 var(--font-display); letter-spacing: .03em; background: var(--c-lemon); color: var(--c-black); border-top: 2px solid var(--c-black); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pgrid .del { position: absolute; top: 6px; right: 6px; width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--c-black); background: var(--c-paper); color: var(--c-black); font: 900 18px/1 var(--font-body); display: grid; place-items: center; }
+.upbig { display: grid; place-items: center; gap: 4px; text-align: center; padding: 18px; border: 4px dashed var(--c-paper); border-radius: var(--r); color: var(--c-paper); font: 26px/1 var(--font-display); letter-spacing: .03em; cursor: pointer; margin-bottom: 16px; }
+.upbig small { font: 700 13px/1.3 var(--font-body); letter-spacing: 0; color: var(--ink-dim); }
+.upbig input { display: none; }
+
+/* nagyító (lightbox) */
+.lb { position: fixed; inset: 0; z-index: 90; background: rgba(15, 13, 10, .96); display: grid; grid-template-rows: auto 1fr auto; overscroll-behavior: contain; touch-action: pan-y; animation: fadein .15s ease-out; }
+.lb-top, .lb-bot { display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: calc(env(safe-area-inset-top, 0px) + 10px) max(14px, env(safe-area-inset-right, 0px)) 10px max(14px, env(safe-area-inset-left, 0px)); }
+.lb-bot { padding: 10px max(14px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 14px) max(14px, env(safe-area-inset-left, 0px)); }
+.lb-cnt { font: 22px/1 var(--font-display); color: var(--c-lemon); letter-spacing: .04em; }
+.lb-stage { position: relative; min-height: 0; display: grid; place-items: center; padding: 0 12px; }
+.lb-stage img { max-width: 100%; max-height: 100%; object-fit: contain; border: 4px solid var(--c-black); border-radius: 6px; box-shadow: 0 0 0 3px var(--c-paper), 8px 8px 0 3px var(--c-lime); background: #15111d; user-select: none; -webkit-user-select: none; }
+.lb-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 46px; height: 46px; border-radius: 50%; border: var(--bd); background: var(--c-paper); color: var(--c-black); font: 900 24px/1 var(--font-body); display: grid; place-items: center; box-shadow: 3px 3px 0 var(--c-black); }
+.lb-nav.prev { left: 6px; } .lb-nav.next { right: 6px; }
+.lb-bot .btn { flex: 1; font-size: 22px; }
+
 @media (max-width: 380px) { .menu { grid-template-columns: 1fr; } .tile.main { grid-template-columns: 1fr; } .tile.main .big { text-align: left; } .drinks { grid-template-columns: 1fr; } }
 </style>
 
+</head>
+<body>
 <div id="app" aria-live="polite"></div>
 <div id="layer"></div>
 
@@ -720,11 +842,61 @@ function toast(msg) {
   document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
 }
 
-function photoHTML(i, cls = "") {
-  const list = C.PHOTOS || [];
-  const src = list.length ? list[((i % list.length) + list.length) % list.length] : "";
-  return `<div class="photo ${cls}"><div class="ph">Ide jön egy kép Ádámról</div>${src ? `<img src="${esc(src)}" alt="Ádám" loading="lazy" onerror="this.remove()">` : ""}</div>`;
+/* matricák: a CONFIG.STICKERS sorszámaiból */
+const STK = (C.STICKERS || []).map(Number).filter(n => n > 0);
+const stkSrc = n => `img/adam-${n}.jpg`;
+const stkAt = i => STK.length ? STK[((i % STK.length) + STK.length) % STK.length] : null;
+// i = hányadik a listában; num = konkrét matrica-sorszám (ha meg van adva, az nyer)
+function photoHTML(i, cls = "", num) {
+  const n = num != null && STK.includes(Number(num)) ? Number(num) : stkAt(i);
+  return `<div class="photo zoomable ${cls}" ${n ? `data-act="zoom" data-n="${n}" role="button" aria-label="Kép nagyban"` : ""}><div class="ph">Ide jön egy kép Ádámról</div>${n ? `<img src="${esc(stkSrc(n))}" alt="Ádám" loading="lazy" onerror="this.remove()"><span class="zoom-hint">Nagyít</span>` : ""}</div>`;
 }
+
+/* ---------- nagyító + letöltés ---------- */
+const HEADS = ["fej-1-szomoru", "fej-2-semleges", "fej-3-vidam", "fej-4-csillogo", "fej-5-szivarvany", "fej-i1-kacsint", "fej-i2-nyelv", "fej-i3-asit", "fej-i4-meglepett", "fej-i5-napszemuveg", "fej-i6-alszik", "fej-i7-puszi", "fej-i8-morcos"];
+const LB = { list: [], i: 0, el: null, blobs: new Map() };
+function lbItems() { return STK.map(n => ({ src: stkSrc(n), name: `adam-matrica-${n}.jpg` })).concat(HEADS.map(h => ({ src: `img/${h}.png`, name: `adam-${h}.png` }))); }
+function openLightbox(src, items) {
+  LB.list = items || lbItems(); LB.i = Math.max(0, LB.list.findIndex(x => x.src === src));
+  if (!LB.el) { LB.el = document.createElement("div"); LB.el.className = "lb"; LB.el.setAttribute("role", "dialog"); LB.el.setAttribute("aria-modal", "true"); document.body.appendChild(LB.el); }
+  document.body.classList.add("lock");
+  drawLightbox();
+}
+function drawLightbox() {
+  const it = LB.list[LB.i]; if (!it || !LB.el) return;
+  LB.el.innerHTML = `<div class="lb-top"><button class="backbtn" data-act="lb-close"><span class="ar">←</span> Vissza</button><span class="lb-cnt">${LB.i + 1} / ${LB.list.length}</span></div>
+    <div class="lb-stage"><img src="${esc(it.src)}" alt="Ádám, nagyban"><button class="lb-nav prev" data-act="lb-prev" aria-label="Előző">‹</button><button class="lb-nav next" data-act="lb-next" aria-label="Következő">›</button></div>
+    <div class="lb-bot"><button class="btn gold" data-act="lb-dl">Letöltöm</button></div>`;
+  prefetchBlob(it);
+}
+function closeLightbox() { if (LB.el) { LB.el.remove(); LB.el = null; } if (!$layer.innerHTML) document.body.classList.remove("lock"); }
+function lbStep(d) { if (!LB.list.length) return; LB.i = (LB.i + d + LB.list.length) % LB.list.length; drawLightbox(); }
+function prefetchBlob(it) { if (!LB.blobs.has(it.src)) LB.blobs.set(it.src, fetch(it.src).then(r => r.ok ? r.blob() : null).catch(() => null)); return LB.blobs.get(it.src); }
+async function downloadCurrent() {
+  const it = LB.list[LB.i]; if (!it) return;
+  const blob = await prefetchBlob(it);
+  if (!blob) { window.open(it.src, "_blank"); return; }
+  const file = new File([blob], it.name, { type: blob.type || "image/jpeg" });
+  const mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if (mobile && navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file] }); return; } catch (e) { if (e && e.name === "AbortError") return; }
+  }
+  const u = URL.createObjectURL(blob), a = document.createElement("a");
+  a.href = u; a.download = it.name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(u), 5000);
+  toast("Letöltve");
+}
+// lapozás húzással
+(() => {
+  let x0 = null, y0 = 0;
+  document.addEventListener("touchstart", e => { if (LB.el && LB.el.contains(e.target)) { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; } }, { passive: true });
+  document.addEventListener("touchend", e => {
+    if (x0 == null || !LB.el) { x0 = null; return; }
+    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; x0 = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.3) lbStep(dx < 0 ? 1 : -1);
+  }, { passive: true });
+  document.addEventListener("keydown", e => { if (!LB.el) return; if (e.key === "Escape") closeLightbox(); if (e.key === "ArrowRight") lbStep(1); if (e.key === "ArrowLeft") lbStep(-1); });
+})();
 
 /* képtömörítés feltöltés előtt */
 function compressImage(file, maxSide = 1280, quality = 0.75) {
@@ -788,8 +960,13 @@ const DemoStore = (() => {
       const m = new Map(db.players.map(p => [p.id, { player_id: p.id, name: p.name, points: 0, quests: 0, beers: 0, wines: 0, longdrinks: 0, shots: 0, waters: 0 }]));
       db.completions.forEach(c => { const r = m.get(c.player_id); if (r) { r.points += Number(c.points); if (String(c.quest_id).startsWith("q")) r.quests++; } });
       db.drinks.forEach(d => { const r = m.get(d.player_id); if (r && DRINK_COLS[d.kind]) r[DRINK_COLS[d.kind]]++; });
-      return later([...m.values()].filter(r => r.points > 0).sort((a, b) => b.points - a.points || b.quests - a.quests).slice(0, n));
+      return later([...m.values()].slice(0, n));
     },
+    async addPartyPhoto(me, blob) { const url = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(blob); }); const ph = { id: Date.now() + Math.random(), player_id: me.id, player_name: me.name, url, created_at: new Date().toISOString() }; (db.photos = db.photos || []).push(ph); save(); return later(ph); },
+    async partyPhotos(n = 200) { return later((db.photos || []).slice().sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, n)); },
+    async deletePartyPhoto(id) { db.photos = (db.photos || []).filter(x => x.id !== id); save(); return later(true); },
+    async activity(n = 60) { return later(db.completions.slice().sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, n)); },
+    async questCounts() { return later(db.completions.map(c => ({ quest_id: c.quest_id }))); },
     async feed(n = 12) { return later(db.completions.slice().sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, n)); },
     async photos(n = 6) { return later(db.completions.filter(c => c.photo_url).sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, n)); },
     async getScore(id, kind) { return later(db.scores.find(s => s.player_id === id && s.kind === kind) || null); },
@@ -830,7 +1007,17 @@ const SupaStore = (() => {
       return ok(await sb.from("completions").insert({ player_id: me.id, player_name: me.name, quest_id: q.id, points: q.pts, photo_url }).select().single());
     },
     async uncomplete(me, qid) { ok(await sb.from("completions").delete().eq("player_id", me.id).eq("quest_id", qid)); return true; },
-    async leaderboard(n = 50) { return ok(await sb.from("leaderboard").select("*").gt("points", 0).order("points", { ascending: false }).order("quests", { ascending: false }).limit(n)); },
+    async leaderboard(n = 1000) { return ok(await sb.from("leaderboard").select("*").limit(n)); },
+    async addPartyPhoto(me, blob) {
+      const path = `party/${me.id}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}.jpg`;
+      ok(await sb.storage.from("proofs").upload(path, blob, { contentType: "image/jpeg", upsert: false }));
+      const url = sb.storage.from("proofs").getPublicUrl(path).data.publicUrl;
+      return ok(await sb.from("photos").insert({ player_id: me.id, player_name: me.name, url }).select().single());
+    },
+    async partyPhotos(n = 200) { return ok(await sb.from("photos").select("id,player_id,player_name,url,created_at").order("created_at", { ascending: false }).limit(n)); },
+    async deletePartyPhoto(id) { ok(await sb.from("photos").delete().eq("id", id)); return true; },
+    async activity(n = 60) { return ok(await sb.from("completions").select("player_name,quest_id,points,photo_url,created_at").order("created_at", { ascending: false }).limit(n)); },
+    async questCounts() { return ok(await sb.from("completions").select("quest_id").like("quest_id", "q%").limit(5000)); },
     async feed(n = 12) { return ok(await sb.from("completions").select("player_name,quest_id,points,photo_url,created_at").order("created_at", { ascending: false }).limit(n)); },
     async photos(n = 6) { return ok(await sb.from("completions").select("player_name,quest_id,photo_url,created_at").not("photo_url", "is", null).order("created_at", { ascending: false }).limit(n)); },
     async getScore(id, kind) { return ok(await sb.from("scores").select("*").eq("player_id", id).eq("kind", kind).maybeSingle()); },
@@ -850,9 +1037,24 @@ const S = {
   board: [],
   view: "home",
   questCat: "konnyu",
-  busy: false
+  busy: false,
+  pyrPts: 0,                          // kvízpiramis legjobb eredménye pontban (beleszámít az összesbe)
+  homePhoto: Math.floor(Math.random() * 99)
 };
-const myPoints = () => [...S.done.values()].reduce((s, c) => s + Number(c.points), 0);
+const myPoints = () => [...S.done.values()].reduce((s, c) => s + Number(c.points), 0) + Number(S.pyrPts || 0);
+async function refreshPyr() {
+  if (!S.me) return;
+  try { const b = await store.getScore(S.me.id, "pyramid"); S.pyrPts = b ? Number(b.score) / 2 : 0; } catch (e) { console.warn(e); }
+}
+// Ranglista: side questek + bónuszok (leaderboard nézet) + a kvízpiramis legjobb eredménye
+async function getBoard(n = 50) {
+  const [rows, pyr] = await Promise.all([store.leaderboard(1000), store.scoreBoard("pyramid", 1000).catch(() => [])]);
+  const pm = new Map((pyr || []).map(s => [s.player_id, Number(s.score) / 2]));
+  return rows.map(r => ({ ...r, points: Number(r.points || 0) + (pm.get(r.player_id) || 0) }))
+    .filter(r => r.points > 0)
+    .sort((a, b) => b.points - a.points || Number(b.quests || 0) - Number(a.quests || 0) || String(a.name).localeCompare(String(b.name), "hu"))
+    .slice(0, n);
+}
 function myRank() { const i = S.board.findIndex(r => r.player_id === S.me?.id); return i >= 0 ? i + 1 : null; }
 
 async function refreshMine() {
@@ -865,9 +1067,10 @@ async function refreshDrinks() {
 }
 const drinkN = k => S.drinks.filter(d => d.kind === k).length;
 async function refreshBoard() {
-  const [b, ad] = await Promise.all([store.leaderboard(50).catch(e => { console.warn(e); return null; }), adamStats().catch(() => null)]);
+  const [b, ad] = await Promise.all([getBoard(50).catch(e => { console.warn(e); return null; }), adamStats().catch(() => null), refreshPyr()]);
   if (b) S.board = b;
   if (ad) S.adamAll = ad.perfect.length;
+  patchHome();
 }
 
 /* ---------- router ---------- */
@@ -875,9 +1078,29 @@ function go(view, opts = {}) { S.view = view; Object.assign(S, opts); render(); 
 
 function header(back = true) {
   return `<header class="top">
-    ${back ? `<button class="back" data-go="home" aria-label="Vissza a főoldalra">← Főoldal</button>` : `<div class="brand">ÁDÁM <small>NOV 7 · PACSI</small></div>`}
-    <div style="display:flex;gap:8px;align-items:center">${LIVE ? "" : `<span class="demo-flag" title="Nincs bekötve a közös adatbázis">Demó</span>`}<span class="pill-pts">${fmtPts(myPoints())} pont</span></div>
+    ${back ? `<button class="backbtn" data-go="home" aria-label="Vissza a főoldalra"><span class="ar">←</span> Vissza</button>` : `<div class="brand">ÁDÁM <small>NOV 7 · PACSI</small></div>`}
+    <div style="display:flex;gap:8px;align-items:center">${LIVE ? "" : `<span class="demo-flag" title="Nincs bekötve a közös adatbázis">Demó</span>`}<span class="pill-pts" id="ptspill">${fmtPts(myPoints())} pont</span></div>
   </header>`;
+}
+
+
+/* lebegő matricák a nyitóképen (img/stk/stk-1..17.webp) */
+let FLOAT_HTML = null;
+function floatBoxHTML(pre) {
+  if (FLOAT_HTML) return FLOAT_HTML;
+  const N = Math.min(STK.length, 30), rnd = (a, b) => a + Math.random() * (b - a);
+  // 5×4 rács, mindenki a saját cellájában lebeg, így mind látszik; a 3 üres cella véletlenszerű
+  const cells = [...Array(30).keys()].sort(() => Math.random() - .5).slice(0, N);
+  let h = "";
+  cells.forEach((c, k) => {
+    const col = c % 6, row = Math.floor(c / 6);
+    const x = col * 16.6 + rnd(-2, 3), y = row * 20 + rnd(-2, 3), w = rnd(17, 20);
+    const v = `--w:${w.toFixed(1)}%;--x:${x.toFixed(1)}%;--y:${y.toFixed(1)}%;--r0:${rnd(-16, 16).toFixed(1)}deg;--r1:${rnd(-18, 18).toFixed(1)}deg;--r2:${rnd(-18, 18).toFixed(1)}deg;` +
+      `--x1:${rnd(-45, 45).toFixed(0)}%;--y1:${rnd(-35, 35).toFixed(0)}%;--x2:${rnd(-45, 45).toFixed(0)}%;--y2:${rnd(-35, 35).toFixed(0)}%;--x3:${rnd(-45, 45).toFixed(0)}%;--y3:${rnd(-35, 35).toFixed(0)}%;` +
+      `--dur:${rnd(5, 9).toFixed(1)}s;--delay:-${rnd(0, 9).toFixed(1)}s;z-index:${Math.round(rnd(1, 9))}`;
+    h += `<img class="stk" src="${pre}stk/stk-${STK[k]}.webp" alt="" loading="lazy" style="${v}" onerror="this.remove()">`;
+  });
+  return (FLOAT_HTML = `<div class="float-box">${h}</div>`);
 }
 
 function render() {
@@ -888,25 +1111,29 @@ function render() {
   if (v === "adamquiz") return renderAdamRead();
   if (v === "topics") return renderTopics();
   if (v === "pyramid") return renderPyramid();
+  if (v === "activity") return renderActivity();
+  if (v === "photos") return renderPhotos();
+  if (v === "wedding") return renderWedding();
   renderHome();
 }
 
 /* ---------- belépés ---------- */
 let joinMode = "new";
 function renderJoin(err = "") {
+  const keep = { nm: document.getElementById("nm")?.value || "", pin: document.getElementById("pin")?.value || "" };
   const urlCode = new URLSearchParams(location.search).get("kod") || "";
   const needCode = !!C.PARTY_CODE && urlCode.toUpperCase() !== C.PARTY_CODE.toUpperCase();
   const resume = joinMode === "resume";
   $app.innerHTML = `
     <header class="top"><div class="brand">ÁDÁM <small>NOV 7 · PACSI</small></div>${LIVE ? "" : `<span class="demo-flag">Demó</span>`}</header>
     <section class="hero">
-      <div class="strip">${photoHTML(0)}${photoHTML(1)}${photoHTML(2)}</div>
+      ${floatBoxHTML("img/")}
       <h1>${resume ? "Vissza&shy;lépés" : `Szülinapi<span>side questek</span>`}</h1>
       ${resume ? `<p style="color:var(--ink-dim)">Írd be ugyanazt a nevet, amivel beléptél, és a 4 jegyű belépőkódodat. A pontjaid ott várnak.</p>`
                : `<div class="meta-row"><span>2026. nov. 7.</span><span>Pacsi, alsó szint</span><span>19:00-tól</span></div>`}
       <form id="join" class="hero" style="gap:14px" autocomplete="off">
-        <div class="field"><label for="nm">${resume ? "A neved" : "Hogy hívnak?"}</label><input id="nm" name="nm" maxlength="24" placeholder="Pl. Kovács Márk" required></div>
-        ${resume ? `<div class="field"><label for="pin">Belépőkód</label><input id="pin" name="pin" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="4 számjegy" required></div>` : ""}
+        <div class="field"><label for="nm">${resume ? "A neved" : "Hogy hívnak?"}</label><input id="nm" name="nm" maxlength="24" placeholder="Pl. Kovács Márk" value="${esc(keep.nm)}" autocapitalize="words" enterkeyhint="go" required></div>
+        ${resume ? `<div class="field"><label for="pin">Belépőkód</label><input id="pin" name="pin" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="4 számjegy" value="${esc(keep.pin)}" required></div>` : ""}
         ${needCode && !resume ? `<div class="field"><label for="code">Buli-kód</label><input id="code" name="code" maxlength="20" placeholder="A meghívóban vagy a falon"></div>` : ""}
         ${err ? `<p class="err">${esc(err)}</p>` : ""}
         <button class="btn block" type="submit" id="joinbtn">${resume ? "Folytatom" : "Beszállok"}</button>
@@ -955,12 +1182,25 @@ function showCode(first) {
 }
 
 /* ---------- főoldal ---------- */
-function renderHome() {
-  const rank = myRank(), pts = myPoints();
+function homeBoardHTML() {
   const top = S.board.slice(0, 5);
   const meIn = top.some(r => r.player_id === S.me.id);
   const mine = S.board.find(r => r.player_id === S.me.id);
-  const doneQ = K.quests.filter(q => S.done.has(q.id)).length;
+  return top.length ? `<div class="board">${top.map((r, i) => boardRow(r, i)).join("")}${!meIn && mine && Number(mine.points) > 0 ? boardRow(mine, S.board.indexOf(mine)) : ""}</div>` : `<div class="empty">Még senkinek nincs pontja. Legyél te az első.</div>`;
+}
+function mainBigHTML() { const rank = myRank(); return `${fmtPts(myPoints())}<small>pont${rank ? " · " + rank + ". hely" : ""}</small>`; }
+function mainKText() { const doneQ = K.quests.filter(q => S.done.has(q.id)).length; return doneQ ? doneQ + " kész / " + K.quests.length : "Kezdd itt"; }
+function adamKText() { return `Hosszú olvasmány · +${K.adamDoc.readPts} pont${S.adamAll != null ? ` · ${S.adamAll} vendég végigolvasta` : ""}`; }
+// Csak a változó részeket frissíti, így a főoldal nem ugrik és a görgetés is megmarad
+function setHTML(id, html) { const el = document.getElementById(id); if (el && el.innerHTML !== html) el.innerHTML = html; }
+function patchHome() {
+  if (!S.me) return;
+  setHTML("ptspill", `${fmtPts(myPoints())} pont`);
+  if (S.view !== "home" || !document.getElementById("homeboard")) return;
+  setHTML("mainbig", mainBigHTML()); setHTML("maink", esc(mainKText())); setHTML("adamk", esc(adamKText()));
+  setHTML("homeboard", homeBoardHTML());
+}
+function renderHome() {
   $app.innerHTML = `${header(false)}
     <section class="hello">
       <h1>Szia, ${esc(firstName(S.me.name))}!</h1>
@@ -968,23 +1208,27 @@ function renderHome() {
     </section>
     <nav class="menu">
       <button class="tile main" data-go="quests">
-        <div style="display:grid;gap:8px"><span class="k">${doneQ ? doneQ + " kész / " + K.quests.length : "Kezdd itt"}</span><h2>Side questek</h2><p>Könnyű, közepes, nehéz vagy ismerkedős. Te választasz.</p></div>
-        <div class="big">${fmtPts(pts)}<small>pont${rank ? " · " + rank + ". hely" : ""}</small></div>
+        <div style="display:grid;gap:8px"><span class="k" id="maink">${esc(mainKText())}</span><h2>Side questek</h2><p>Könnyű, közepes, nehéz vagy ismerkedős. Te választasz.</p></div>
+        <div class="big" id="mainbig">${mainBigHTML()}</div>
       </button>
       ${piaHTML()}
       <button class="tile" data-go="pyramid"><span class="k">${K.pyramid.length + 1} szint</span><div style="display:grid;gap:6px"><h2>Kvíz&shy;piramis</h2><p>Egyre nehezebb. Egy hiba, és lezuhansz.</p></div></button>
       <button class="tile" data-go="topics"><span class="k">Jégtörők · viták</span><div style="display:grid;gap:6px"><h2>Téma&shy;dobó</h2><p>Nem tudod, mit kérdezz? Húzz egy kérdést.</p></div></button>
+      <button class="tile" data-go="photos" style="grid-column:1/-1;min-height:0;background:var(--c-lime)"><span class="k">Töltsd fel, amit lőttél</span><div style="display:grid;gap:6px"><h2>Buli fotók</h2><p>Közös album: a képeidet mindenki látja, és a kivetítőn is körbemennek.</p></div></button>
+      <button class="tile" data-go="activity" style="grid-column:1/-1;min-height:0;background:#dff6ff"><span class="k">Élőben, fotókkal</span><div style="display:grid;gap:6px"><h2>Ki mit csinált?</h2><p>Itt látod, ki melyik side questet teljesítette, és a bizonyítékfotókat is.</p></div></button>
+      <button class="tile" data-go="wedding" style="grid-column:1/-1;min-height:0;background:var(--c-pop)"><span class="k" style="color:var(--c-black)">Mire megy a pénz a terminálnál?</span><div style="display:grid;gap:6px"><h2>Gyűjtés az esküvőre</h2><p style="color:var(--c-black)">Önkéntes, vicces gyűjtés. Mérföldkövenként Ádámnak élőben teljesítenie kell valamit.</p></div></button>
     </nav>
     <section class="section">
       <h3>Ranglista</h3>
-      ${top.length ? `<div class="board">${top.map((r, i) => boardRow(r, i)).join("")}${!meIn && mine && Number(mine.points) > 0 ? boardRow(mine, S.board.indexOf(mine)) : ""}</div>` : `<div class="empty">Még senkinek nincs pontja. Legyél te az első.</div>`}
+      <div id="homeboard">${homeBoardHTML()}</div>
     </section>
     <nav class="menu" style="margin-top:26px">
-      <button class="tile" data-go="adamquiz" style="grid-column:1/-1;min-height:0"><span class="k">Hosszú olvasmány · +${K.adamDoc.readPts} pont${S.adamAll != null ? ` · ${S.adamAll} vendég végigolvasta` : ""}</span><div style="display:grid;gap:6px"><h2>Ki ez az Ádám?</h2><p>A szülinapos hivatalos adatlapja. Végig kell olvasni.</p></div></button>
+      <button class="tile" data-go="adamquiz" style="grid-column:1/-1;min-height:0"><span class="k" id="adamk">${esc(adamKText())}</span><div style="display:grid;gap:6px"><h2>Ki ez az Ádám?</h2><p>A szülinapos hivatalos adatlapja. Végig kell olvasni.</p></div></button>
     </nav>
     <section class="section">
       <h3>A szülinapos, véletlenszerűen</h3>
-      ${photoHTML(Math.floor(Math.random() * 99), "wide")}
+      <div id="homephoto">${photoHTML(S.homePhoto, "tall")}</div>
+      <div class="btn-row" style="margin-top:12px"><button class="btn ghost" data-act="rephoto">Másikat!</button><button class="btn" data-act="gallery">Összes matrica</button></div>
     </section>
     <p style="margin-top:28px;text-align:center;font-size:13px;color:var(--ink-faint)">${esc(S.me.name)} néven vagy bent.${S.me.code ? ` <button class="back" data-act="showcode" style="display:inline;padding:0;font:700 13px var(--font-body);text-decoration:underline">Belépőkód: ${esc(S.me.code)}</button> ·` : ""} <button class="back" data-act="logout" style="display:inline;padding:0;font:700 13px var(--font-body);text-decoration:underline">Nem te vagy?</button></p>`;
 }
@@ -1011,9 +1255,19 @@ function renderQuests() {
     <div class="lv-head" style="--c:var(${cat.color})"><h2>${esc(cat.name)}</h2><p>${esc(cat.short)}</p></div>
     <div class="quests">${list.map(q => ticketHTML(q, cat)).join("") || `<div class="empty">Ide még nem került quest.</div>`}</div>
     <p style="margin-top:22px;font-size:13px;color:var(--ink-faint);text-align:center">Becsületkassza: azt pipáld ki, amit tényleg megcsináltál.</p>`;
+  refreshQuestCounts();
+}
+let QCOUNT = new Map();
+async function refreshQuestCounts() {
+  try {
+    const rows = await store.questCounts(); const m = new Map();
+    rows.forEach(r => m.set(r.quest_id, (m.get(r.quest_id) || 0) + 1)); QCOUNT = m;
+    document.querySelectorAll("[data-qc]").forEach(e => { const n = QCOUNT.get(e.dataset.qc) || 0; e.textContent = n ? `${n} vendég megcsinálta` : "Még senki nem csinálta meg"; });
+  } catch (e) { console.warn(e); }
 }
 function ticketHTML(q, L) {
   const d = S.done.get(q.id);
+  const qn = QCOUNT.get(q.id) || 0;
   const riddle = q.riddle ? `<div class="riddle">„${esc(pick(K.riddles))}”</div>` : "";
   return `<article class="ticket ${d ? "done" : ""}" style="--c:var(${L.color})">
     <div class="body">
@@ -1021,6 +1275,7 @@ function ticketHTML(q, L) {
       ${q.note ? `<p class="note">${esc(q.note)}</p>` : ""}
       ${riddle}
       ${q.photo ? `<div class="tags"><span class="tag cam">Fotó kötelező</span></div>` : ""}
+      <span class="qcount" data-qc="${q.id}">${qn ? `${qn} vendég megcsinálta` : "Még senki nem csinálta meg"}</span>
       ${d && d.photo_url ? `<img class="proof" src="${esc(d.photo_url)}" alt="Bizonyíték">` : ""}
     </div>
     <div class="stub"><span class="p">${d ? "✓" : q.pts}</span><span class="u">${d ? "+" + q.pts + " p" : "pont"}</span></div>
@@ -1032,9 +1287,10 @@ function ticketHTML(q, L) {
 
 function openSheet(html, onMount) {
   $layer.innerHTML = `<div class="scrim" data-act="close-scrim"><div class="sheet" role="dialog" aria-modal="true">${html}</div></div>`;
+  document.body.classList.add("lock");
   onMount && onMount($layer.querySelector(".sheet"));
 }
-function closeSheet() { $layer.innerHTML = ""; }
+function closeSheet() { $layer.innerHTML = ""; if (!LB.el) document.body.classList.remove("lock"); }
 
 function confirmQuest(q) {
   let blob = null;
@@ -1072,8 +1328,85 @@ function confirmQuest(q) {
   });
 }
 
+/* ---------- Ki mit csinált? ---------- */
+let ACT = null;
+async function renderActivity() {
+  if (S.view !== "activity") return;
+  if (!ACT) $app.innerHTML = `${header()}<p class="empty">Betöltés…</p>`;
+  const rows = await store.activity(80).catch(() => null);
+  if (S.view !== "activity") return;
+  if (rows) ACT = rows;
+  const list = ACT || [];
+  const pics = list.filter(c => c.photo_url).map(c => ({ src: c.photo_url, name: `bizonyitek-${String(c.player_name).replace(/\W+/g, "-")}.jpg` }));
+  const items = list.map(c => {
+    const q = questById(c.quest_id), bonus = q && q.name;
+    return `<article class="act-item ${bonus ? "bonus" : ""}">
+      <div class="who"><b>${esc(c.player_name)}</b><span>+${fmtPts(Number(c.points))} p</span></div>
+      <div class="what">${esc(q ? (bonus ? q.name + " (titkos bónusz)" : q.t) : "Side quest")}</div>
+      ${c.photo_url ? `<img class="pf" src="${esc(c.photo_url)}" alt="Bizonyíték" loading="lazy" data-act="zoomproof">` : ""}
+      <small>${ago(c.created_at)}</small></article>`;
+  }).join("");
+  $app.innerHTML = `${header()}
+    <section class="lv-head" style="--c:var(--lv4)"><h2>Ki mit csinált?</h2><p>A legfrissebb teljesítések elöl. Magától frissül, a fotókra koppintva nagyban látod őket.</p></section>
+    <div class="act-list">${items || `<div class="empty">Még senki nem teljesített side questet. Legyél te az első.</div>`}</div>`;
+  ACT_PICS = pics;
+}
+let ACT_PICS = [];
+
+/* ---------- Buli fotók ---------- */
+let PH = null, PH_ERR = false, PH_UP = null;
+async function loadPhotos() {
+  try { PH = await store.partyPhotos(300); PH_ERR = false; } catch (e) { console.warn(e); if (!PH) PH_ERR = true; }
+}
+async function renderPhotos(fetch = true) {
+  if (S.view !== "photos") return;
+  if (!PH && !PH_ERR) $app.innerHTML = `${header()}<p class="empty">Betöltés…</p>`;
+  if (fetch) await loadPhotos();
+  if (S.view !== "photos") return;
+  const list = PH || [];
+  $app.innerHTML = `${header()}
+    <section class="lv-head" style="--c:var(--lv1)"><h2>Buli fotók</h2><p>Egyszerre többet is kiválaszthatsz. A saját képeidet az × gombbal törölheted.</p></section>
+    ${PH_ERR ? `<div class="empty">A fotóalbum még nincs bekapcsolva. Szólj Ádámnak.</div>` : `
+    <label class="upbig">${PH_UP ? esc(PH_UP) : "+ Képek feltöltése"}<small>${PH_UP ? "Ne zárd be az appot, amíg kész nincs." : "Fotózz, vagy válassz a galériádból"}</small>
+      <input type="file" id="pfiles" accept="image/*" multiple ${PH_UP ? "disabled" : ""}></label>
+    ${list.length ? `<div class="pgrid">${list.map(ph => `<figure><img src="${esc(ph.url)}" alt="Buli fotó" loading="lazy" data-act="zoomparty">${ph.player_id === S.me.id ? `<button class="del" data-act="delphoto" data-id="${ph.id}" aria-label="Képem törlése">×</button>` : ""}<figcaption>${esc(ph.player_name)} · ${ago(ph.created_at)}</figcaption></figure>`).join("")}</div>`
+      : `<div class="empty">Még nincs kép. Legyél te az első.</div>`}`}`;
+  const inp = document.getElementById("pfiles");
+  if (inp) inp.addEventListener("change", () => uploadParty([...inp.files]));
+}
+async function uploadParty(files) {
+  if (!files.length || PH_UP) return;
+  let ok = 0, bad = 0;
+  for (let i = 0; i < files.length; i++) {
+    PH_UP = `Feltöltés: ${i + 1} / ${files.length}`; if (S.view === "photos") renderPhotos(false);
+    try { const blob = await compressImage(files[i], 1600, 0.8); const ph = await store.addPartyPhoto(S.me, blob); (PH = PH || []).unshift(ph); ok++; }
+    catch (e) { console.warn(e); bad++; }
+  }
+  PH_UP = null;
+  toast(bad ? `${ok} kép fent, ${bad} nem sikerült` : `${ok} kép feltöltve!`);
+  if (S.view === "photos") renderPhotos(false);
+}
+const partyItems = () => (PH || []).map(ph => ({ src: ph.url, name: `buli-${String(ph.player_name).replace(/\W+/g, "-")}-${ph.id}.jpg` }));
+
+/* ---------- Gyűjtés az esküvőre ---------- */
+function renderWedding() {
+  const W = K.wedding;
+  $app.innerHTML = `${header()}
+    <section class="wed">
+      <h2>${esc(W.title)}</h2>
+      <p>${esc(W.lead)}</p>
+      <p class="how">${esc(W.how)}</p>
+      <p>${esc(W.more)}</p>
+      <details open><summary>Mérföldkövek (${W.milestones.length})</summary>
+        <ol>${W.milestones.map(([a, n, t]) => `<li><b>${a >= 1000000 ? "1 M" : a.toLocaleString("hu-HU")}</b><span><strong>${esc(n)}</strong> · ${esc(t)}</span></li>`).join("")}</ol>
+      </details>
+    </section>`;
+}
+
 /* ---------- Pia-számláló (főoldalon) ---------- */
-let drinkBusy = false;
+let drinkBusy = false, drinkQ = Promise.resolve();
+// gyors egymás utáni koppintások ne vesszenek el: sorba állítjuk őket
+function queueDrink(fn) { drinkQ = drinkQ.then(fn).catch(console.warn); }
 function piaHTML() {
   const alc = S.drinks.filter(d => d.kind !== "viz").length;
   const got = (K.bonuses || []).filter(b => S.done.has(b.id) && K.drinks.some(d => d.k === b.kind));
@@ -1090,8 +1423,9 @@ function piaHTML() {
   </section>`;
 }
 function refreshPia(flashKind) {
-  if (S.view !== "home" || !document.getElementById("pia")) return;
-  renderHome();
+  const el = document.getElementById("pia");
+  if (S.view !== "home" || !el) return;
+  el.outerHTML = piaHTML(); patchHome();
   if (flashKind) { const r = document.querySelector(`[data-row="${flashKind}"]`); if (r) r.classList.add("flash"); }
 }
 async function addDrink(kind) {
@@ -1135,7 +1469,7 @@ async function removeDrink(kind) {
 let aq = null;
 async function adamStats() {
   const rows = await store.scoreBoard("adam", 1000).catch(() => []);
-  const perfect = rows.filter(r => Number(r.time_ms) > 0 && Number(r.score) >= Number(r.time_ms)); // végigolvasók
+  const perfect = rows.filter(r => Number(r.time_ms) > 0 && Number(r.score) >= Number(r.time_ms));
   return { total: rows.length, perfect };
 }
 function adamClubHTML(st) {
@@ -1146,10 +1480,11 @@ function adamClubHTML(st) {
 }
 let readStart = 0, readTick = null;
 async function renderAdamRead() {
+  if (S.view !== "adamquiz") return;
   const D = K.adamDoc;
   if (!readStart) readStart = Date.now();
   const done = S.done.has("b_olvaso");
-  const photos = (D.asciiPhotos || []).map(i => (C.PHOTOS || [])[i]).filter(Boolean);
+  const photos = (D.asciiStickers || []).filter(n => STK.includes(Number(n))).map(n => stkSrc(n));
   $app.innerHTML = `${header()}<article class="doc">
     <header class="doc-head"><span class="k">${esc(D.subtitle)}</span><h1>${esc(D.title)}</h1><p>${esc(D.lead)}</p></header>
     ${D.sections.map(sec => `<section class="doc-sec"><h2>${esc(sec.h)}</h2><dl>${sec.rows.map(([k, v]) => `<div class="r"><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl></section>`).join("")}
@@ -1191,7 +1526,7 @@ async function claimRead() {
   } finally { S.busy = false; if (S.view === "adamquiz") { renderAdamRead(); const el = document.getElementById("readEnd"); if (el) el.scrollIntoView({ block: "center" }); } }
 }
 // ASCII: a fotót vászonra rajzolja, és fényesség szerint karakterekre cseréli
-const ASCII_RAMP = " .,:;-=+*#%@";
+const ASCII_RAMP = " .:-=+*#%@";
 const ASCII_FALLBACK = [
 "        .-''''''''-.        ",
 "      .'   .----.   '.      ",
@@ -1209,19 +1544,24 @@ const ASCII_FALLBACK = [
 function asciiFromImage(src, pre) {
   const img = new Image();
   img.onload = () => {
-    const cols = 64, ratio = 0.5;
-    const rows = Math.max(1, Math.round(cols * (img.height / img.width) * ratio));
+    // a matrica szélén a fehér keret és a sötét háttér van: a középső részt vágjuk ki
+    const sx = img.width * 0.08, sy = img.height * 0.04, sw = img.width * 0.84, sh = img.height * 0.80;
+    const cols = 56, ratio = 0.5;
+    const rows = Math.max(1, Math.round(cols * (sh / sw) * ratio));
     const cv = document.createElement("canvas"); cv.width = cols; cv.height = rows;
     const ctx = cv.getContext("2d", { willReadFrequently: true });
-    ctx.drawImage(img, 0, 0, cols, rows);
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, cols, rows);
     let data;
     try { data = ctx.getImageData(0, 0, cols, rows).data; } catch (e) { return; }
-    let min = 255, max = 0; const lum = [];
-    for (let i = 0; i < data.length; i += 4) { const l = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]; lum.push(l); if (l < min) min = l; if (l > max) max = l; }
-    const span = Math.max(1, max - min);
+    const lum = [];
+    for (let i = 0; i < data.length; i += 4) lum.push(0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]);
+    // kontraszt: a legsötétebb és legvilágosabb 4%-ot levágjuk, a többit kiterítjük a teljes skálára
+    const sorted = lum.slice().sort((a, b) => a - b), N = sorted.length;
+    const lo = sorted[Math.floor(N * 0.04)], hi = sorted[Math.floor(N * 0.96)], span = Math.max(1, hi - lo);
+    const rank = v => Math.min(1, Math.max(0, (v - lo) / span));
     let out = "";
     for (let y = 0; y < rows; y++) {
-      for (let x = 0; x < cols; x++) { const t = (lum[y * cols + x] - min) / span; out += ASCII_RAMP[Math.min(ASCII_RAMP.length - 1, Math.floor(t * ASCII_RAMP.length))]; }
+      for (let x = 0; x < cols; x++) { const t = rank(lum[y * cols + x]); out += ASCII_RAMP[Math.min(ASCII_RAMP.length - 1, Math.floor(t * ASCII_RAMP.length))]; }
       out += "\n";
     }
     pre.textContent = out.trimEnd();
@@ -1291,11 +1631,13 @@ async function ageStats() {
   return { total: rows.length, right: tips.filter(a => a === right).length, older: tips.filter(a => a > right).length, younger: tips.filter(a => a < right).length };
 }
 async function renderPyramid() {
+  if (S.view !== "pyramid") return;
   if (!P) {
     $app.innerHTML = `${header()}<p class="empty">Betöltés…</p>`;
     const [best, tries, age, board] = await Promise.all([
       store.getScore(S.me.id, "pyramid").catch(() => null), store.getScore(S.me.id, "pyr_tries").catch(() => null),
       store.getScore(S.me.id, "age").catch(() => null), store.scoreBoard("pyramid", 20).catch(() => [])]);
+    if (S.view !== "pyramid" || P) return;
     const t = tries ? Number(tries.score) : (best ? 1 : 0);
     P = { phase: t ? "done" : "intro", best, tries: t, age, board, lvl: 0, qs: null, start: 0, qStart: 0, ans: null, timer: null, last: null, stats: null };
   }
@@ -1366,31 +1708,36 @@ async function startPyramid() {
 }
 async function pAnswer(k) {
   if (!P || P.phase !== "play" || P.ans !== null) return;
+  const G = P;                         // ez a játék; ha közben kilépett, nem írunk rá más nézetre
   clearInterval(P.timer);
   const q = P.qs[P.lvl];
   P.ans = k;
   const right = k === q.c;
   if (k === -1) toast("Lejárt az idő!");
   let wait = right ? 900 : 1800;
-  if (P.lvl === 0) {
-    if (!P.age) { P.age = { score: k >= 0 ? Number(q.a[k]) : 0 }; await store.saveScore(S.me, "age", P.age.score, 0).catch(console.warn); }
-    P.stats = await ageStats(); wait = 2600;
+  if (G.lvl === 0) {
+    if (!G.age) { G.age = { score: k >= 0 ? Number(q.a[k]) : 0 }; await store.saveScore(S.me, "age", G.age.score, 0).catch(console.warn); }
+    G.stats = await ageStats(); wait = 2600;
+    if (P !== G) return;
   }
   renderPyramid();
-  const elapsed = Date.now() - P.start;
-  const reached = right ? P.lvl + 1 : P.lvl;
-  const factor = P.tries > 1 ? (K.pyramidRetryFactor ?? 0.5) : 1;
+  const elapsed = Date.now() - G.start;
+  const reached = right ? G.lvl + 1 : G.lvl;
+  const factor = G.tries > 1 ? (K.pyramidRetryFactor ?? 0.5) : 1;
   const half = Math.round(reached * factor * 2);
-  const prev = P.best ? Number(P.best.score) : -1;
+  const prev = G.best ? Number(G.best.score) : -1;
   if (half > prev || (half === prev && P.best && elapsed < Number(P.best.time_ms))) {
-    P.best = { score: half, time_ms: elapsed };
+    G.best = { score: half, time_ms: elapsed };
+    S.pyrPts = half / 2; setHTML("ptspill", `${fmtPts(myPoints())} pont`);
     await store.saveScore(S.me, "pyramid", half, elapsed).catch(console.warn);
   }
   setTimeout(async () => {
-    if (right && P.lvl + 1 < pLevels()) { P.lvl++; P.ans = null; renderPyramid(); return; }
-    P.last = { reached, time_ms: elapsed, pts: reached * factor };
-    P.board = await store.scoreBoard("pyramid", 20).catch(() => P.board);
-    P.phase = "done"; renderPyramid();
+    if (P !== G) return;
+    if (right && G.lvl + 1 < pLevels()) { G.lvl++; G.ans = null; renderPyramid(); return; }
+    G.last = { reached, time_ms: elapsed, pts: reached * factor };
+    G.board = await store.scoreBoard("pyramid", 20).catch(() => G.board);
+    if (P !== G) return;
+    G.phase = "done"; renderPyramid(); refreshBoard();
   }, wait);
 }
 
@@ -1421,22 +1768,51 @@ document.addEventListener("click", async ev => {
   if (el.dataset.go) {
     const v = el.dataset.go;
     if (v === "adamquiz") readStart = 0;
-    if (v === "pyramid") { if (P && P.timer) clearInterval(P.timer); P = null; }
-    if (v === "home") { refreshBoard().then(() => { if (S.view === "home") renderHome(); }); }
-    go(v); return;
+    if (P && P.timer) clearInterval(P.timer);
+    if (v === "pyramid" || S.view === "pyramid") P = null;
+    closeSheet();
+    go(v);
+    if (v === "home") refreshBoard();
+    return;
   }
   const a = el.dataset.act;
   if (a === "close") return closeSheet();
   if (a === "joinmode") { joinMode = joinMode === "resume" ? "new" : "resume"; renderJoin(); return; }
   if (a === "showcode") { showCode(false); return; }
-  if (a === "dplus") { addDrink(el.dataset.k); return; }
-  if (a === "dminus") { removeDrink(el.dataset.k); return; }
+  if (a === "rephoto") { let n; do { n = Math.floor(Math.random() * 99); } while (STK.length > 1 && stkAt(n) === stkAt(S.homePhoto)); S.homePhoto = n; setHTML("homephoto", photoHTML(n, "tall")); return; }
+  if (a === "zoom") { const img = el.querySelector("img"); if (img) openLightbox(img.getAttribute("src")); return; }
+  if (a === "lb-close") { closeLightbox(); return; }
+  if (a === "zoomparty") { openLightbox(el.getAttribute("src"), partyItems()); return; }
+  if (a === "delphoto") {
+    openSheet(`<h2>Törlöd a képet?</h2><p>Eltűnik az albumból és a kivetítőről is.</p><div class="row-btns"><button class="btn ghost" data-act="close">Mégse</button><button class="btn" data-act="delphoto-yes" data-id="${esc(el.dataset.id)}">Törlöm</button></div>`);
+    return;
+  }
+  if (a === "delphoto-yes") {
+    const id = el.dataset.id;
+    try { await store.deletePartyPhoto(isNaN(id) ? id : Number(id)); PH = (PH || []).filter(x => String(x.id) !== String(id)); closeSheet(); toast("Törölve."); renderPhotos(false); }
+    catch (e) { toast("Nem sikerült. Próbáld újra."); }
+    return;
+  }
+  if (a === "zoomproof") { openLightbox(el.getAttribute("src"), ACT_PICS); return; }
+  if (a === "lb-prev") { lbStep(-1); return; }
+  if (a === "lb-next") { lbStep(1); return; }
+  if (a === "lb-dl") { downloadCurrent(); return; }
+  if (a === "gallery") {
+    openSheet(`<div class="sheet-top"><button class="backbtn" data-act="close"><span class="ar">←</span> Vissza</button><b>${STK.length} matrica</b></div>
+      <h2>Ádám, matricában</h2><p>${STK.length} matrica + ${HEADS.length} fej a kivetítőről. Koppints egyre: nagyban látod, és le is töltheted.</p>
+      <div class="stk-grid">${STK.map(n => photoHTML(0, "", n)).join("")}</div>
+      <div class="stk-grid">${HEADS.map(h => `<div class="photo sq zoomable" data-act="zoom" role="button" aria-label="Kép nagyban"><img src="img/${h}.png" alt="Ádám feje" loading="lazy" onerror="this.parentNode.remove()"></div>`).join("")}</div>
+      <button class="btn block" data-act="close">Bezár</button>`);
+    return;
+  }
+  if (a === "dplus") { queueDrink(() => addDrink(el.dataset.k)); return; }
+  if (a === "dminus") { queueDrink(() => removeDrink(el.dataset.k)); return; }
   if (a === "logout") {
     openSheet(`<h2>Kilépsz?</h2><p>A pontjaid megmaradnak ${esc(S.me.name)} néven.${S.me.code ? ` Visszalépni a neveddel és a <b style="color:var(--ink)">${esc(S.me.code)}</b> kóddal tudsz.` : ""}</p>
       <div class="row-btns"><button class="btn ghost" data-act="close">Maradok</button><button class="btn" data-act="logout-yes">Kilépek</button></div>`);
     return;
   }
-  if (a === "logout-yes") { closeSheet(); ls.del("bp_me"); S.me = null; S.done = new Map(); S.drinks = []; joinMode = "new"; render(); return; }
+  if (a === "logout-yes") { closeSheet(); ls.del("bp_me"); S.me = null; S.done = new Map(); S.drinks = []; S.pyrPts = 0; S.board = []; joinMode = "new"; render(); return; }
   if (a === "cattab") { S.questCat = el.dataset.c; renderQuests(); return; }
   if (a === "done") { const q = questById(el.dataset.q); if (q) confirmQuest(q); return; }
   if (a === "undo") {
@@ -1471,12 +1847,12 @@ async function renderTV() {
     <div class="tvtitle"><h1>ÁDÁM <span>SIDE QUESTEK</span></h1><div class="meta-row"><span>2026. nov. 7.</span><span>Pacsi</span><span id="tvq">– quest</span><span id="tvd">– ital</span><span id="tva">– kor-tipp</span><span id="tvall">– végigolvasta</span>${LIVE ? "" : "<span>Demó</span>"}</div></div>
     <div class="tvcol"><h3>Ranglista</h3><div class="board" id="tvboard"></div></div>
     <div class="tvcol"><h3>Kvízpiramis csúcsai</h3><div class="board" id="tvpyr"></div><h3 style="margin-top:10px">Most történt</h3><div class="feed" id="tvfeed"></div></div>
-    <div class="tvcol"><div class="qrbox"><b>Szállj be te is</b><div id="qr"></div></div><h3>Bizonyítékok</h3><div class="wall" id="tvwall"></div></div>
+    <div class="tvcol"><div class="qrbox"><b>Szállj be te is</b><div id="qr"></div></div><h3>Buli fotók</h3><div class="wall" id="tvwall"></div></div>
   </div>`;
   try { if (window.QRCode) new QRCode(document.getElementById("qr"), { text: C.APP_URL || (location.origin + location.pathname), width: 220, height: 220, colorDark: "#0f0d0a", colorLight: "#fffbe8" }); } catch (e) {}
   const tick = async () => {
     try {
-      const [board, pyr, feed, pics, qn, dn] = await Promise.all([store.leaderboard(10), store.scoreBoard("pyramid", 5), store.feed(6), store.photos(4), store.questCount().catch(() => null), store.drinkCount().catch(() => null)]);
+      const [board, pyr, feed, pics, qn, dn] = await Promise.all([getBoard(10), store.scoreBoard("pyramid", 5), store.feed(6), store.photos(4), store.questCount().catch(() => null), store.drinkCount().catch(() => null)]);
       if (qn !== null) document.getElementById("tvq").textContent = qn + " kész quest";
       if (dn !== null) document.getElementById("tvd").textContent = dn + " ital";
       const as = await ageStats(); if (as.total) document.getElementById("tva").textContent = `${as.older} idősebbnek · ${as.younger} fiatalabbnak gondolja`;
@@ -1484,7 +1860,10 @@ async function renderTV() {
       document.getElementById("tvboard").innerHTML = board.length ? board.map((r, i) => boardRow(r, i)).join("") : `<div class="empty">Még üres. Olvasd be a QR-kódot!</div>`;
       document.getElementById("tvpyr").innerHTML = pyr.filter(r => Number(r.score) > 0).length ? pyr.filter(r => Number(r.score) > 0).map((r, i) => boardRow({ ...r, name: r.player_name }, i, `${fmtPts(Number(r.score) / 2)} p`, true)).join("") : `<div class="empty">Még senki nem mászott.</div>`;
       document.getElementById("tvfeed").innerHTML = feed.map(c => { const q = questById(c.quest_id); return `<div><b>${esc(c.player_name)}</b> +${c.points} p · ${esc(q ? (q.name ? q.name + " (titkos bónusz)" : q.t) : "")}<small>${ago(c.created_at)}</small></div>`; }).join("") || `<div class="empty">Itt jelennek meg a teljesített questek.</div>`;
-      document.getElementById("tvwall").innerHTML = pics.map(c => `<figure><img src="${esc(c.photo_url)}" alt=""><figcaption>${esc(c.player_name)}</figcaption></figure>`).join("") || `<div class="empty" style="grid-column:1/-1">A nehéz questek fotói ide kerülnek.</div>`;
+      const party = await store.partyPhotos(4).catch(() => []);
+      const wall = pics.map(c => ({ url: c.photo_url, name: c.player_name, at: c.created_at })).concat(party.map(p => ({ url: p.url, name: p.player_name, at: p.created_at })))
+        .sort((x, y) => String(y.at).localeCompare(String(x.at))).slice(0, 4);
+      document.getElementById("tvwall").innerHTML = wall.map(c => `<figure><img src="${esc(c.url)}" alt=""><figcaption>${esc(c.name)}</figcaption></figure>`).join("") || `<div class="empty" style="grid-column:1/-1">A buli fotói és a nehéz questek képei ide kerülnek.</div>`;
     } catch (e) { console.warn(e); }
   };
   await tick(); setInterval(tick, 8000);
@@ -1503,10 +1882,14 @@ async function boot() {
   }
   try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {}
   render();
-  setInterval(() => { if (S.me && S.view === "home" && !$layer.innerHTML) refreshBoard().then(() => { if (S.view === "home" && !$layer.innerHTML) renderHome(); }); }, 20000);
+  // ranglista + pontok frissítése: csak a változó részeket írja át (nem ugrik az oldal)
+  setInterval(() => { if (S.me && !document.hidden) { refreshBoard(); if (S.view === "activity" && !LB.el) { const y = scrollY; renderActivity().then(() => scrollTo(0, y)); } if (S.view === "quests") refreshQuestCounts(); if (S.view === "photos" && !PH_UP && !LB.el && !$layer.innerHTML) { const y = scrollY; renderPhotos().then(() => scrollTo(0, y)); } } }, 15000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && S.me) { refreshMine().then(refreshBoard); } });
 }
 window.addEventListener("hashchange", () => location.reload());
 window.addEventListener("resize", () => document.querySelectorAll("pre.ascii").forEach(fitAscii));
 boot();
 })();
 </script>
+</body>
+</html>

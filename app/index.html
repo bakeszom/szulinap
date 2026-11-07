@@ -104,26 +104,86 @@ window.CONTENT = {
   ],
 
   // --- Szülinapos-kvíz. photo = a matrica sorszáma (lásd STICKERS) ---
-  adamQuiz: [
-    { q: "Mivel tölti Ádám a hétköznapjait?", photo: 1,
-      a: ["Takarítószer-nagykernél IT-zik és folyamatokat rak rendbe", "Hajóskapitány a Balatonon", "Profi pókerjátékos", "Influenszer"], c: 0,
-      info: "A Higiénia és Tisztaság Kft.-nél az IT, az adatok, a folyamatok és a marketing is nála fut össze." },
-    { q: "Mi az a Playspot, hallottál már róla?", photo: 2,
-      a: ["Kutyasétáltató app", "Sportpálya-foglaló platform", "Játszótér-értékelő oldal", "Online társasjáték"], c: 1,
-      info: "A playspot.hu-n sportpályákat lehet foglalni. Ha legközelebb focizni mész, már tudod, hol. Segíts Ádámnak és Dávidnak." },
-    { q: "Mi a neve a szelfigépes vállalkozásnak?", photo: 3,
-      a: ["SzelfiMe", "Selfiegepetberlek.hu", "Snapify", "Egy haveré, aki még nem tudja"], c: 2,
-      info: "Snapify a neve. Esküvőkre és bulikra viszi a szelfigépet." },
-    { q: "Melyik kerületben lakik Ádám?", photo: 4,
-      a: ["V.", "XIII.", "XI.", "VIII."], c: 2,
-      info: "Újbuda. Ha arra jársz, ugorj be. Mondjuk ne hajnali háromkor." },
-    { q: "Tudod, hol volt az eljegyzés?", photo: 7,
-      a: ["A Gellérthegyen", "Rómában", "Párizsban", "Nem is volt még"], c: 1,
-      info: "Nem is olyan régen volt, Rómában." },
-    { q: "Hány testvére van Ádámnak?", photo: 5,
-      a: ["Nincs testvére", "2", "3", "1"], c: 1,
-      info: "Kettő." }
-  ],
+  // --- Ki ez az Ádám? Hivatalos adatlap (szándékosan száraz és hosszú) ---
+  adamDoc: {
+    title: "Bach Ádám",
+    subtitle: "Hivatalos adatlap · kivonat · 2026. november 7.",
+    lead: "Jelen dokumentum Bach Ádám (a továbbiakban: Ádám) tárgyszerű, értékítélettől mentes bemutatását szolgálja. A dokumentum nem tartalmaz humoros elemeket. A dokumentum hossza szándékos. Az olvasás befejezését a dokumentum végén elhelyezett gomb megnyomásával lehet igazolni.",
+    sections: [
+      { h: "1. Azonosító adatok", rows: [
+        ["Teljes név", "Bach Ádám"],
+        ["Vezetéknév eredete", "Azonos Johann Sebastian Bach zeneszerző vezetéknevével. Rokoni kapcsolat nem igazolt. Ádám orgonán nem játszik."],
+        ["Születésnap", "November 7. (Ma.)"],
+        ["Születési év", "Nem nyilvános. Lásd: Kvízpiramis, 1. szint."],
+        ["Lakóhely", "Budapest, XI. kerület (Újbuda)."],
+        ["Testvérek száma", "2"],
+        ["Családi állapot", "Jegyes. Az eljegyzés helyszíne: Róma, 2026 ősze. A gyűjtés állása a kivetítőn követhető."],
+        ["Elsődleges kommunikációs nyelv", "Magyar, informális regiszter."],
+        ["Elsődleges munkaeszköz", "MacBook (Apple Silicon)."]
+      ]},
+      { h: "2. Főállás", rows: [
+        ["Munkahely", "Higiénia és Tisztaság Kft. (H&T), budapesti B2B tisztítószer- és higiéniai termék nagykereskedés. Webáruház: h-t.hu."],
+        ["Csapatlétszám", "Kb. 9–10 fő."],
+        ["Feladatkörök", "Informatika, folyamatfejlesztés, adatinfrastruktúra, pénzügyi elemzés, marketing."],
+        ["Megjegyzés", "A felsorolt feladatkörök száma (5) meghaladja az egy főre ajánlott feladatkörszámot (1). Az eltérés okát a dokumentum nem vizsgálja."]
+      ]},
+      { h: "3. Mellékvállalkozások", rows: [
+        ["3.1 Playspot", "Sportpálya-foglaló platform (playspot.hu). Ádám társalapító, a másik alapító Dávid. Támogatott sportágak: foci, squash, padel, tollaslabda, tenisz. A reklámfilmek állandó szereplője Tibi, egy vidéki teniszpálya-üzemeltető, aki mesterséges intelligenciával készült, és nem létezik."],
+        ["3.2 Snapify", "Szelfigép-szolgáltatás esküvőkre és rendezvényekre. A vállalkozás jelenleg két géppel rendelkezik. A ma esti szelfigép a vállalkozás tulajdona. A nyomat mérete 10 × 15 cm."],
+        ["3.3 Treasurely", "Korábbi nevén Varázskuckó. Gyerekeknek szóló kincskereső, szabadulószoba-jellegű termék."],
+        ["3.4 Egyéni vállalkozás", "Fő tevékenység: informatika. Másodlagos tevékenység: fényképészet."],
+        ["Összesítés", "A vállalkozások száma a főállással együtt 5. Az értékelés a dokumentum hatáskörén kívül esik."]
+      ]},
+      { h: "4. Munkamódszer", rows: [
+        ["Jegyzetrendszer", "Obsidian, PARA-elrendezésben: 10 — Projektek, 20 — Területek, 30 — Források, 40 — Archívum."],
+        ["Programozói végzettség", "Nincs. Saját megfogalmazása szerint mesterséges intelligencia nélkül a kódolásban hamar elvérezne."],
+        ["Jelen alkalmazás", "A fenti módszerrel, két hétnél rövidebb idő alatt készült. Adatbázis: Supabase. Kiszolgálás: GitHub Pages. Dizájn: képregény."]
+      ]},
+      { h: "5. Érdeklődési körök (betűrendben)", rows: [
+        ["Agrártechnológia", "A Clarkson's Farm című sorozat hatására. Kitűzött cél: kombájnos aratás élőben történő megtekintése Magyarországon."],
+        ["Filozófia", "Igen."],
+        ["Fotózás, videózás", "Eszköz: GoPro Hero 12 Black."],
+        ["Illatok", "Parfümök. Részletek nem állnak rendelkezésre."],
+        ["Motorok", "Régi motorok. Keresett típus: kb. 600 cm³-es túraenduró, betonra és erdőbe is."],
+        ["Technológia", "Lásd 2., 3. és 4. pont."],
+        ["Vintage ruházat", "Igen."],
+        ["Olvasási szokás", "A könyveket inkább hallgatja, mint olvassa. Jelen dokumentumot kivételesen olvasni kell."]
+      ]},
+      { h: "6. Utazások, 2026", rows: [
+        ["Ciprus", "Ayia Napa térsége, július 9–16. Kilencfős baráti társaság. Quad- és buggybérlés."],
+        ["Róma", "Október 19–24. Szállás a Vatikán közelében. 48 órás Vespa-bérlés. Az utazás során eljegyzés történt (lásd 1. pont)."]
+      ]},
+      { h: "7. Rendezvénytörténet", rows: [
+        ["Gyakoriság", "Évente egy születésnapi rendezvény, nagy létszámmal."],
+        ["Előzmény", "Szabadulószoba-jellegű, csapatos születésnapi nyomkereső."],
+        ["2026", "A tervezett feladatos játék időhiány miatt elmaradt. Helyette jelen alkalmazás készült."],
+        ["Helyszín", "Pacsi, Mester utca, alsó szint. Kezdés 19:00. Tánctér éjféltől."],
+        ["Meghívottak", "Kb. 50–60 fő."],
+        ["Kiegészítő tevékenység", "A kivetítőn gyűjtés zajlik. Részletek a kijelzőn."]
+      ]},
+      { h: "8. Számszerű adatok", rows: [
+        ["Szelfigépek", "2 db"],
+        ["H&T-feladatkörök", "5 db"],
+        ["Kvízpiramis szintjei", "10 db"],
+        ["Ital-kategóriák a piaszámlálóban", "4 db"],
+        ["Titkos bónuszok", "Nem nyilvános."],
+        ["Ádámmal folytatott beszélgetések a mai estén", "Folyamatosan bővül."]
+      ]},
+      { h: "9. Záró rendelkezések", rows: [
+        ["9.1", "Jelen adatlap tájékoztató jellegű."],
+        ["9.2", "A benne foglaltak nem helyettesítik a személyes beszélgetést."],
+        ["9.3", "Az adatlap hiányosságait Ádám a helyszínen, szóban pótolja."],
+        ["9.4", "Az adatlap végigolvasásáért 5 pont jár. A pontok nem válthatók készpénzre."]
+      ]}
+    ],
+    asciiTitle: "Mellékletek: fényképfelvételek ASCII-formátumban",
+    asciiNote: "A felvételek a nyomtatási költségek csökkentése érdekében karakterekből készültek.",
+    asciiStickers: [1, 2, 9],   // ezekből a matricákból (img/adam-N.jpg) készül ASCII-kép
+    countdown: ["Még három képernyő.", "Már csak kettő.", "Egy. Majdnem kész."],
+    readPts: 5,
+    readMinSeconds: 40,          // ennyi másodperc után nyomható meg az Elolvastam gomb
+    footer: "Pff, ha nem ismered, menj oda, és beszélgess vele..."
+  },
 
   // --- Témadobó: az érem két oldala ---
   dilemmas: [
@@ -202,7 +262,8 @@ window.CONTENT = {
   bonuses: [
     { id: "b_longdrink5", kind: "longdrink", at: 5, pts: 5, name: "Long drink-mester", t: "Titkos bónusz: 5. long drink" },
     { id: "b_feles3",     kind: "feles",     at: 3, pts: 3, name: "Feleshős",          t: "Titkos bónusz: 3. feles" },
-    { id: "b_viz3",       kind: "viz",       at: 3, pts: 2, name: "Vízfelelős",        t: "Titkos bónusz: 3 pohár víz" }
+    { id: "b_viz3",       kind: "viz",       at: 3, pts: 2, name: "Vízfelelős",        t: "Titkos bónusz: 3 pohár víz" },
+    { id: "b_olvaso",     kind: "olvas",     at: 0, pts: 5, name: "Végigolvasta Ádámot", t: "Végigolvasta Ádám adatlapját" }
   ],
 
   // --- Gyűjtés az esküvőre (ugyanaz, mint a progress.html kijelzőn) ---
@@ -597,6 +658,35 @@ body.tv .row .dr svg { width: 21px; height: 25px; }
 /* piramis kor-statisztika */
 .agestat { background: var(--c-lime); color: var(--c-black); border: var(--bd); box-shadow: var(--sh); border-radius: var(--r); padding: 12px 14px; font-weight: 700; display: grid; gap: 4px; }
 .agestat b { font: 28px/1 var(--font-display); font-weight: 400; letter-spacing: .03em; }
+/* Ki ez az Ádám? adatlap */
+.doc { display: grid; gap: 18px; }
+.doc-head { background: var(--c-paper); color: var(--c-black); border: 4px solid var(--c-black); box-shadow: 7px 7px 0 var(--c-black); border-radius: var(--r); padding: 16px; display: grid; gap: 8px; }
+.doc-head .k { font: 800 11px/1.2 var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--c-muted); }
+.doc-head h1 { font: 52px/.9 var(--font-display); letter-spacing: .02em; }
+.doc-head p { font: 600 15px/1.5 var(--font-body); color: #3d3846; }
+.doc-sec { background: var(--c-paper); color: var(--c-black); border: 3px solid var(--c-black); border-radius: var(--r); box-shadow: 5px 5px 0 var(--c-black); overflow: hidden; }
+.doc-sec h2 { font: 24px/1 var(--font-display); letter-spacing: .03em; background: var(--c-black); color: var(--c-lemon); padding: 9px 14px 6px; }
+.doc-sec dl { margin: 0; display: grid; }
+.doc-sec .r { display: grid; grid-template-columns: minmax(96px, 34%) minmax(0, 1fr); gap: 10px; padding: 9px 14px; border-top: 1.5px dashed #b8b09a; }
+.doc-sec .r:first-child { border-top: 0; }
+.doc-sec dt { font: 800 12px/1.35 var(--font-body); letter-spacing: .04em; text-transform: uppercase; color: var(--c-muted); }
+.doc-sec dd { margin: 0; font: 600 15px/1.45 var(--font-body); }
+.ascii-wrap { display: grid; gap: 14px; }
+.ascii-wrap h3 { font: 26px/1 var(--font-display); letter-spacing: .04em; color: var(--c-lemon); -webkit-text-stroke: 1px var(--c-black); text-shadow: 3px 3px 0 var(--c-black); }
+.ascii-wrap > p { color: var(--ink-dim); font-weight: 600; font-size: 14px; }
+.ascii { margin: 0; background: var(--c-black); color: var(--c-lime); border: 4px solid var(--c-black); outline: 3px solid var(--c-paper); outline-offset: -8px; box-shadow: 6px 6px 0 var(--c-lime); border-radius: var(--r); padding: 14px 10px; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; line-height: 1; letter-spacing: 0; white-space: pre; overflow: hidden; text-align: center; }
+.ascii.alt { color: var(--c-lemon); box-shadow: 6px 6px 0 var(--c-pop); }
+.ascii.alt2 { color: var(--c-paper); box-shadow: 6px 6px 0 var(--c-lemon); }
+.ascii-cap { font: 800 11px/1.2 var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); text-align: center; margin-top: -4px; }
+.cd { min-height: 88vh; display: grid; place-items: center; align-content: center; gap: 10px; text-align: center; }
+.cd b { font: 260px/.8 var(--font-display); color: var(--c-lemon); -webkit-text-stroke: 4px var(--c-black); text-shadow: 10px 10px 0 var(--c-black); paint-order: stroke fill; }
+.cd:nth-of-type(2) b { color: var(--c-lime); }
+.cd:nth-of-type(3) b { color: var(--c-pop); }
+.cd span { font: 800 14px/1.2 var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-dim); }
+.read-end { display: grid; gap: 14px; justify-items: center; text-align: center; padding-block: 10px 30px; }
+.read-end .btn { font-size: 34px; padding: 16px 26px 12px; }
+.read-end .pff { font: 24px/1.15 var(--font-display); letter-spacing: .03em; color: var(--c-paper); max-width: 22ch; }
+.read-end .wait { font: 700 13px/1.3 var(--font-body); color: var(--ink-faint); }
 .club { width: 100%; text-align: left; background: var(--c-paper); color: var(--c-black); border: var(--bd); border-radius: var(--r); box-shadow: var(--sh); padding: 10px 14px; }
 .club summary { font: 22px/1.1 var(--font-display); letter-spacing: .03em; cursor: pointer; }
 .club ol { margin: 8px 0 2px; padding-left: 22px; display: grid; gap: 3px; font-weight: 700; }
@@ -1018,7 +1108,7 @@ function render() {
   const v = S.view;
   if (v === "home") return renderHome();
   if (v === "quests") return renderQuests();
-  if (v === "adamquiz") return renderAdamQuiz();
+  if (v === "adamquiz") return renderAdamRead();
   if (v === "topics") return renderTopics();
   if (v === "pyramid") return renderPyramid();
   if (v === "activity") return renderActivity();
@@ -1100,7 +1190,7 @@ function homeBoardHTML() {
 }
 function mainBigHTML() { const rank = myRank(); return `${fmtPts(myPoints())}<small>pont${rank ? " · " + rank + ". hely" : ""}</small>`; }
 function mainKText() { const doneQ = K.quests.filter(q => S.done.has(q.id)).length; return doneQ ? doneQ + " kész / " + K.quests.length : "Kezdd itt"; }
-function adamKText() { return `${K.adamQuiz.length} kérdés a szülinaposról${S.adamAll != null ? ` · ${S.adamAll} vendég mindent tud` : ""}`; }
+function adamKText() { return `Hosszú olvasmány · +${K.adamDoc.readPts} pont${S.adamAll != null ? ` · ${S.adamAll} vendég végigolvasta` : ""}`; }
 // Csak a változó részeket frissíti, így a főoldal nem ugrik és a görgetés is megmarad
 function setHTML(id, html) { const el = document.getElementById(id); if (el && el.innerHTML !== html) el.innerHTML = html; }
 function patchHome() {
@@ -1133,7 +1223,7 @@ function renderHome() {
       <div id="homeboard">${homeBoardHTML()}</div>
     </section>
     <nav class="menu" style="margin-top:26px">
-      <button class="tile" data-go="adamquiz" style="grid-column:1/-1;min-height:0"><span class="k" id="adamk">${esc(adamKText())}</span><div style="display:grid;gap:6px"><h2>Ki ez az Ádám?</h2><p>Mennyire ismered? Képekkel és pár sztorival.</p></div></button>
+      <button class="tile" data-go="adamquiz" style="grid-column:1/-1;min-height:0"><span class="k" id="adamk">${esc(adamKText())}</span><div style="display:grid;gap:6px"><h2>Ki ez az Ádám?</h2><p>A szülinapos hivatalos adatlapja. Végig kell olvasni.</p></div></button>
     </nav>
     <section class="section">
       <h3>A szülinapos, véletlenszerűen</h3>
@@ -1319,7 +1409,7 @@ let drinkBusy = false, drinkQ = Promise.resolve();
 function queueDrink(fn) { drinkQ = drinkQ.then(fn).catch(console.warn); }
 function piaHTML() {
   const alc = S.drinks.filter(d => d.kind !== "viz").length;
-  const got = (K.bonuses || []).filter(b => S.done.has(b.id));
+  const got = (K.bonuses || []).filter(b => S.done.has(b.id) && K.drinks.some(d => d.k === b.kind));
   return `<section class="pia" id="pia" aria-label="Piaszámláló">
     <div class="pia-head"><div style="display:grid;gap:6px"><span class="k">Mindegyik külön számít</span><h2>Pia&shy;számláló</h2></div>
       <div class="big">${alc}<small>ital ma este</small></div></div>
@@ -1385,46 +1475,105 @@ async function adamStats() {
 function adamClubHTML(st) {
   if (!st) return "";
   const names = st.perfect.map(r => r.player_name);
-  return `<div class="agestat" style="width:100%;text-align:left"><b>${st.perfect.length} / ${st.total} mindent tud</b>Ennyien válaszoltak elsőre minden kérdésre jól a szülinaposról.</div>
-    ${names.length ? `<details class="club"><summary>Mindent tudók klubja (${names.length})</summary><ol>${names.map(n => `<li>${esc(n)}</li>`).join("")}</ol></details>` : ""}`;
+  return `<div class="agestat" style="width:100%;text-align:left"><b>${st.perfect.length} vendég végigolvasta</b>Ennyien vették a fáradtságot, hogy végigmenjenek az adatlapon.</div>
+    ${names.length ? `<details class="club" open><summary>Végigolvasók klubja (${names.length})</summary><ol>${names.map(n => `<li>${esc(n)}</li>`).join("")}</ol></details>` : ""}`;
 }
-async function renderAdamQuiz() {
+let readStart = 0, readTick = null;
+async function renderAdamRead() {
   if (S.view !== "adamquiz") return;
-  if (!aq) {
-    $app.innerHTML = `${header()}<p class="empty">Betöltés…</p>`;
-    const prev = await store.getScore(S.me.id, "adam").catch(() => null);
-    if (S.view !== "adamquiz") return;
-    aq = aq || { i: 0, score: 0, answered: null, marks: [], prev };
-  }
-  const st = aq, Q = K.adamQuiz;
-  if (st.i >= Q.length) {
-    if (!st.saved) {
-      st.saved = true;
-      (st.prev ? Promise.resolve() : store.saveScore(S.me, "adam", st.score, Q.length).catch(console.warn))
-        .then(() => adamStats()).then(x => { st.stats = x; if (S.view === "adamquiz") renderAdamQuiz(); });
+  const D = K.adamDoc;
+  if (!readStart) readStart = Date.now();
+  const done = S.done.has("b_olvaso");
+  const photos = (D.asciiStickers || []).filter(n => STK.includes(Number(n))).map(n => stkSrc(n));
+  $app.innerHTML = `${header()}<article class="doc">
+    <header class="doc-head"><span class="k">${esc(D.subtitle)}</span><h1>${esc(D.title)}</h1><p>${esc(D.lead)}</p></header>
+    ${D.sections.map(sec => `<section class="doc-sec"><h2>${esc(sec.h)}</h2><dl>${sec.rows.map(([k, v]) => `<div class="r"><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl></section>`).join("")}
+    <section class="ascii-wrap"><h3>${esc(D.asciiTitle)}</h3><p>${esc(D.asciiNote)}</p>
+      ${(photos.length ? photos : [null]).map((src, i) => `<pre class="ascii ${["", "alt", "alt2"][i % 3]}" data-src="${esc(src || "")}" aria-label="Ádám, karakterekből">${esc(ASCII_FALLBACK)}</pre><p class="ascii-cap">${i + 1}. melléklet</p>`).join("")}
+    </section>
+    ${D.countdown.map((t, i) => `<section class="cd" aria-hidden="true"><b>${3 - i}</b><span>${esc(t)}</span></section>`).join("")}
+    <section class="read-end" id="readEnd">
+      ${done ? `<button class="btn gold" disabled>Elolvastad · +${D.readPts} p</button>`
+             : `<button class="btn" data-act="readdone" id="readBtn">Elolvastam</button><p class="wait" id="readWait"></p>`}
+      <p class="pff">${esc(D.footer)}</p>
+      <div id="readClub" style="width:100%"></div>
+    </section>
+  </article>`;
+  document.querySelectorAll("pre.ascii[data-src]").forEach(pre => { if (pre.dataset.src) asciiFromImage(pre.dataset.src, pre); fitAscii(pre); });
+  clearInterval(readTick);
+  if (!done) { updateReadBtn(); readTick = setInterval(updateReadBtn, 1000); }
+  if (done) adamStats().then(st => { const el = document.getElementById("readClub"); if (el) el.innerHTML = adamClubHTML(st); });
+}
+function updateReadBtn() {
+  const btn = document.getElementById("readBtn"), w = document.getElementById("readWait");
+  if (!btn || S.view !== "adamquiz") { clearInterval(readTick); return; }
+  const left = Math.ceil((K.adamDoc.readMinSeconds * 1000 - (Date.now() - readStart)) / 1000);
+  if (left > 0) { btn.disabled = true; w.textContent = `Ilyen gyorsan senki nem olvas. Még ${left} mp.`; }
+  else { btn.disabled = false; w.textContent = `+${K.adamDoc.readPts} pont jár érte.`; clearInterval(readTick); }
+}
+async function claimRead() {
+  if (S.busy || S.done.has("b_olvaso")) return; S.busy = true;
+  const b = K.bonuses.find(x => x.id === "b_olvaso");
+  try {
+    const c = await store.complete(S.me, { id: b.id, pts: b.pts }, null);
+    S.done.set(b.id, c);
+    await store.saveScore(S.me, "adam", 1, 1).catch(console.warn);
+    refreshBoard();
+    toast(`+${b.pts} pont! Végigolvastad.`);
+  } catch (e) {
+    if (String(e.message).includes("dup") || e.code === "23505") { await refreshMine(); }
+    else { toast("Nem sikerült menteni. Próbáld újra."); }
+  } finally { S.busy = false; if (S.view === "adamquiz") { renderAdamRead(); const el = document.getElementById("readEnd"); if (el) el.scrollIntoView({ block: "center" }); } }
+}
+// ASCII: a fotót vászonra rajzolja, és fényesség szerint karakterekre cseréli
+const ASCII_RAMP = " .:-=+*#%@";
+const ASCII_FALLBACK = [
+"        .-''''''''-.        ",
+"      .'   .----.   '.      ",
+"     /    /      \\    \\     ",
+"    |    |  O  O  |    |    ",
+"    |    |   __   |    |    ",
+"    |     \\ \\__/ /     |    ",
+"     \\     '----'     /     ",
+"      '.            .'      ",
+"        '-.______.-'        ",
+"          /|ÁDÁM|\\          ",
+"         / | 29? | \\         ",
+"           |_____|           ",
+"     (a fotó hamarosan)      "].join("\n");
+function asciiFromImage(src, pre) {
+  const img = new Image();
+  img.onload = () => {
+    // a matrica szélén a fehér keret és a sötét háttér van: a középső részt vágjuk ki
+    const sx = img.width * 0.08, sy = img.height * 0.04, sw = img.width * 0.84, sh = img.height * 0.80;
+    const cols = 56, ratio = 0.5;
+    const rows = Math.max(1, Math.round(cols * (sh / sw) * ratio));
+    const cv = document.createElement("canvas"); cv.width = cols; cv.height = rows;
+    const ctx = cv.getContext("2d", { willReadFrequently: true });
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, cols, rows);
+    let data;
+    try { data = ctx.getImageData(0, 0, cols, rows).data; } catch (e) { return; }
+    const lum = [];
+    for (let i = 0; i < data.length; i += 4) lum.push(0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]);
+    // kontraszt: a legsötétebb és legvilágosabb 4%-ot levágjuk, a többit kiterítjük a teljes skálára
+    const sorted = lum.slice().sort((a, b) => a - b), N = sorted.length;
+    const lo = sorted[Math.floor(N * 0.04)], hi = sorted[Math.floor(N * 0.96)], span = Math.max(1, hi - lo);
+    const rank = v => Math.min(1, Math.max(0, (v - lo) / span));
+    let out = "";
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) { const t = rank(lum[y * cols + x]); out += ASCII_RAMP[Math.min(ASCII_RAMP.length - 1, Math.floor(t * ASCII_RAMP.length))]; }
+      out += "\n";
     }
-    const msg = st.score === Q.length ? "Ez már gyanús. Te vagy Ádám?" : st.score >= Q.length - 1 ? "Közeli barát vagy, vagy nagyon figyelsz." : st.score >= 2 ? "Van mit pótolni. Menj oda hozzá, és kérdezd ki." : "Most ismerted meg? Itt az ideje bemutatkozni.";
-    $app.innerHTML = `${header()}<section class="result">
-      <span class="step">Ki ez az Ádám?</span>
-      <div class="score">${st.score}/${Q.length}</div>
-      <p>${esc(msg)}${st.prev ? " Ez már nem az első kitöltésed, a statisztikába az első számít." : ""}</p>
-      ${adamClubHTML(st.stats)}
-      ${photoHTML(7, "wide")}
-      <div class="btn-row" style="width:100%"><button class="btn ghost" data-act="aq-again">Újra</button><button class="btn" data-go="home">Főoldal</button></div>
-    </section>`;
-    return;
-  }
-  const item = Q[st.i], ans = st.answered;
-  $app.innerHTML = `${header()}<section class="quiz">
-    <div class="qhead"><span>Ki ez az Ádám? · ${st.i + 1}/${Q.length}</span><span class="dots">${Q.map((_, k) => `<i class="${st.marks[k] === true ? "ok" : st.marks[k] === false ? "bad" : k === st.i ? "cur" : ""}"></i>`).join("")}</span></div>
-    ${photoHTML(st.i, "wide", item.photo)}
-    <h2>${esc(item.q)}</h2>
-    <div class="choices">${item.a.map((t, k) => {
-      const cls = ans === null ? "" : k === item.c ? "right" : k === ans ? "wrong" : "";
-      return `<button class="opt ${cls}" data-act="aq" data-k="${k}" ${ans !== null ? "disabled" : ""}><span class="l">${"ABCD"[k]}</span>${esc(t)}</button>`;
-    }).join("")}</div>
-    ${ans !== null ? `<div class="info"><b>${ans === item.c ? "Talált" : "Nem egészen"}</b>${esc(item.info)}</div><button class="btn block" data-act="aq-next">${st.i + 1 < Q.length ? "Következő" : "Eredmény"}</button>` : ""}
-  </section>`;
+    pre.textContent = out.trimEnd();
+    fitAscii(pre);
+  };
+  img.src = src;
+}
+function fitAscii(pre) {
+  const lines = pre.textContent.split("\n");
+  const cols = Math.max(...lines.map(l => l.length)) || 1;
+  const w = pre.clientWidth - 20;
+  pre.style.fontSize = Math.max(4, Math.min(14, w / (cols * 0.6))) + "px";
 }
 
 /* ---------- Témadobó ---------- */
@@ -1618,7 +1767,7 @@ document.addEventListener("click", async ev => {
   if (el.dataset.act === "close-scrim") { if (ev.target === el) closeSheet(); return; }
   if (el.dataset.go) {
     const v = el.dataset.go;
-    if (v === "adamquiz") aq = null;
+    if (v === "adamquiz") readStart = 0;
     if (P && P.timer) clearInterval(P.timer);
     if (v === "pyramid" || S.view === "pyramid") P = null;
     closeSheet();
@@ -1677,9 +1826,7 @@ document.addEventListener("click", async ev => {
     catch (e) { toast("Nem sikerült. Próbáld újra."); }
     return;
   }
-  if (a === "aq") { if (aq.answered !== null) return; const k = Number(el.dataset.k); aq.answered = k; const ok = k === K.adamQuiz[aq.i].c; aq.marks[aq.i] = ok; if (ok) aq.score++; renderAdamQuiz(); return; }
-  if (a === "aq-next") { aq.i++; aq.answered = null; renderAdamQuiz(); window.scrollTo(0, 0); return; }
-  if (a === "aq-again") { aq = { i: 0, score: 0, answered: null, marks: [], prev: true, stats: aq && aq.stats }; renderAdamQuiz(); return; }
+  if (a === "readdone") { claimRead(); return; }
   if (a === "ttab") { T.tab = el.dataset.t; renderTopics(); return; }
   if (a === "newd") { let n; do { n = pick(K.dilemmas); } while (n === T.d && K.dilemmas.length > 1); T.d = n; T.assign = null; renderTopics(); return; }
   if (a === "newice") { let n; do { n = pick(K.icebreakers); } while (n === T.ice && K.icebreakers.length > 1); T.ice = n; renderTopics(); return; }
@@ -1697,7 +1844,7 @@ document.addEventListener("click", async ev => {
 async function renderTV() {
   document.body.classList.add("tv");
   $app.innerHTML = `<div class="tvgrid">
-    <div class="tvtitle"><h1>ÁDÁM <span>SIDE QUESTEK</span></h1><div class="meta-row"><span>2026. nov. 7.</span><span>Pacsi</span><span id="tvq">– quest</span><span id="tvd">– ital</span><span id="tva">– kor-tipp</span><span id="tvall">– mindent tud</span>${LIVE ? "" : "<span>Demó</span>"}</div></div>
+    <div class="tvtitle"><h1>ÁDÁM <span>SIDE QUESTEK</span></h1><div class="meta-row"><span>2026. nov. 7.</span><span>Pacsi</span><span id="tvq">– quest</span><span id="tvd">– ital</span><span id="tva">– kor-tipp</span><span id="tvall">– végigolvasta</span>${LIVE ? "" : "<span>Demó</span>"}</div></div>
     <div class="tvcol"><h3>Ranglista</h3><div class="board" id="tvboard"></div></div>
     <div class="tvcol"><h3>Kvízpiramis csúcsai</h3><div class="board" id="tvpyr"></div><h3 style="margin-top:10px">Most történt</h3><div class="feed" id="tvfeed"></div></div>
     <div class="tvcol"><div class="qrbox"><b>Szállj be te is</b><div id="qr"></div></div><h3>Buli fotók</h3><div class="wall" id="tvwall"></div></div>
@@ -1709,7 +1856,7 @@ async function renderTV() {
       if (qn !== null) document.getElementById("tvq").textContent = qn + " kész quest";
       if (dn !== null) document.getElementById("tvd").textContent = dn + " ital";
       const as = await ageStats(); if (as.total) document.getElementById("tva").textContent = `${as.older} idősebbnek · ${as.younger} fiatalabbnak gondolja`;
-      const ad = await adamStats(); document.getElementById("tvall").textContent = `${ad.perfect.length} mindent tud Ádámról`;
+      const ad = await adamStats(); document.getElementById("tvall").textContent = `${ad.perfect.length} végigolvasta Ádámot`;
       document.getElementById("tvboard").innerHTML = board.length ? board.map((r, i) => boardRow(r, i)).join("") : `<div class="empty">Még üres. Olvasd be a QR-kódot!</div>`;
       document.getElementById("tvpyr").innerHTML = pyr.filter(r => Number(r.score) > 0).length ? pyr.filter(r => Number(r.score) > 0).map((r, i) => boardRow({ ...r, name: r.player_name }, i, `${fmtPts(Number(r.score) / 2)} p`, true)).join("") : `<div class="empty">Még senki nem mászott.</div>`;
       document.getElementById("tvfeed").innerHTML = feed.map(c => { const q = questById(c.quest_id); return `<div><b>${esc(c.player_name)}</b> +${c.points} p · ${esc(q ? (q.name ? q.name + " (titkos bónusz)" : q.t) : "")}<small>${ago(c.created_at)}</small></div>`; }).join("") || `<div class="empty">Itt jelennek meg a teljesített questek.</div>`;
@@ -1740,6 +1887,7 @@ async function boot() {
   document.addEventListener("visibilitychange", () => { if (!document.hidden && S.me) { refreshMine().then(refreshBoard); } });
 }
 window.addEventListener("hashchange", () => location.reload());
+window.addEventListener("resize", () => document.querySelectorAll("pre.ascii").forEach(fitAscii));
 boot();
 })();
 </script>
