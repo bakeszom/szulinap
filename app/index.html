@@ -108,7 +108,7 @@ window.CONTENT = {
   adamDoc: {
     title: "Bach Ádám",
     subtitle: "Hivatalos adatlap · kivonat · 2026. november 7.",
-    lead: "Jelen dokumentum Bach Ádám (a továbbiakban: Ádám) tárgyszerű, értékítélettől mentes bemutatását szolgálja. A dokumentum nem tartalmaz humoros elemeket. A dokumentum hossza szándékos. Az olvasás befejezését a dokumentum végén elhelyezett gomb megnyomásával lehet igazolni.",
+    lead: "Jelen dokumentum Bach Ádám (a továbbiakban: Ádám) tárgyszerű, értékítélettől mentes bemutatását szolgálja. A dokumentum nem tartalmaz humoros elemeket. A dokumentum hossza szándékos.",
     sections: [
       { h: "1. Azonosító adatok", rows: [
         ["Teljes név", "Bach Ádám"],
@@ -151,7 +151,10 @@ window.CONTENT = {
       ]},
       { h: "6. Utazások, 2026", rows: [
         ["Ciprus", "Ayia Napa térsége, július 9–16. Kilencfős baráti társaság. Quad- és buggybérlés."],
-        ["Róma", "Október 19–24. Szállás a Vatikán közelében. 48 órás Vespa-bérlés. Az utazás során eljegyzés történt (lásd 1. pont)."]
+        ["Róma", "Október 19–24. Szállás a Vatikán közelében. 48 órás Vespa-bérlés. Az utazás során eljegyzés történt (lásd 1. pont)."],
+        ["Zadar", "Horvátország. Igen."],
+        ["Belföld", "Abony, Balatonfüred, Dunaújváros, Gyula, Pálosvörösmart, Siófok."],
+        ["Összesítés", "Legalább 9 helyszín egy éven belül. A lista nem teljes."]
       ]},
       { h: "7. Rendezvénytörténet", rows: [
         ["Gyakoriság", "Évente egy születésnapi rendezvény, nagy létszámmal."],
@@ -172,8 +175,7 @@ window.CONTENT = {
       { h: "9. Záró rendelkezések", rows: [
         ["9.1", "Jelen adatlap tájékoztató jellegű."],
         ["9.2", "A benne foglaltak nem helyettesítik a személyes beszélgetést."],
-        ["9.3", "Az adatlap hiányosságait Ádám a helyszínen, szóban pótolja."],
-        ["9.4", "Az adatlap végigolvasásáért 5 pont jár. A pontok nem válthatók készpénzre."]
+        ["9.3", "Az adatlap hiányosságait Ádám a helyszínen, szóban pótolja."]
       ]}
     ],
     asciiTitle: "Mellékletek: fényképfelvételek ASCII-formátumban",
@@ -1190,7 +1192,7 @@ function homeBoardHTML() {
 }
 function mainBigHTML() { const rank = myRank(); return `${fmtPts(myPoints())}<small>pont${rank ? " · " + rank + ". hely" : ""}</small>`; }
 function mainKText() { const doneQ = K.quests.filter(q => S.done.has(q.id)).length; return doneQ ? doneQ + " kész / " + K.quests.length : "Kezdd itt"; }
-function adamKText() { return `Hosszú olvasmány · +${K.adamDoc.readPts} pont${S.adamAll != null ? ` · ${S.adamAll} vendég végigolvasta` : ""}`; }
+function adamKText() { return `Hosszú olvasmány${S.adamAll != null ? ` · ${S.adamAll} vendég végigolvasta` : ""}`; }
 // Csak a változó részeket frissíti, így a főoldal nem ugrik és a görgetés is megmarad
 function setHTML(id, html) { const el = document.getElementById(id); if (el && el.innerHTML !== html) el.innerHTML = html; }
 function patchHome() {
@@ -1509,7 +1511,7 @@ function updateReadBtn() {
   if (!btn || S.view !== "adamquiz") { clearInterval(readTick); return; }
   const left = Math.ceil((K.adamDoc.readMinSeconds * 1000 - (Date.now() - readStart)) / 1000);
   if (left > 0) { btn.disabled = true; w.textContent = `Ilyen gyorsan senki nem olvas. Még ${left} mp.`; }
-  else { btn.disabled = false; w.textContent = `+${K.adamDoc.readPts} pont jár érte.`; clearInterval(readTick); }
+  else { btn.disabled = false; w.textContent = ""; clearInterval(readTick); }
 }
 async function claimRead() {
   if (S.busy || S.done.has("b_olvaso")) return; S.busy = true;
